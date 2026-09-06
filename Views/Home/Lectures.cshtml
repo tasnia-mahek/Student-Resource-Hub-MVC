@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Lectures";
+}
+
+<div class="catalog-layout">
+    <aside class="filter-panel">
+        <div class="filter-title"><h2>Filters</h2><button type="button">Clear all</button></div>
+        <fieldset><legend>Department</legend><label><input type="checkbox" /> Computer Science</label><label><input type="checkbox" /> Engineering</label><label><input type="checkbox" /> Mathematics</label><label><input type="checkbox" /> Physics</label><label><input type="checkbox" /> Chemistry</label><label><input type="checkbox" /> Business</label></fieldset>
+        <fieldset><legend>Level</legend><label><input type="checkbox" /> Undergraduate</label><label><input type="checkbox" /> Graduate</label></fieldset>
+    </aside>
+    <section class="catalog-content">
+        <div class="catalog-heading"><div><span class="eyebrow">RESOURCE LIBRARY</span><h1>Recorded Lectures</h1><p>Learn from courses taught by leading professors.</p></div><select aria-label="Sort lectures"><option>Most popular</option><option>Newest first</option></select></div>
+        <div class="lecture-grid">
+            <article class="lecture-card"><div class="lecture-thumb thumb-blue"><span>▶</span><small>1:24:32</small></div><div class="card-body"><span class="subject-tag">Computer Science</span><h2>Introduction to Machine Learning</h2><p>CS-501</p><small>Prof. Dr. Sarah Johnson <b>· 2,341 views</b></small></div></article>
+            <article class="lecture-card"><div class="lecture-thumb thumb-gold"><span>▶</span><small>58:15</small></div><div class="card-body"><span class="subject-tag">Mathematics</span><h2>Linear Algebra - Eigenvalues and Eigenvectors</h2><p>MATH-202</p><small>Prof. Dr. Michael Chen <b>· 1,876 views</b></small></div></article>
+            <article class="lecture-card"><div class="lecture-thumb thumb-teal"><span>▶</span><small>1:12:45</small></div><div class="card-body"><span class="subject-tag">Physics</span><h2>Thermodynamics - First Law Applications</h2><p>PHY-301</p><small>Prof. Dr. Emily Rodriguez <b>· 1,543 views</b></small></div></article>
+            <article class="lecture-card"><div class="lecture-thumb thumb-red"><span>▶</span><small>45:30</small></div><div class="card-body"><span class="subject-tag">Business</span><h2>Microeconomics - Supply and Demand</h2><p>BUS-201</p><small>Prof. Dr. James Wilson <b>· 2,012 views</b></small></div></article>
+            <article class="lecture-card"><div class="lecture-thumb thumb-violet"><span>▶</span><small>1:35:20</small></div><div class="card-body"><span class="subject-tag">Computer Science</span><h2>Database Systems - SQL Advanced Queries</h2><p>CS-302</p><small>Prof. Dr. Amanda Lee <b>· 1,923 views</b></small></div></article>
+            <article class="lecture-card"><div class="lecture-thumb thumb-green"><span>▶</span><small>1:08:15</small></div><div class="card-body"><span class="subject-tag">Chemistry</span><h2>Organic Chemistry - Reaction Mechanisms</h2><p>CHEM-302</p><small>Prof. Dr. Robert Taylor <b>· 1,654 views</b></small></div></article>
+        </div>
+    </section>
+</div>
