@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<section class="home-hero">
+    <div class="hero-copy">
+        <h1>Welcome to StudyHub</h1>
+        <p>Your one-stop platform for academic resources</p>
+    </div>
+</section>
+
+<section class="stats-grid" aria-label="StudyHub statistics">
+    <div class="stat-card"><div><span>Total Resources</span><strong>1,234</strong></div><b class="stat-icon">▤</b></div>
+    <div class="stat-card"><div><span>Active Users</span><strong>5,678</strong></div><b class="stat-icon">♙</b></div>
+    <div class="stat-card"><div><span>This Week</span><strong>89</strong></div><b class="stat-icon">↗</b></div>
+    <div class="stat-card"><div><span>Top Rated</span><strong>156</strong></div><b class="stat-icon">★</b></div>
+</section>
+
+<section class="activity-section">
+    <div class="section-heading"><h2>Recent Activity</h2><a asp-action="PastPapers">View all</a></div>
+    <div class="activity-list">
+        <div class="activity-row"><span class="activity-type paper">▤</span><div><strong>Data Structures Final Exam 2024</strong><small>CS-201</small></div><time>2 hours ago</time></div>
+        <div class="activity-row"><span class="activity-type lecture">▣</span><div><strong>Advanced Algorithms - Lecture 15</strong><small>CS-401</small></div><time>5 hours ago</time></div>
+        <div class="activity-row"><span class="activity-type note">▥</span><div><strong>Calculus III Complete Notes</strong><small>MATH-301</small></div><time>1 day ago</time></div>
+        <div class="activity-row"><span class="activity-type paper">▤</span><div><strong>Physics Midterm Spring 2024</strong><small>PHY-102</small></div><time>2 days ago</time></div>
+    </div>
+</section>
+
+<section class="quick-links">
+    <a asp-action="PastPapers"><span>▤</span><div><h2>Browse Past Papers</h2><p>Access thousands of previous year question papers</p></div><b>→</b></a>
+    <a asp-action="Lectures"><span>▣</span><div><h2>Watch Lectures</h2><p>Learn from recorded lectures by top professors</p></div><b>→</b></a>
+    <a asp-action="Notes"><span>▥</span><div><h2>Study Notes</h2><p>Download comprehensive notes shared by students</p></div><b>→</b></a>
+</section>

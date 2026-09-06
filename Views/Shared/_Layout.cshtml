@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - StudyHub</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="site-header">
+        <div class="container-fluid site-header-inner">
+            <a class="brand" asp-controller="Home" asp-action="Index" aria-label="StudyHub home">
+                <span class="brand-mark">▣</span><span>StudyHub</span>
+            </a>
+            <label class="search-box" aria-label="Search resources">
+                <span class="search-icon">⌕</span>
+                <input type="search" placeholder="Search for courses, notes, or past papers..." />
+            </label>
+            <div class="header-actions">
+                <button class="icon-button notification-button" type="button" aria-label="Notifications"><span>♧</span><i></i></button>
+                <button class="icon-button" type="button" aria-label="Profile">♙</button>
+            </div>
+        </div>
+        <nav class="resource-nav" aria-label="Resource navigation">
+            <div class="resource-nav-inner">
+                <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index" aria-label="Home">⌂</a>
+                <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "PastPapers" ? "active" : "")" asp-controller="Home" asp-action="PastPapers" aria-label="Past papers">▤</a>
+                <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Lectures" ? "active" : "")" asp-controller="Home" asp-action="Lectures" aria-label="Lectures">▣</a>
+                <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Notes" ? "active" : "")" asp-controller="Home" asp-action="Notes" aria-label="Notes">▥</a>
+                <a href="#" aria-label="Saved resources">☆</a>
+            </div>
+        </nav>
+    </header>
+    <div class="page-shell">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="site-footer">&copy; 2026 StudyHub</footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
