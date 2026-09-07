@@ -1,0 +1,52 @@
+@model student_resource_hub.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<section class="auth-page">
+    <div class="auth-card">
+        <div class="auth-intro">
+            <span class="auth-kicker">STUDYHUB ACCOUNT</span>
+            <h1>Welcome back</h1>
+            <p>Sign in to continue your learning journey.</p>
+        </div>
+
+        @if (TempData["SuccessMessage"] is string successMessage)
+        {
+            <div class="auth-success" role="status">@successMessage</div>
+        }
+        <div asp-validation-summary="ModelOnly" class="auth-validation" role="alert"></div>
+        <form asp-action="Login" method="post" class="auth-form">
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div class="auth-field">
+                <label asp-for="Email">Email</label>
+                <input asp-for="Email" type="email" autocomplete="email" placeholder="you@example.com" />
+                <span asp-validation-for="Email"></span>
+            </div>
+            <div class="auth-field">
+                <label asp-for="Password">Password</label>
+                <input asp-for="Password" type="password" autocomplete="current-password" placeholder="Enter your password" />
+                <span asp-validation-for="Password"></span>
+            </div>
+            <fieldset class="role-picker">
+                <legend>Login as</legend>
+                <div class="role-options">
+                    @foreach (var role in new[] { "Student", "Admin", "CR" })
+                    {
+                        <label class="role-option">
+                            <input asp-for="Role" type="radio" value="@role" />
+                            <span>@role</span>
+                        </label>
+                    }
+                </div>
+                <span asp-validation-for="Role"></span>
+            </fieldset>
+            <button class="auth-submit" type="submit">Login</button>
+        </form>
+        <p class="auth-switch">Don't have an account? <a asp-action="Register">Create one</a></p>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

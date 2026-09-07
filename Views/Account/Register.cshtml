@@ -1,0 +1,58 @@
+@model student_resource_hub.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<section class="auth-page">
+    <div class="auth-card auth-card-register">
+        <div class="auth-intro">
+            <span class="auth-kicker">JOIN STUDYHUB</span>
+            <h1>Create your account</h1>
+            <p>Choose your role and make every study session count.</p>
+        </div>
+        <div asp-validation-summary="ModelOnly" class="auth-validation" role="alert"></div>
+        <form asp-action="Register" method="post" class="auth-form">
+            <div class="auth-field">
+                <label asp-for="FullName">Full name</label>
+                <input asp-for="FullName" autocomplete="name" placeholder="Your full name" />
+                <span asp-validation-for="FullName"></span>
+            </div>
+            <div class="auth-field">
+                <label asp-for="Email">Email</label>
+                <input asp-for="Email" type="email" autocomplete="email" placeholder="you@example.com" />
+                <span asp-validation-for="Email"></span>
+            </div>
+            <div class="auth-field-row">
+                <div class="auth-field">
+                    <label asp-for="Password">Password</label>
+                    <input asp-for="Password" type="password" autocomplete="new-password" placeholder="8+ characters" />
+                    <span asp-validation-for="Password"></span>
+                </div>
+                <div class="auth-field">
+                    <label asp-for="ConfirmPassword">Confirm password</label>
+                    <input asp-for="ConfirmPassword" type="password" autocomplete="new-password" placeholder="Repeat password" />
+                    <span asp-validation-for="ConfirmPassword"></span>
+                </div>
+            </div>
+            <fieldset class="role-picker">
+                <legend>Register as</legend>
+                <div class="role-options">
+                    @foreach (var role in new[] { "Student", "Admin", "CR" })
+                    {
+                        <label class="role-option">
+                            <input asp-for="Role" type="radio" value="@role" />
+                            <span>@role</span>
+                        </label>
+                    }
+                </div>
+                <span asp-validation-for="Role"></span>
+            </fieldset>
+            <button class="auth-submit" type="submit">Create account</button>
+        </form>
+        <p class="auth-switch">Already have an account? <a asp-action="Login">Sign in</a></p>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
