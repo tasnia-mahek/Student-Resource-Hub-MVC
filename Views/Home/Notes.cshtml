@@ -1,17 +1,209 @@
 @{
-    ViewData["Title"] = "Notes";
+    ViewData["Title"] = "Study Notes";
 }
 
-<div class="catalog-layout document-catalog">
-    <aside class="filter-panel"><div class="filter-title"><h2>Filters</h2><button type="button">Clear all</button></div><fieldset><legend>Department</legend><label><input type="checkbox" /> Computer Science</label><label><input type="checkbox" /> Engineering</label><label><input type="checkbox" /> Mathematics</label><label><input type="checkbox" /> Physics</label><label><input type="checkbox" /> Chemistry</label><label><input type="checkbox" /> Business</label></fieldset><fieldset><legend>Rating</legend><label><input type="checkbox" /> 4 stars &amp; up</label><label><input type="checkbox" /> 3 stars &amp; up</label></fieldset></aside>
-    <section class="catalog-content"><div class="catalog-heading"><div><span class="eyebrow">RESOURCE LIBRARY</span><h1>Study Notes</h1><p>Find clear, comprehensive notes shared by fellow students.</p></div><select aria-label="Sort notes"><option>Top rated</option><option>Most recent</option></select></div>
-        <div class="document-list notes-list">
-            <article class="document-card"><span class="document-icon blue">▥</span><div class="document-main"><span class="subject-tag">Computer Science</span><h2>Complete Data Structures Notes</h2><p>CS-201</p><div class="document-meta"><span>Uploaded by: Alex M.</span><span>Pages: 45</span><span>★ 4.8/5</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save notes">☆</button></div></article>
-            <article class="document-card"><span class="document-icon gold">▥</span><div class="document-main"><span class="subject-tag">Mathematics</span><h2>Calculus III - Chapter 1-8</h2><p>MATH-301</p><div class="document-meta"><span>Uploaded by: Sarah K.</span><span>Pages: 67</span><span>★ 4.6/5</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save notes">☆</button></div></article>
-            <article class="document-card"><span class="document-icon violet">▥</span><div class="document-main"><span class="subject-tag">Physics</span><h2>Quantum Mechanics Study Guide</h2><p>PHY-402</p><div class="document-meta"><span>Uploaded by: David R.</span><span>Pages: 38</span><span>★ 4.9/5</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save notes">☆</button></div></article>
-            <article class="document-card"><span class="document-icon red">▥</span><div class="document-main"><span class="subject-tag">Chemistry</span><h2>Organic Chemistry Lab Manual</h2><p>CHEM-205</p><div class="document-meta"><span>Uploaded by: Emma L.</span><span>Pages: 52</span><span>★ 4.7/5</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save notes">☆</button></div></article>
-            <article class="document-card"><span class="document-icon teal">▥</span><div class="document-main"><span class="subject-tag">Business</span><h2>Financial Accounting Complete Notes</h2><p>BUS-301</p><div class="document-meta"><span>Uploaded by: Michael P.</span><span>Pages: 73</span><span>★ 4.5/5</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save notes">☆</button></div></article>
-            <article class="document-card"><span class="document-icon blue">▥</span><div class="document-main"><span class="subject-tag">Computer Science</span><h2>Software Engineering Design Patterns</h2><p>CS-401</p><div class="document-meta"><span>Uploaded by: Jessica T.</span><span>Pages: 56</span><span>★ 4.9/5</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save notes">☆</button></div></article>
+<div class="catalog-layout">
+    <!-- Left Filter Panel -->
+    <aside class="filter-panel" aria-label="Study notes filters">
+        <div class="filter-header">
+            <h2>
+                <span>⚡</span>
+                Filters
+            </h2>
+            <button class="filter-clear-btn" type="button">Reset All</button>
+        </div>
+
+        <fieldset class="filter-group">
+            <legend class="filter-legend">Department</legend>
+            <div class="filter-options">
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" checked />
+                    <span>Computer Science</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Engineering</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Mathematics</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Physics</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Chemistry</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Business</span>
+                </label>
+            </div>
+        </fieldset>
+
+        <fieldset class="filter-group">
+            <legend class="filter-legend">Minimum Rating</legend>
+            <div class="filter-options">
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>★ 4.5 Stars &amp; Above</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>★ 4.0 Stars &amp; Above</span>
+                </label>
+            </div>
+        </fieldset>
+    </aside>
+
+    <!-- Main Notes Catalog -->
+    <section class="catalog-content">
+        <header class="page-heading">
+            <div>
+                <span class="page-eyebrow">COMMUNITY REVISION NOTES</span>
+                <h1 class="page-title">Curated Study Notes &amp; Guides</h1>
+                <p class="page-description">Explore clear, handwritten and typed notes synthesized from course lectures and textbooks by honors students.</p>
+            </div>
+        </header>
+
+        <div class="catalog-toolbar">
+            <div class="catalog-stats-pill">
+                <span>📝</span>
+                <span>Showing <strong>6 study notes</strong></span>
+            </div>
+
+            <div class="catalog-sort-select">
+                <label for="sortNotes">Sort by:</label>
+                <select id="sortNotes" class="select-input" aria-label="Sort notes">
+                    <option>Highest rated</option>
+                    <option>Most recent</option>
+                    <option>Page count</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="document-list">
+            <article class="document-card">
+                <span class="document-icon-box icon-blue">▥</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-primary">Computer Science</span>
+                        <span class="document-course-code">CS-201</span>
+                    </div>
+                    <h2 class="document-title">Complete Data Structures &amp; Tree Traversal Notes</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">✍️ Uploaded by: Alex M.</span>
+                        <span class="document-meta-item">📄 45 pages</span>
+                        <span class="badge badge-amber">★ 4.8 / 5.0 (124 ratings)</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Read</button>
+                    <button class="star-btn" type="button" aria-label="Save note to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
+
+            <article class="document-card">
+                <span class="document-icon-box icon-amber">▥</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-amber">Mathematics</span>
+                        <span class="document-course-code">MATH-301</span>
+                    </div>
+                    <h2 class="document-title">Calculus III: Chapters 1 to 8 Formula Sheet &amp; Proofs</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">✍️ Uploaded by: Sarah K.</span>
+                        <span class="document-meta-item">📄 67 pages</span>
+                        <span class="badge badge-amber">★ 4.6 / 5.0 (98 ratings)</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Read</button>
+                    <button class="star-btn" type="button" aria-label="Save note to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
+
+            <article class="document-card">
+                <span class="document-icon-box icon-violet">▥</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-violet">Physics</span>
+                        <span class="document-course-code">PHY-402</span>
+                    </div>
+                    <h2 class="document-title">Quantum Mechanics Complete Derivations &amp; Study Guide</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">✍️ Uploaded by: David R.</span>
+                        <span class="document-meta-item">📄 38 pages</span>
+                        <span class="badge badge-amber">★ 4.9 / 5.0 (210 ratings)</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Read</button>
+                    <button class="star-btn" type="button" aria-label="Save note to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
+
+            <article class="document-card">
+                <span class="document-icon-box icon-rose">▥</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-rose">Chemistry</span>
+                        <span class="document-course-code">CHEM-205</span>
+                    </div>
+                    <h2 class="document-title">Organic Chemistry Reaction Mechanisms &amp; Lab Manual</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">✍️ Uploaded by: Emma L.</span>
+                        <span class="document-meta-item">📄 52 pages</span>
+                        <span class="badge badge-amber">★ 4.7 / 5.0 (82 ratings)</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Read</button>
+                    <button class="star-btn" type="button" aria-label="Save note to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
+
+            <article class="document-card">
+                <span class="document-icon-box icon-teal">▥</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-teal">Business</span>
+                        <span class="document-course-code">BUS-301</span>
+                    </div>
+                    <h2 class="document-title">Financial Accounting Complete Case Studies &amp; Ledger Notes</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">✍️ Uploaded by: Michael P.</span>
+                        <span class="document-meta-item">📄 73 pages</span>
+                        <span class="badge badge-amber">★ 4.5 / 5.0 (150 ratings)</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Read</button>
+                    <button class="star-btn" type="button" aria-label="Save note to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
+
+            <article class="document-card">
+                <span class="document-icon-box icon-blue">▥</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-primary">Computer Science</span>
+                        <span class="document-course-code">CS-401</span>
+                    </div>
+                    <h2 class="document-title">Software Engineering: Design Patterns &amp; Clean Architecture</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">✍️ Uploaded by: Jessica T.</span>
+                        <span class="document-meta-item">📄 56 pages</span>
+                        <span class="badge badge-amber">★ 4.9 / 5.0 (310 ratings)</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Read</button>
+                    <button class="star-btn" type="button" aria-label="Save note to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
         </div>
     </section>
 </div>

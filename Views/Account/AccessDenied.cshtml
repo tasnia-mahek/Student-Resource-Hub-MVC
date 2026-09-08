@@ -1,12 +1,20 @@
 @{
-    ViewData["Title"] = "Access Denied";
+    ViewData["Title"] = "Access Restricted";
 }
 
 <section class="auth-page">
     <div class="auth-card auth-message-card">
-        <span class="auth-kicker">STUDYHUB ACCOUNT</span>
-        <h1>Access denied</h1>
-        <p>You do not have permission to view this page.</p>
-        <a class="auth-submit auth-submit-link" asp-controller="Home" asp-action="Index">Return home</a>
+        <div class="auth-message-icon">
+            🔒
+        </div>
+        <span class="auth-kicker" style="color:var(--accent-rose); font-size:11px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase;">
+            SECURITY POLICY
+        </span>
+        <h1>Access Restricted</h1>
+        <p>You do not have sufficient permissions to view or manage this section. Please sign in with an authorized account or contact your course representative.</p>
+        <div style="display:flex; gap:12px; justify-content:center;">
+            <a class="btn btn-secondary" asp-controller="Account" asp-action="Login">Switch Account</a>
+            <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Return to Dashboard</a>
+        </div>
     </div>
 </section>

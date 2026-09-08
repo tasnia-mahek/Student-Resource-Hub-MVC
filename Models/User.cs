@@ -17,5 +17,19 @@ namespace student_resource_hub.Models
 
         [Required, StringLength(20)]
         public string Role { get; set; } = string.Empty;
+
+        [StringLength(500)]
+        public string Bio { get; set; } = string.Empty;
+
+        [StringLength(120)]
+        public string Location { get; set; } = string.Empty;
+
+        [Phone, StringLength(30)]
+        public string PhoneNumber { get; set; } = string.Empty;
+
+        [StringLength(260)]
+        public string? ProfilePhotoPath { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }
