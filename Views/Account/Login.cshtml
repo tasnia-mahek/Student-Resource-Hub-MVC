@@ -1,49 +1,89 @@
 @model student_resource_hub.ViewModels.LoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Sign In";
 }
 
 <section class="auth-page">
     <div class="auth-card">
-        <div class="auth-intro">
-            <span class="auth-kicker">STUDYHUB ACCOUNT</span>
-            <h1>Welcome back</h1>
-            <p>Sign in to continue your learning journey.</p>
+        <!-- Left Visual Editorial Banner -->
+        <div class="auth-visual">
+            <div class="auth-visual-top">
+                <span class="auth-logo-mark">
+                    <svg viewBox="0 0 24 24" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.2;"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10M6 14h6"/></svg>
+                </span>
+                <span>StudyHub</span>
+            </div>
+
+            <div class="auth-visual-copy">
+                <span class="auth-kicker">CAMPUS RESOURCE HUB</span>
+                <h1>Empowering your<br /><em>academic journey</em></h1>
+                <p>Everything you need for revision, past papers, lectures, and semester planning in one unified portal.</p>
+            </div>
+
+            <div class="auth-visual-orbit orbit-one"></div>
+            <div class="auth-visual-orbit orbit-two"></div>
+            <span class="auth-visual-star star-one">✦</span>
+            <span class="auth-visual-star star-two">✦</span>
+            <span class="auth-visual-tag">ACADEMIC EXCELLENCE</span>
         </div>
 
-        @if (TempData["SuccessMessage"] is string successMessage)
-        {
-            <div class="auth-success" role="status">@successMessage</div>
-        }
-        <div asp-validation-summary="ModelOnly" class="auth-validation" role="alert"></div>
-        <form asp-action="Login" method="post" class="auth-form">
-            <input asp-for="ReturnUrl" type="hidden" />
-            <div class="auth-field">
-                <label asp-for="Email">Email</label>
-                <input asp-for="Email" type="email" autocomplete="email" placeholder="you@example.com" />
-                <span asp-validation-for="Email"></span>
+        <!-- Right Sign In Form -->
+        <div class="auth-content">
+            <div class="auth-intro">
+                <span class="auth-kicker">WELCOME BACK</span>
+                <h2>Sign in to StudyHub</h2>
+                <p>Access your personalized learning deck and course materials.</p>
             </div>
-            <div class="auth-field">
-                <label asp-for="Password">Password</label>
-                <input asp-for="Password" type="password" autocomplete="current-password" placeholder="Enter your password" />
-                <span asp-validation-for="Password"></span>
-            </div>
-            <fieldset class="role-picker">
-                <legend>Login as</legend>
-                <div class="role-options">
-                    @foreach (var role in new[] { "Student", "Admin", "CR" })
-                    {
-                        <label class="role-option">
-                            <input asp-for="Role" type="radio" value="@role" />
-                            <span>@role</span>
-                        </label>
-                    }
+
+            @if (TempData["SuccessMessage"] is string successMessage)
+            {
+                <div class="auth-success" role="status">
+                    <span>✓</span>
+                    <span>@successMessage</span>
                 </div>
-                <span asp-validation-for="Role"></span>
-            </fieldset>
-            <button class="auth-submit" type="submit">Login</button>
-        </form>
-        <p class="auth-switch">Don't have an account? <a asp-action="Register">Create one</a></p>
+            }
+
+            <div asp-validation-summary="ModelOnly" class="auth-validation" role="alert"></div>
+
+            <form asp-action="Login" method="post" class="auth-form">
+                <input asp-for="ReturnUrl" type="hidden" />
+
+                <div class="auth-field">
+                    <label asp-for="Email">Institutional or Personal Email</label>
+                    <input asp-for="Email" type="email" autocomplete="email" placeholder="name@university.edu" autofocus />
+                    <span asp-validation-for="Email"></span>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="Password">Account Password</label>
+                    <input asp-for="Password" type="password" autocomplete="current-password" placeholder="Enter your password" />
+                    <span asp-validation-for="Password"></span>
+                </div>
+
+                <fieldset class="role-picker">
+                    <legend>Select Account Role</legend>
+                    <div class="role-options">
+                        @foreach (var role in new[] { "Student", "Admin", "CR" })
+                        {
+                            <label class="role-option">
+                                <input asp-for="Role" type="radio" value="@role" />
+                                <span>@role</span>
+                            </label>
+                        }
+                    </div>
+                    <span asp-validation-for="Role"></span>
+                </fieldset>
+
+                <button class="auth-submit" type="submit">
+                    <span>Sign In to Dashboard</span>
+                    <span aria-hidden="true">&rarr;</span>
+                </button>
+            </form>
+
+            <p class="auth-switch">
+                New to StudyHub? <a asp-action="Register">Create an account</a>
+            </p>
+        </div>
     </div>
 </section>
 
