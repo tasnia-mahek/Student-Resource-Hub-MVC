@@ -20,7 +20,18 @@
             </label>
             <div class="header-actions">
                 <button class="icon-button notification-button" type="button" aria-label="Notifications"><span aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 10a6 6 0 0 1 12 0c0 7 2.5 7 2.5 8H3.5c0-1 2.5-1 2.5-8Z"/><path d="M9.5 21h5"/></svg></span><i></i></button>
-                <button class="icon-button" type="button" aria-label="Profile"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></svg></button>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="auth-user-name">@User.Identity.Name</span>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        <button class="auth-link-button" type="submit">Logout</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="auth-link" asp-controller="Account" asp-action="Login">Login</a>
+                    <a class="auth-link auth-link-primary" asp-controller="Account" asp-action="Register">Register</a>
+                }
             </div>
         </div>
         <nav class="resource-nav" aria-label="Resource navigation">
