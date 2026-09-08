@@ -1,55 +1,93 @@
 @model student_resource_hub.ViewModels.RegisterViewModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Create Account";
 }
 
 <section class="auth-page">
     <div class="auth-card auth-card-register">
-        <div class="auth-intro">
-            <span class="auth-kicker">JOIN STUDYHUB</span>
-            <h1>Create your account</h1>
-            <p>Choose your role and make every study session count.</p>
+        <!-- Left Visual Editorial Banner -->
+        <div class="auth-visual">
+            <div class="auth-visual-top">
+                <span class="auth-logo-mark">
+                    <svg viewBox="0 0 24 24" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.2;"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10M6 14h6"/></svg>
+                </span>
+                <span>StudyHub</span>
+            </div>
+
+            <div class="auth-visual-copy">
+                <span class="auth-kicker">JOIN OUR COMMUNITY</span>
+                <h1>Begin your<br /><em>learning chapter</em></h1>
+                <p>Collaborate with fellow peers, share lecture notes, and elevate your academic performance.</p>
+            </div>
+
+            <div class="auth-visual-orbit orbit-one"></div>
+            <div class="auth-visual-orbit orbit-two"></div>
+            <span class="auth-visual-star star-one">✦</span>
+            <span class="auth-visual-star star-two">✦</span>
+            <span class="auth-visual-tag">OPEN SCHOLARSHIP</span>
         </div>
-        <div asp-validation-summary="ModelOnly" class="auth-validation" role="alert"></div>
-        <form asp-action="Register" method="post" class="auth-form">
-            <div class="auth-field">
-                <label asp-for="FullName">Full name</label>
-                <input asp-for="FullName" autocomplete="name" placeholder="Your full name" />
-                <span asp-validation-for="FullName"></span>
+
+        <!-- Right Register Form -->
+        <div class="auth-content">
+            <div class="auth-intro">
+                <span class="auth-kicker">GET STARTED TODAY</span>
+                <h2>Create your account</h2>
+                <p>Choose your academic role to unlock verified course assets.</p>
             </div>
-            <div class="auth-field">
-                <label asp-for="Email">Email</label>
-                <input asp-for="Email" type="email" autocomplete="email" placeholder="you@example.com" />
-                <span asp-validation-for="Email"></span>
-            </div>
-            <div class="auth-field-row">
+
+            <div asp-validation-summary="ModelOnly" class="auth-validation" role="alert"></div>
+
+            <form asp-action="Register" method="post" class="auth-form">
                 <div class="auth-field">
-                    <label asp-for="Password">Password</label>
-                    <input asp-for="Password" type="password" autocomplete="new-password" placeholder="8+ characters" />
-                    <span asp-validation-for="Password"></span>
+                    <label asp-for="FullName">Full Name</label>
+                    <input asp-for="FullName" autocomplete="name" placeholder="e.g. Alex Morgan" autofocus />
+                    <span asp-validation-for="FullName"></span>
                 </div>
+
                 <div class="auth-field">
-                    <label asp-for="ConfirmPassword">Confirm password</label>
-                    <input asp-for="ConfirmPassword" type="password" autocomplete="new-password" placeholder="Repeat password" />
-                    <span asp-validation-for="ConfirmPassword"></span>
+                    <label asp-for="Email">Email Address</label>
+                    <input asp-for="Email" type="email" autocomplete="email" placeholder="name@university.edu" />
+                    <span asp-validation-for="Email"></span>
                 </div>
-            </div>
-            <fieldset class="role-picker">
-                <legend>Register as</legend>
-                <div class="role-options">
-                    @foreach (var role in new[] { "Student", "Admin", "CR" })
-                    {
-                        <label class="role-option">
-                            <input asp-for="Role" type="radio" value="@role" />
-                            <span>@role</span>
-                        </label>
-                    }
+
+                <div class="auth-field-row">
+                    <div class="auth-field">
+                        <label asp-for="Password">Password</label>
+                        <input asp-for="Password" type="password" autocomplete="new-password" placeholder="At least 6 characters" />
+                        <span asp-validation-for="Password"></span>
+                    </div>
+
+                    <div class="auth-field">
+                        <label asp-for="ConfirmPassword">Confirm Password</label>
+                        <input asp-for="ConfirmPassword" type="password" autocomplete="new-password" placeholder="Re-enter password" />
+                        <span asp-validation-for="ConfirmPassword"></span>
+                    </div>
                 </div>
-                <span asp-validation-for="Role"></span>
-            </fieldset>
-            <button class="auth-submit" type="submit">Create account</button>
-        </form>
-        <p class="auth-switch">Already have an account? <a asp-action="Login">Sign in</a></p>
+
+                <fieldset class="role-picker">
+                    <legend>Select Your Role</legend>
+                    <div class="role-options">
+                        @foreach (var role in new[] { "Student", "Admin", "CR" })
+                        {
+                            <label class="role-option">
+                                <input asp-for="Role" type="radio" value="@role" />
+                                <span>@role</span>
+                            </label>
+                        }
+                    </div>
+                    <span asp-validation-for="Role"></span>
+                </fieldset>
+
+                <button class="auth-submit" type="submit">
+                    <span>Complete Registration</span>
+                    <span aria-hidden="true">&rarr;</span>
+                </button>
+            </form>
+
+            <p class="auth-switch">
+                Already have an account? <a asp-action="Login">Sign in here</a>
+            </p>
+        </div>
     </div>
 </section>
 

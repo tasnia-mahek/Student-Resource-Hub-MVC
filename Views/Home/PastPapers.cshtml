@@ -2,16 +2,241 @@
     ViewData["Title"] = "Past Papers";
 }
 
-<div class="catalog-layout document-catalog">
-    <aside class="filter-panel"><div class="filter-title"><h2>Filters</h2><button type="button">Clear all</button></div><fieldset><legend>Department</legend><label><input type="checkbox" /> Computer Science</label><label><input type="checkbox" /> Engineering</label><label><input type="checkbox" /> Mathematics</label><label><input type="checkbox" /> Physics</label><label><input type="checkbox" /> Chemistry</label><label><input type="checkbox" /> Business</label></fieldset><fieldset><legend>Year</legend><label><input type="checkbox" /> 2024</label><label><input type="checkbox" /> 2023</label><label><input type="checkbox" /> 2022</label><label><input type="checkbox" /> 2021</label></fieldset><fieldset><legend>Semester</legend><label><input type="checkbox" /> Fall</label><label><input type="checkbox" /> Spring</label><label><input type="checkbox" /> Summer</label></fieldset></aside>
-    <section class="catalog-content"><div class="catalog-heading"><div><span class="eyebrow">RESOURCE LIBRARY</span><h1>Past Papers</h1><p>Practice with exams shared by students across departments.</p></div><select aria-label="Sort past papers"><option>Most downloaded</option><option>Newest first</option></select></div>
+<div class="catalog-layout">
+    <!-- Left Filter Panel -->
+    <aside class="filter-panel" aria-label="Past papers filters">
+        <div class="filter-header">
+            <h2>
+                <span>⚡</span>
+                Filters
+            </h2>
+            <button class="filter-clear-btn" type="button">Reset All</button>
+        </div>
+
+        <fieldset class="filter-group">
+            <legend class="filter-legend">Department</legend>
+            <div class="filter-options">
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" checked />
+                    <span>Computer Science</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Engineering</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Mathematics</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Physics</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Chemistry</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Business</span>
+                </label>
+            </div>
+        </fieldset>
+
+        <fieldset class="filter-group">
+            <legend class="filter-legend">Exam Year</legend>
+            <div class="filter-options">
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>2024</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>2023</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>2022</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>2021</span>
+                </label>
+            </div>
+        </fieldset>
+
+        <fieldset class="filter-group">
+            <legend class="filter-legend">Semester Term</legend>
+            <div class="filter-options">
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Fall</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Spring</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Summer</span>
+                </label>
+            </div>
+        </fieldset>
+    </aside>
+
+    <!-- Main Catalog Content -->
+    <section class="catalog-content">
+        <header class="page-heading">
+            <div>
+                <span class="page-eyebrow">ACADEMIC EXAM ARCHIVE</span>
+                <h1 class="page-title">Past Papers &amp; Solutions</h1>
+                <p class="page-description">Practice and prepare with verified midterm and final examinations contributed by departments and top students.</p>
+            </div>
+        </header>
+
+        <div class="catalog-toolbar">
+            <div class="catalog-stats-pill">
+                <span>📚</span>
+                <span>Showing <strong>6 papers</strong></span>
+            </div>
+
+            <div class="catalog-sort-select">
+                <label for="sortPastPapers">Sort by:</label>
+                <select id="sortPastPapers" class="select-input" aria-label="Sort past papers">
+                    <option>Most downloaded</option>
+                    <option>Newest first</option>
+                    <option>Course code (A-Z)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Papers List -->
         <div class="document-list">
-            <article class="document-card"><span class="document-icon blue">▤</span><div class="document-main"><span class="subject-tag">Computer Science</span><h2>Data Structures and Algorithms Final Exam</h2><p>CS-201</p><div class="document-meta"><span>Fall 2024</span><span>◉ 1,205</span><span>⇩ 342</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save paper">☆</button></div></article>
-            <article class="document-card"><span class="document-icon gold">▤</span><div class="document-main"><span class="subject-tag">Mathematics</span><h2>Calculus III Midterm Examination</h2><p>MATH-301</p><div class="document-meta"><span>Spring 2023</span><span>◉ 892</span><span>⇩ 289</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save paper">☆</button></div></article>
-            <article class="document-card"><span class="document-icon violet">▤</span><div class="document-main"><span class="subject-tag">Physics</span><h2>Quantum Mechanics Final Paper</h2><p>PHY-402</p><div class="document-meta"><span>Fall 2024</span><span>◉ 634</span><span>⇩ 156</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save paper">☆</button></div></article>
-            <article class="document-card"><span class="document-icon red">▤</span><div class="document-main"><span class="subject-tag">Chemistry</span><h2>Organic Chemistry Lab Practical</h2><p>CHEM-205</p><div class="document-meta"><span>Summer 2023</span><span>◉ 745</span><span>⇩ 221</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save paper">☆</button></div></article>
-            <article class="document-card"><span class="document-icon teal">▤</span><div class="document-main"><span class="subject-tag">Business</span><h2>Financial Accounting Final Exam</h2><p>BUS-301</p><div class="document-meta"><span>Spring 2024</span><span>◉ 1,523</span><span>⇩ 412</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save paper">☆</button></div></article>
-            <article class="document-card"><span class="document-icon blue">▤</span><div class="document-main"><span class="subject-tag">Computer Science</span><h2>Software Engineering Midterm</h2><p>CS-401</p><div class="document-meta"><span>Fall 2023</span><span>◉ 987</span><span>⇩ 298</span></div></div><div class="document-actions"><button class="primary-button" type="button">▧ View</button><button class="round-button" type="button" aria-label="Save paper">☆</button></div></article>
+            <article class="document-card">
+                <span class="document-icon-box icon-blue">▤</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-primary">Computer Science</span>
+                        <span class="document-course-code">CS-201</span>
+                    </div>
+                    <h2 class="document-title">Data Structures and Algorithms Final Exam</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">🗓️ Fall 2024</span>
+                        <span class="document-meta-item">👁️ 1,205 views</span>
+                        <span class="document-meta-item">📥 342 downloads</span>
+                        <span class="badge badge-emerald">Verified Solution Included</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Preview</button>
+                    <button class="star-btn" type="button" aria-label="Save paper to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
+
+            <article class="document-card">
+                <span class="document-icon-box icon-amber">▤</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-amber">Mathematics</span>
+                        <span class="document-course-code">MATH-301</span>
+                    </div>
+                    <h2 class="document-title">Calculus III Multivariable Midterm Examination</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">🗓️ Spring 2023</span>
+                        <span class="document-meta-item">👁️ 892 views</span>
+                        <span class="document-meta-item">📥 289 downloads</span>
+                        <span class="badge badge-emerald">Answer Key Attached</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Preview</button>
+                    <button class="star-btn" type="button" aria-label="Save paper to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
+
+            <article class="document-card">
+                <span class="document-icon-box icon-violet">▤</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-violet">Physics</span>
+                        <span class="document-course-code">PHY-402</span>
+                    </div>
+                    <h2 class="document-title">Quantum Mechanics &amp; Wavefunctions Final Paper</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">🗓️ Fall 2024</span>
+                        <span class="document-meta-item">👁️ 634 views</span>
+                        <span class="document-meta-item">📥 156 downloads</span>
+                        <span class="badge badge-outline">Standard Solution</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Preview</button>
+                    <button class="star-btn" type="button" aria-label="Save paper to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
+
+            <article class="document-card">
+                <span class="document-icon-box icon-rose">▤</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-rose">Chemistry</span>
+                        <span class="document-course-code">CHEM-205</span>
+                    </div>
+                    <h2 class="document-title">Organic Chemistry Lab Practical &amp; Final Exam</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">🗓️ Summer 2023</span>
+                        <span class="document-meta-item">👁️ 745 views</span>
+                        <span class="document-meta-item">📥 221 downloads</span>
+                        <span class="badge badge-emerald">Instructor Verified</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Preview</button>
+                    <button class="star-btn" type="button" aria-label="Save paper to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
+
+            <article class="document-card">
+                <span class="document-icon-box icon-teal">▤</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-teal">Business</span>
+                        <span class="document-course-code">BUS-301</span>
+                    </div>
+                    <h2 class="document-title">Financial Accounting &amp; Reporting Final Exam</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">🗓️ Spring 2024</span>
+                        <span class="document-meta-item">👁️ 1,523 views</span>
+                        <span class="document-meta-item">📥 412 downloads</span>
+                        <span class="badge badge-emerald">Comprehensive Guide</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Preview</button>
+                    <button class="star-btn" type="button" aria-label="Save paper to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
+
+            <article class="document-card">
+                <span class="document-icon-box icon-blue">▤</span>
+                <div class="document-main">
+                    <div class="document-header-row">
+                        <span class="badge badge-primary">Computer Science</span>
+                        <span class="document-course-code">CS-401</span>
+                    </div>
+                    <h2 class="document-title">Software Engineering &amp; Architecture Midterm</h2>
+                    <div class="document-meta-row">
+                        <span class="document-meta-item">🗓️ Fall 2023</span>
+                        <span class="document-meta-item">👁️ 987 views</span>
+                        <span class="document-meta-item">📥 298 downloads</span>
+                        <span class="badge badge-outline">Past Paper</span>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-primary btn-sm" type="button" data-preview-trigger>View &amp; Preview</button>
+                    <button class="star-btn" type="button" aria-label="Save paper to favorites" title="Save to favorites">☆</button>
+                </div>
+            </article>
         </div>
     </section>
 </div>

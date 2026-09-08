@@ -1,25 +1,30 @@
-﻿@model ErrorViewModel
+@model ErrorViewModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = "System Notice";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<section style="display:grid; place-items:center; min-height:60vh; padding:40px 20px;">
+    <div class="sh-card" style="max-width:560px; width:100%; padding:44px 36px; text-align:center;">
+        <div style="display:grid; place-items:center; width:64px; height:64px; border-radius:50%; background:var(--accent-rose-bg); color:var(--accent-rose); font-size:28px; margin:0 auto 20px;">
+            ⚠️
+        </div>
+        <span class="page-eyebrow" style="color:var(--accent-rose);">APPLICATION EXCEPTION</span>
+        <h1 style="font-size:26px; margin:6px 0 12px;">Something went wrong</h1>
+        <p style="color:var(--text-secondary); font-size:14px; line-height:1.6; margin:0 0 24px;">
+            An unexpected error occurred while processing your request. The incident has been recorded for diagnostics.
+        </p>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+        @if (Model.ShowRequestId)
+        {
+            <div style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:var(--radius-sm); background:var(--bg-surface-alt); border:1px solid var(--border-default); margin-bottom:24px;">
+                <small style="color:var(--text-muted); font-weight:700;">REQUEST ID:</small>
+                <code style="color:var(--brand-primary); font-weight:700;">@Model.RequestId</code>
+            </div>
+        }
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+            <a class="btn btn-secondary" href="javascript:history.back()">Go Back</a>
+            <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Return to Dashboard</a>
+        </div>
+    </div>
+</section>

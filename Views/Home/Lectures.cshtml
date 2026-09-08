@@ -1,22 +1,197 @@
 @{
-    ViewData["Title"] = "Lectures";
+    ViewData["Title"] = "Recorded Lectures";
 }
 
 <div class="catalog-layout">
-    <aside class="filter-panel">
-        <div class="filter-title"><h2>Filters</h2><button type="button">Clear all</button></div>
-        <fieldset><legend>Department</legend><label><input type="checkbox" /> Computer Science</label><label><input type="checkbox" /> Engineering</label><label><input type="checkbox" /> Mathematics</label><label><input type="checkbox" /> Physics</label><label><input type="checkbox" /> Chemistry</label><label><input type="checkbox" /> Business</label></fieldset>
-        <fieldset><legend>Level</legend><label><input type="checkbox" /> Undergraduate</label><label><input type="checkbox" /> Graduate</label></fieldset>
+    <!-- Left Filter Panel -->
+    <aside class="filter-panel" aria-label="Lecture filters">
+        <div class="filter-header">
+            <h2>
+                <span>⚡</span>
+                Filters
+            </h2>
+            <button class="filter-clear-btn" type="button">Reset All</button>
+        </div>
+
+        <fieldset class="filter-group">
+            <legend class="filter-legend">Department</legend>
+            <div class="filter-options">
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" checked />
+                    <span>Computer Science</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Engineering</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Mathematics</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Physics</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Chemistry</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Business</span>
+                </label>
+            </div>
+        </fieldset>
+
+        <fieldset class="filter-group">
+            <legend class="filter-legend">Academic Level</legend>
+            <div class="filter-options">
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Undergraduate</span>
+                </label>
+                <label class="filter-checkbox-label">
+                    <input type="checkbox" />
+                    <span>Graduate / Master</span>
+                </label>
+            </div>
+        </fieldset>
     </aside>
+
+    <!-- Main Lectures Grid -->
     <section class="catalog-content">
-        <div class="catalog-heading"><div><span class="eyebrow">RESOURCE LIBRARY</span><h1>Recorded Lectures</h1><p>Learn from courses taught by leading professors.</p></div><select aria-label="Sort lectures"><option>Most popular</option><option>Newest first</option></select></div>
+        <header class="page-heading">
+            <div>
+                <span class="page-eyebrow">VIDEO KNOWLEDGE REPOSITORY</span>
+                <h1 class="page-title">Recorded Lectures &amp; Workshops</h1>
+                <p class="page-description">Watch high-definition lectures, tutorial recordings, and professor-guided review sessions on demand.</p>
+            </div>
+        </header>
+
+        <div class="catalog-toolbar">
+            <div class="catalog-stats-pill">
+                <span>🎥</span>
+                <span>Showing <strong>6 lectures</strong></span>
+            </div>
+
+            <div class="catalog-sort-select">
+                <label for="sortLectures">Sort by:</label>
+                <select id="sortLectures" class="select-input" aria-label="Sort lectures">
+                    <option>Most popular</option>
+                    <option>Newest first</option>
+                    <option>Duration (Longest first)</option>
+                </select>
+            </div>
+        </div>
+
         <div class="lecture-grid">
-            <article class="lecture-card"><div class="lecture-thumb thumb-blue"><span>▶</span><small>1:24:32</small></div><div class="card-body"><span class="subject-tag">Computer Science</span><h2>Introduction to Machine Learning</h2><p>CS-501</p><small>Prof. Dr. Sarah Johnson <b>· 2,341 views</b></small></div></article>
-            <article class="lecture-card"><div class="lecture-thumb thumb-gold"><span>▶</span><small>58:15</small></div><div class="card-body"><span class="subject-tag">Mathematics</span><h2>Linear Algebra - Eigenvalues and Eigenvectors</h2><p>MATH-202</p><small>Prof. Dr. Michael Chen <b>· 1,876 views</b></small></div></article>
-            <article class="lecture-card"><div class="lecture-thumb thumb-teal"><span>▶</span><small>1:12:45</small></div><div class="card-body"><span class="subject-tag">Physics</span><h2>Thermodynamics - First Law Applications</h2><p>PHY-301</p><small>Prof. Dr. Emily Rodriguez <b>· 1,543 views</b></small></div></article>
-            <article class="lecture-card"><div class="lecture-thumb thumb-red"><span>▶</span><small>45:30</small></div><div class="card-body"><span class="subject-tag">Business</span><h2>Microeconomics - Supply and Demand</h2><p>BUS-201</p><small>Prof. Dr. James Wilson <b>· 2,012 views</b></small></div></article>
-            <article class="lecture-card"><div class="lecture-thumb thumb-violet"><span>▶</span><small>1:35:20</small></div><div class="card-body"><span class="subject-tag">Computer Science</span><h2>Database Systems - SQL Advanced Queries</h2><p>CS-302</p><small>Prof. Dr. Amanda Lee <b>· 1,923 views</b></small></div></article>
-            <article class="lecture-card"><div class="lecture-thumb thumb-green"><span>▶</span><small>1:08:15</small></div><div class="card-body"><span class="subject-tag">Chemistry</span><h2>Organic Chemistry - Reaction Mechanisms</h2><p>CHEM-302</p><small>Prof. Dr. Robert Taylor <b>· 1,654 views</b></small></div></article>
+            <article class="lecture-card" data-preview-trigger>
+                <div class="lecture-thumbnail thumb-blue">
+                    <div class="lecture-play-badge">▶</div>
+                    <span class="lecture-duration">1:24:32</span>
+                </div>
+                <div class="lecture-body">
+                    <div class="lecture-header-row">
+                        <span class="badge badge-primary">Computer Science</span>
+                        <span class="badge badge-outline">CS-501</span>
+                    </div>
+                    <h2 class="lecture-title">Introduction to Machine Learning &amp; Neural Nets</h2>
+                    <div class="lecture-footer">
+                        <span>👨‍🏫 Prof. Dr. Sarah Johnson</span>
+                        <b>2,341 views</b>
+                    </div>
+                </div>
+            </article>
+
+            <article class="lecture-card" data-preview-trigger>
+                <div class="lecture-thumbnail thumb-gold">
+                    <div class="lecture-play-badge">▶</div>
+                    <span class="lecture-duration">58:15</span>
+                </div>
+                <div class="lecture-body">
+                    <div class="lecture-header-row">
+                        <span class="badge badge-amber">Mathematics</span>
+                        <span class="badge badge-outline">MATH-202</span>
+                    </div>
+                    <h2 class="lecture-title">Linear Algebra: Eigenvalues &amp; Diagonalization</h2>
+                    <div class="lecture-footer">
+                        <span>👨‍🏫 Prof. Dr. Michael Chen</span>
+                        <b>1,876 views</b>
+                    </div>
+                </div>
+            </article>
+
+            <article class="lecture-card" data-preview-trigger>
+                <div class="lecture-thumbnail thumb-teal">
+                    <div class="lecture-play-badge">▶</div>
+                    <span class="lecture-duration">1:12:45</span>
+                </div>
+                <div class="lecture-body">
+                    <div class="lecture-header-row">
+                        <span class="badge badge-teal">Physics</span>
+                        <span class="badge badge-outline">PHY-301</span>
+                    </div>
+                    <h2 class="lecture-title">Thermodynamics: First Law &amp; Entropy Applications</h2>
+                    <div class="lecture-footer">
+                        <span>👩‍🏫 Prof. Dr. Emily Rodriguez</span>
+                        <b>1,543 views</b>
+                    </div>
+                </div>
+            </article>
+
+            <article class="lecture-card" data-preview-trigger>
+                <div class="lecture-thumbnail thumb-rose">
+                    <div class="lecture-play-badge">▶</div>
+                    <span class="lecture-duration">45:30</span>
+                </div>
+                <div class="lecture-body">
+                    <div class="lecture-header-row">
+                        <span class="badge badge-rose">Business</span>
+                        <span class="badge badge-outline">BUS-201</span>
+                    </div>
+                    <h2 class="lecture-title">Microeconomics: Market Equilibrium &amp; Elasticity</h2>
+                    <div class="lecture-footer">
+                        <span>👨‍🏫 Prof. Dr. James Wilson</span>
+                        <b>2,012 views</b>
+                    </div>
+                </div>
+            </article>
+
+            <article class="lecture-card" data-preview-trigger>
+                <div class="lecture-thumbnail thumb-violet">
+                    <div class="lecture-play-badge">▶</div>
+                    <span class="lecture-duration">1:35:20</span>
+                </div>
+                <div class="lecture-body">
+                    <div class="lecture-header-row">
+                        <span class="badge badge-violet">Computer Science</span>
+                        <span class="badge badge-outline">CS-302</span>
+                    </div>
+                    <h2 class="lecture-title">Database Systems: Advanced SQL &amp; Index Optimization</h2>
+                    <div class="lecture-footer">
+                        <span>👩‍🏫 Prof. Dr. Amanda Lee</span>
+                        <b>1,923 views</b>
+                    </div>
+                </div>
+            </article>
+
+            <article class="lecture-card" data-preview-trigger>
+                <div class="lecture-thumbnail thumb-emerald">
+                    <div class="lecture-play-badge">▶</div>
+                    <span class="lecture-duration">1:08:15</span>
+                </div>
+                <div class="lecture-body">
+                    <div class="lecture-header-row">
+                        <span class="badge badge-emerald">Chemistry</span>
+                        <span class="badge badge-outline">CHEM-302</span>
+                    </div>
+                    <h2 class="lecture-title">Organic Chemistry: Reaction Mechanisms &amp; Synthesis</h2>
+                    <div class="lecture-footer">
+                        <span>👨‍🏫 Prof. Dr. Robert Taylor</span>
+                        <b>1,654 views</b>
+                    </div>
+                </div>
+            </article>
         </div>
     </section>
 </div>
