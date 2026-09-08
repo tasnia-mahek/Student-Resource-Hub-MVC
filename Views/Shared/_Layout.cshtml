@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notifications.css" asp-append-version="true" />
 </head>
 <body class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Account" && ViewContext.RouteData.Values["Action"]?.ToString() != "Profile" ? "auth-layout" : ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "dashboard-shell-layout" : "")">
     <header class="site-header">
@@ -38,13 +39,52 @@
             </label>
 
             <div class="header-actions">
-                <button class="icon-button" type="button" aria-label="Notifications" title="Notifications">
-                    <svg viewBox="0 0 24 24" focusable="false">
-                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-                    </svg>
-                    <span class="notification-badge" aria-hidden="true"></span>
-                </button>
+                <!-- Notification Center Bell Trigger & Dropdown -->
+                <div class="notification-wrapper">
+                    <button class="notification-bell-btn" type="button" aria-label="Open notifications" aria-haspopup="true" aria-expanded="false" title="Notifications">
+                        <svg class="bell-icon" viewBox="0 0 24 24" focusable="false">
+                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                        </svg>
+                        <span class="notification-badge-count" aria-live="polite">0</span>
+                    </button>
+
+                    <!-- Dropdown Panel -->
+                    <div class="notification-dropdown" role="region" aria-label="Notifications panel">
+                        <div class="notification-dropdown-header">
+                            <div class="notif-header-title-wrap">
+                                <h3 class="notif-header-title">Notifications</h3>
+                                <span class="notif-unread-pill">0 new</span>
+                            </div>
+                            <button class="notif-mark-all-btn" type="button">
+                                <span>✓</span>
+                                <span>Mark all as read</span>
+                            </button>
+                        </div>
+
+                        <!-- Dropdown Filter Tabs -->
+                        <div class="notification-dropdown-tabs">
+                            <button class="notif-tab-btn is-active" type="button" data-filter="all">All</button>
+                            <button class="notif-tab-btn" type="button" data-filter="unread">Unread</button>
+                            <button class="notif-tab-btn" type="button" data-filter="academic">Academic</button>
+                            <button class="notif-tab-btn" type="button" data-filter="system">System</button>
+                        </div>
+
+                        <!-- Scrollable Notification List -->
+                        <div class="notification-dropdown-body">
+                            <!-- Populated dynamically by notifications.js -->
+                        </div>
+
+                        <!-- Dropdown Footer -->
+                        <div class="notification-dropdown-footer">
+                            <a class="notif-view-all-link" asp-controller="Home" asp-action="Notifications">
+                                <span>View all notifications</span>
+                                <span aria-hidden="true">&rarr;</span>
+                            </a>
+                            <button class="notif-clear-read-btn" type="button">Clear read</button>
+                        </div>
+                    </div>
+                </div>
 
                 <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme" title="Toggle dark/light theme">
                     <span class="theme-icon-sun" aria-hidden="true">☀️</span>
@@ -223,6 +263,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/notifications.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
