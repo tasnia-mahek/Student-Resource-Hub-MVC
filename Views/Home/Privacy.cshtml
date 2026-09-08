@@ -1,6 +1,94 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+@{
+    ViewData["Title"] = "Academic Guidelines & Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="catalog-layout" style="grid-template-columns: 240px minmax(0, 1fr);">
+    <!-- Table of Contents Aside -->
+    <aside class="filter-panel">
+        <div class="filter-header">
+            <h2>
+                <span>📑</span>
+                Contents
+            </h2>
+        </div>
+        <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:13.5px; font-weight:600;">
+            <li><a href="#academic-integrity" style="color:var(--brand-primary);">1. Academic Integrity</a></li>
+            <li><a href="#resource-upload" style="color:var(--text-secondary);">2. Upload Rules</a></li>
+            <li><a href="#data-privacy" style="color:var(--text-secondary);">3. Student Privacy</a></li>
+            <li><a href="#moderation" style="color:var(--text-secondary);">4. Moderation &amp; Flags</a></li>
+        </ul>
+
+        <div style="margin-top:24px; padding:14px; border-radius:var(--radius-md); background:var(--accent-emerald-bg); border:1px solid rgba(16,185,129,0.2);">
+            <small style="color:var(--accent-emerald); font-weight:700; display:block;">STATUS</small>
+            <span style="font-size:12px; color:var(--text-primary);">Policy updated for 2026 Academic Year</span>
+        </div>
+    </aside>
+
+    <!-- Main Policy Content -->
+    <section class="catalog-content">
+        <header class="page-heading">
+            <div>
+                <span class="page-eyebrow">GOVERNANCE &amp; ETHICS</span>
+                <h1 class="page-title">Academic Integrity &amp; Privacy Policy</h1>
+                <p class="page-description">StudyHub is committed to fostering an open, ethical, and collaborative learning space for all enrolled students.</p>
+            </div>
+        </header>
+
+        <article class="sh-card" style="padding:32px; margin-bottom:24px;">
+            <section id="academic-integrity" style="margin-bottom:32px;">
+                <h2 style="font-size:20px; color:var(--text-primary); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                    <span class="badge badge-primary">Section 1</span>
+                    Academic Integrity &amp; Fair Use
+                </h2>
+                <p style="color:var(--text-secondary); font-size:14px; line-height:1.7;">
+                    StudyHub provides educational materials solely for study, reference, exam practice, and revision purposes. Students are expected to strictly adhere to university honor codes and academic dishonesty guidelines.
+                </p>
+                <div style="padding:16px; border-radius:var(--radius-md); background:var(--bg-surface-alt); border-left:4px solid var(--brand-primary); margin-top:14px;">
+                    <strong style="color:var(--text-primary); font-size:13.5px; display:block; margin-bottom:4px;">Core Rule:</strong>
+                    <span style="color:var(--text-secondary); font-size:13px;">Materials must never be submitted as original work for graded assignments or ongoing unsupervised evaluations.</span>
+                </div>
+            </section>
+
+            <hr style="border:0; border-top:1px solid var(--border-default); margin:28px 0;" />
+
+            <section id="resource-upload" style="margin-bottom:32px;">
+                <h2 style="font-size:20px; color:var(--text-primary); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                    <span class="badge badge-amber">Section 2</span>
+                    Resource Upload &amp; Quality Standards
+                </h2>
+                <p style="color:var(--text-secondary); font-size:14px; line-height:1.7;">
+                    All uploaded notes, past papers, and recorded tutorials must be legible, verified, and free of copyright infringements. Uploads containing commercial publisher textbook rips without permission are strictly prohibited.
+                </p>
+                <ul style="color:var(--text-secondary); font-size:13.5px; line-height:1.8; margin-top:10px;">
+                    <li>Ensure past papers specify course code, department, semester, and year accurately.</li>
+                    <li>Lecture recordings must have clear audio and professor attribution.</li>
+                    <li>Notes should be compiled and formatted cleanly in PDF format.</li>
+                </ul>
+            </section>
+
+            <hr style="border:0; border-top:1px solid var(--border-default); margin:28px 0;" />
+
+            <section id="data-privacy" style="margin-bottom:32px;">
+                <h2 style="font-size:20px; color:var(--text-primary); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                    <span class="badge badge-emerald">Section 3</span>
+                    Student Privacy &amp; Data Protection
+                </h2>
+                <p style="color:var(--text-secondary); font-size:14px; line-height:1.7;">
+                    We protect student privacy with industry standard encryption. Your email address and credentials are cryptographically hashed using ASP.NET Core PasswordHasher. We do not sell or distribute student telemetry data to third parties.
+                </p>
+            </section>
+
+            <hr style="border:0; border-top:1px solid var(--border-default); margin:28px 0;" />
+
+            <section id="moderation">
+                <h2 style="font-size:20px; color:var(--text-primary); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                    <span class="badge badge-violet">Section 4</span>
+                    Content Moderation &amp; Flags
+                </h2>
+                <p style="color:var(--text-secondary); font-size:14px; line-height:1.7;">
+                    Our Course Representatives (CR) and Administrators regularly audit public catalog entries. If you encounter incorrect answer keys, inappropriate files, or incorrect course tags, use the report button or contact campus moderation.
+                </p>
+            </section>
+        </article>
+    </section>
+</div>

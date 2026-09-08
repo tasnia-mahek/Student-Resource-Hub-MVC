@@ -1,0 +1,47 @@
+@model student_resource_hub.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+    var initials = string.Concat(Model.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(name => name[0]));
+}
+
+<section class="profile-page">
+    <div class="profile-breadcrumb"><a asp-controller="Home" asp-action="Index">Dashboard</a><span>/</span><span>Profile</span></div>
+    @if (TempData["ProfileMessage"] is string profileMessage)
+    {
+        <div class="profile-success" role="status">@profileMessage</div>
+    }
+    <div class="profile-hero">
+        <button class="profile-avatar profile-avatar-large" type="button" data-profile-lightbox aria-label="View profile photo">
+            @if (!string.IsNullOrWhiteSpace(Model.ProfilePhotoPath))
+            {
+                <img src="@Model.ProfilePhotoPath" alt="@Model.FullName profile photo" />
+            }
+            else
+            {
+                <span>@initials</span>
+            }
+        </button>
+        <div class="profile-hero-copy"><span class="profile-eyebrow">@(Model.IsOwner ? "YOUR PROFILE" : "PUBLIC PROFILE")</span><h1>@Model.FullName</h1><div class="profile-role">@Model.Role <span>•</span> Active account</div><p>@(string.IsNullOrWhiteSpace(Model.Bio) ? "A StudyHub learner building a steady rhythm of progress." : Model.Bio)</p></div>
+        @if (Model.IsOwner)
+        {
+            <a class="profile-edit-button" href="#profile-edit">Edit profile</a>
+        }
+    </div>
+    <div class="profile-layout">
+        <div class="profile-main-column">
+            <section class="profile-card" id="profile-overview"><div class="profile-card-heading"><div><span class="profile-eyebrow">OVERVIEW</span><h2>About this account</h2></div></div><div class="profile-facts"><div><span>Role</span><strong>@Model.Role</strong></div><div><span>Location</span><strong>@(string.IsNullOrWhiteSpace(Model.Location) ? "Not shared" : Model.Location)</strong></div><div><span>Member since</span><strong>@(Model.CreatedAt.Year <= 1 ? "Recently" : Model.CreatedAt.ToString("MMMM yyyy"))</strong></div><div><span>Status</span><strong class="profile-status">Active</strong></div></div></section>
+            <section class="profile-card" id="profile-personal"><div class="profile-card-heading"><div><span class="profile-eyebrow">PERSONAL INFORMATION</span><h2>Account details</h2></div></div><dl class="profile-details"><div><dt>Full name</dt><dd>@Model.FullName</dd></div><div><dt>Email address</dt><dd>@(Model.IsOwner ? Model.Email : "Available to account owner")</dd></div><div><dt>Phone number</dt><dd>@(Model.IsOwner && !string.IsNullOrWhiteSpace(Model.PhoneNumber) ? Model.PhoneNumber : "Not shared")</dd></div><div><dt>User ID</dt><dd>STU-@Model.Id.ToString("D5")</dd></div></dl></section>
+            <section class="profile-card"><div class="profile-card-heading"><div><span class="profile-eyebrow">ROLE INFORMATION</span><h2>@Model.Role workspace</h2></div></div><p class="profile-role-description">@(Model.Role == "Admin" ? "Administrative access for managing and supporting the StudyHub community." : Model.Role == "CR" ? "Course representative access for helping classmates find the right resources." : "Student access for learning, organizing study materials, and tracking progress.")</p><div class="profile-tags"><span>StudyHub member</span><span>Resource access</span><span>Learning activity</span></div></section>
+        </div>
+        <aside class="profile-side-column">
+            <section class="profile-card profile-activity-card"><div class="profile-card-heading"><div><span class="profile-eyebrow">RECENT ACTIVITY</span><h2>Your StudyHub rhythm</h2></div></div><div class="profile-activity-row"><span class="profile-activity-icon purple">▥</span><div><strong>Study notes explored</strong><small>Complete Data Structures Notes</small></div></div><div class="profile-activity-row"><span class="profile-activity-icon blue">▶</span><div><strong>Lecture in progress</strong><small>Advanced Algorithms</small></div></div><a class="profile-side-link" asp-controller="Home" asp-action="Index">Open dashboard <span>→</span></a></section>
+        </aside>
+    </div>
+    @if (Model.IsOwner)
+    {
+        <section class="profile-card profile-edit-card" id="profile-edit"><div class="profile-card-heading"><div><span class="profile-eyebrow">EDIT PROFILE</span><h2>Keep your details current</h2></div></div><form asp-action="Profile" method="post" enctype="multipart/form-data" class="profile-form"><input asp-for="Id" type="hidden" /><div class="profile-edit-grid"><div class="profile-field"><label asp-for="EditedFullName">Full name</label><input asp-for="EditedFullName" /></div><div class="profile-field"><label asp-for="EditedLocation">Location</label><input asp-for="EditedLocation" placeholder="City or campus" /></div><div class="profile-field"><label asp-for="EditedPhoneNumber">Phone number</label><input asp-for="EditedPhoneNumber" /></div><div class="profile-field profile-field-wide"><label asp-for="EditedBio">Short bio</label><textarea asp-for="EditedBio" rows="3" placeholder="Tell the community a little about your study focus"></textarea></div><div class="profile-field profile-field-wide"><label asp-for="ProfilePhoto">Profile photo</label><input asp-for="ProfilePhoto" accept=".jpg,.jpeg,.png,.webp" /></div></div><span asp-validation-for="ProfilePhoto" class="profile-validation"></span><button class="profile-save-button" type="submit">Save changes</button></form></section>
+    }
+</section>
+<div class="profile-lightbox" data-profile-lightbox-panel aria-hidden="true"><div class="profile-lightbox-backdrop" data-profile-lightbox-close></div><div class="profile-lightbox-dialog" role="dialog" aria-modal="true" aria-label="Profile photo"><button type="button" class="profile-lightbox-close" data-profile-lightbox-close aria-label="Close photo">&times;</button><div class="profile-avatar profile-avatar-lightbox">@if (!string.IsNullOrWhiteSpace(Model.ProfilePhotoPath)) { <img src="@Model.ProfilePhotoPath" alt="@Model.FullName profile photo" /> } else { <span>@initials</span> }</div><strong>@Model.FullName</strong></div></div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
