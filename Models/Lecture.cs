@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace student_resource_hub.Models
 {
-    public class PastPaper
+    public class Lecture
     {
         [Key]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Title is required.")]
+        [Required(ErrorMessage = "Lecture title is required.")]
         [StringLength(200)]
         public string Title { get; set; } = string.Empty;
 
@@ -20,12 +20,11 @@ namespace student_resource_hub.Models
         [StringLength(50)]
         public string CourseCode { get; set; } = string.Empty;
 
-        [StringLength(500)]
+        [StringLength(1000)]
         public string? Description { get; set; }
 
-        [Required]
         [StringLength(200)]
-        public string ProfessorName { get; set; } = string.Empty;
+        public string? ProfessorName { get; set; }
 
         [Required]
         public Department Department { get; set; }
@@ -35,6 +34,9 @@ namespace student_resource_hub.Models
 
         [Required]
         public Semester Semester { get; set; }
+
+        [StringLength(100)]
+        public string? Topics { get; set; }
 
         [Required]
         [StringLength(500)]

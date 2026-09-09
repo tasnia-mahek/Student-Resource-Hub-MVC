@@ -10,15 +10,12 @@ namespace student_resource_hub.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<decimal>(
-                name: "AverageRating",
-                table: "Notes",
-                type: "decimal(3,2)",
-                precision: 3,
-                scale: 2,
-                nullable: false,
-                oldClrType: typeof(decimal),
-                oldType: "decimal(18,2)");
+            migrationBuilder.Sql("""
+                IF COL_LENGTH(N'dbo.Notes', N'AverageRating') IS NOT NULL
+                BEGIN
+                    ALTER TABLE dbo.Notes ALTER COLUMN AverageRating decimal(3,2) NOT NULL;
+                END
+                """);
         }
 
         /// <inheritdoc />

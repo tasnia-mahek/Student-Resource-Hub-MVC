@@ -16,43 +16,42 @@
         </div>
 
         <form method="get" class="filter-form">
-            <!-- Department Filter -->
+            <div class="mb-3">
+                <label for="search">Search</label>
+                <input type="search" id="search" name="search" value="@Model.SearchTerm" class="form-control" placeholder="Title, subject, professor..." />
+            </div>
+
             <fieldset>
                 <legend>Department</legend>
-                @foreach (var dept in Model.Departments)
-                {
-                    <label>
-                        <input type="checkbox" name="department" value="@dept"
-                               @(Model.SelectedDepartment == dept ? "checked" : "") />
-                        @dept.Replace("ComputerScience", "Computer Science")
-                    </label>
-                }
+                <select name="department" class="form-control">
+                    <option value="All">All</option>
+                    @foreach (var dept in Model.Departments)
+                    {
+                        <option value="@dept" selected="@(Model.SelectedDepartment == dept ? true : null)">@dept.Replace("ComputerScience", "Computer Science")</option>
+                    }
+                </select>
             </fieldset>
 
-            <!-- Year Filter -->
             <fieldset>
                 <legend>Year</legend>
-                @foreach (var yr in Model.Years)
-                {
-                    <label>
-                        <input type="checkbox" name="year" value="@yr"
-                               @(Model.SelectedYear == yr ? "checked" : "") />
-                        @yr
-                    </label>
-                }
+                <select name="year" class="form-control">
+                    <option value="0">All</option>
+                    @foreach (var yr in Model.Years)
+                    {
+                        <option value="@yr" selected="@(Model.SelectedYear == yr ? true : null)">@yr</option>
+                    }
+                </select>
             </fieldset>
 
-            <!-- Semester Filter -->
             <fieldset>
                 <legend>Semester</legend>
-                @foreach (var sem in Model.Semesters)
-                {
-                    <label>
-                        <input type="checkbox" name="semester" value="@sem"
-                               @(Model.SelectedSemester == sem ? "checked" : "") />
-                        @sem
-                    </label>
-                }
+                <select name="semester" class="form-control">
+                    <option value="All">All</option>
+                    @foreach (var sem in Model.Semesters)
+                    {
+                        <option value="@sem" selected="@(Model.SelectedSemester == sem ? true : null)">@sem</option>
+                    }
+                </select>
             </fieldset>
 
             <button type="submit" class="filter-button">Apply Filters</button>
@@ -117,17 +116,18 @@
                         <div class="document-main">
                             <span class="subject-tag">@note.Department.ToString().Replace("ComputerScience", "Computer Science")</span>
                             <h2>@note.Title</h2>
-                            <p>@note.CourseCode</p>
+                            <p>@note.SubjectName · @note.CourseCode</p>
                             <div class="document-meta">
-                                <span>Uploaded by: @note.UploadedByUser?.FullName</span>
+                                <span>@note.Year @note.Semester</span>
                                 <span>Pages: @note.PageCount</span>
                                 <span>★ @note.AverageRating.ToString("0.0")/5</span>
+                                <span>@note.FileType?.TrimStart('.').ToUpperInvariant()</span>
                             </div>
                             @if (!string.IsNullOrEmpty(note.Description))
                             {
                                 <p class="meta-description">@note.Description</p>
                             }
-                            <small class="upload-meta">@note.Year @note.Semester | 👁 @note.ViewCount views | ⬇ @note.DownloadCount downloads</small>
+                            <small class="upload-meta">By: @note.UploadedByUser?.FullName · Prof: @note.ProfessorName · 👁 @note.ViewCount views · ⬇ @note.DownloadCount downloads</small>
                         </div>
                         <div class="document-actions">
                             <a href="@Url.Action("NoteDetails", "Resource", new { id = note.Id })" class="primary-button">👁 View</a>

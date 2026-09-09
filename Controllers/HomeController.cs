@@ -13,17 +13,17 @@ namespace student_resource_hub.Controllers
 
         public IActionResult Lectures()
         {
-            return View();
+            return RedirectToAction("Lectures", "Resource");
         }
 
         public IActionResult PastPapers()
         {
-            return View();
+            return RedirectToAction("PastPapers", "Resource");
         }
 
         public IActionResult Notes()
         {
-            return View();
+            return RedirectToAction("Notes", "Resource");
         }
 
         public IActionResult Privacy()
