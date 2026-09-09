@@ -1,0 +1,173 @@
+@using student_resource_hub.Models
+@model PastPaper
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<link rel="stylesheet" href="~/css/resource-details.css" />
+
+<div class="resource-details-container">
+    <div class="details-header">
+        <div class="breadcrumb">
+            <a href="@Url.Action("PastPapers", "Resource")">← Back to Past Papers</a>
+        </div>
+        <h1>@Model.Title</h1>
+    </div>
+
+    <div class="resource-content">
+        <!-- Main Details Section -->
+        <div class="details-main">
+            <div class="info-card">
+                <h3>Resource Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Subject:</label>
+                        <span>@Model.SubjectName</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Course Code:</label>
+                        <span>@Model.CourseCode</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Department:</label>
+                        <span>@Model.Department.ToString().Replace("ComputerScience", "Computer Science")</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Year:</label>
+                        <span>@Model.Year</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Semester:</label>
+                        <span>@Model.Semester</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Professor/Lecturer:</label>
+                        <span>@Model.ProfessorName</span>
+                    </div>
+                    <div class="info-item">
+                        <label>File Type:</label>
+                        <span>@Model.FileType?.TrimStart('.')</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Original Filename:</label>
+                        <span>@Model.OriginalFileName</span>
+                    </div>
+                    <div class="info-item">
+                        <label>File Size:</label>
+                        <span>@FormatFileSize(Model.FileSizeBytes)</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Uploaded By:</label>
+                        <span>@Model.UploadedByUser?.FullName</span>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div class="description-section">
+                        <h4>Description</h4>
+                        <p>@Html.Raw(Model.Description)</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="stats-card">
+                <h3>Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">@Model.ViewCount</div>
+                        <div class="stat-label">Views</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">@Model.DownloadCount</div>
+                        <div class="stat-label">Downloads</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">@Model.CreatedDate.ToString("MMM d, yyyy")</div>
+                        <div class="stat-label">Uploaded</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Info -->
+            <div class="upload-info-card">
+                <h3>Upload Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Status:</label>
+                        <span class="status-badge status-@Model.Status.ToString().ToLower()">@Model.Status</span>
+                    </div>
+                    @if (Model.ApprovedDate.HasValue)
+                    {
+                        <div class="info-item">
+                            <label>Approved Date:</label>
+                            <span>@Model.ApprovedDate.Value.ToString("MMM d, yyyy")</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Actions -->
+        <div class="details-sidebar">
+            <div class="action-card">
+                <h3>Actions</h3>
+                <div class="action-buttons">
+                    <a href="@Url.Action("Download", "Resource", new { id = Model.Id, type = "paper" })" 
+                       class="btn btn-primary btn-large">
+                        <span>⬇</span> Download Paper
+                    </a>
+                    @if (Model.FileType?.Equals(".pdf", StringComparison.OrdinalIgnoreCase) == true ||
+                         Model.FileType?.Equals(".jpg", StringComparison.OrdinalIgnoreCase) == true ||
+                         Model.FileType?.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) == true ||
+                         Model.FileType?.Equals(".png", StringComparison.OrdinalIgnoreCase) == true ||
+                         Model.FileType?.Equals(".txt", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        <a href="@Url.Action("ViewPastPaper", "Resource", new { id = Model.Id })"
+                           class="btn btn-secondary btn-large" target="_blank" rel="noopener">View File</a>
+                    }
+                    <button class="btn btn-secondary btn-large" onclick="copyLink()">
+                        <span>🔗</span> Share Link
+                    </button>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="additional-info-card">
+                <h3>Quick Details</h3>
+                <ul class="quick-info">
+                    <li><strong>Type:</strong> Exam Paper</li>
+                    <li><strong>Format:</strong> @Model.FileType?.TrimStart('.')</li>
+                    <li><strong>Quality:</strong> User Uploaded</li>
+                    <li><strong>Access:</strong> Free</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+@functions {
+    private string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+}
+
+<script>
+    function copyLink() {
+        const link = window.location.href;
+        navigator.clipboard.writeText(link).then(() => {
+            alert('Link copied to clipboard!');
+        });
+    }
+</script>
