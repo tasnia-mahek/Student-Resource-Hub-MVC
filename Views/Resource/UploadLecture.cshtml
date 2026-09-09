@@ -1,88 +1,71 @@
-﻿@using student_resource_hub.Models
-@model UploadResourceViewModel
+@using student_resource_hub.Models
+@model UploadLectureViewModel
 
 @{
-    ViewData["Title"] = "Upload Past Paper";
+    ViewData["Title"] = "Upload Lecture";
 }
 
 <link rel="stylesheet" href="~/css/upload-form.css" />
 
 <div class="upload-container">
     <div class="upload-header">
-        <h1>Upload Past Paper</h1>
-        <p>Share your past papers with other students for collaborative learning</p>
+        <h1>Upload Lecture</h1>
+        <p>Share recordings or lecture materials with students in your department.</p>
     </div>
 
     <div class="upload-content">
-        <form id="uploadForm" method="post" enctype="multipart/form-data" class="upload-form">
-            @Html.AntiForgeryToken()
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="alert alert-danger">
-                    <h4>Please fix the following errors:</h4>
-                    <ul>
-                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                        {
-                            <li>@error.ErrorMessage</li>
-                        }
-                    </ul>
-                </div>
-            }
+        <form asp-action="UploadLecture" asp-controller="Resource" method="post" enctype="multipart/form-data" class="upload-form">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-            <!-- Subject Information Section -->
             <div class="form-section">
-                <h3>Subject Information</h3>
+                <h3>Lecture Information</h3>
 
                 <div class="form-group">
-                    <label for="Title">Title *</label>
-                    <input type="text" id="Title" name="Title" asp-for="Title"
-                           placeholder="e.g., Final Examination 2026" class="form-control" required />
+                    <label asp-for="Title">Lecture Title *</label>
+                    <input asp-for="Title" class="form-control" placeholder="e.g., Lecture 7 - Graph Traversal" />
                     <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label for="SubjectName">Subject Name *</label>
-                    <input type="text" id="SubjectName" name="SubjectName" 
-                           asp-for="SubjectName" placeholder="e.g., Data Structures and Algorithms"
-                           class="form-control" required />
+                    <label asp-for="SubjectName">Subject Name *</label>
+                    <input asp-for="SubjectName" class="form-control" placeholder="e.g., Computer Networks" />
                     <span asp-validation-for="SubjectName" class="text-danger"></span>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="CourseCode">Course Code *</label>
-                        <input type="text" id="CourseCode" name="CourseCode" 
-                               asp-for="CourseCode" placeholder="e.g., CS-201"
-                               class="form-control" required />
+                        <label asp-for="CourseCode">Course Code *</label>
+                        <input asp-for="CourseCode" class="form-control" placeholder="e.g., CS-305" />
                         <span asp-validation-for="CourseCode" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
-                        <label for="ProfessorName">Professor/Lecturer Name *</label>
-                        <input type="text" id="ProfessorName" name="ProfessorName" 
-                               asp-for="ProfessorName" placeholder="e.g., Dr. Sarah Johnson"
-                               class="form-control" required />
+                        <label asp-for="ProfessorName">Professor/Lecturer Name</label>
+                        <input asp-for="ProfessorName" class="form-control" placeholder="e.g., Dr. Aisha Rahman" />
                         <span asp-validation-for="ProfessorName" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="Description">Description (Optional)</label>
-                    <textarea id="Description" name="Description" 
-                              asp-for="Description" placeholder="Add any additional details about this past paper..."
-                              class="form-control" rows="3"></textarea>
+                    <label asp-for="Topics">Topics Covered</label>
+                    <input asp-for="Topics" class="form-control" placeholder="e.g., Routing, subnetting, TCP/IP" />
+                    <span asp-validation-for="Topics" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description">Description (Optional)</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Add context for this lecture..."></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
             </div>
 
-            <!-- Course Details Section -->
             <div class="form-section">
                 <h3>Course Details</h3>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="Department">Department *</label>
-                        <select id="Department" name="Department" asp-for="Department" class="form-control" required>
+                        <label asp-for="Department">Department *</label>
+                        <select asp-for="Department" class="form-control">
                             <option value="">-- Select Department --</option>
                             @foreach (var dept in Enum.GetNames(typeof(Department)))
                             {
@@ -93,8 +76,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="Year">Year *</label>
-                        <select id="Year" name="Year" asp-for="Year" class="form-control" required>
+                        <label asp-for="Year">Year *</label>
+                        <select asp-for="Year" class="form-control">
                             <option value="">-- Select Year --</option>
                             @foreach (var year in Enum.GetValues(typeof(Year)).Cast<Year>().OrderByDescending(y => y))
                             {
@@ -105,8 +88,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="Semester">Semester *</label>
-                        <select id="Semester" name="Semester" asp-for="Semester" class="form-control" required>
+                        <label asp-for="Semester">Semester *</label>
+                        <select asp-for="Semester" class="form-control">
                             <option value="">-- Select Semester --</option>
                             @foreach (var sem in Enum.GetNames(typeof(Semester)))
                             {
@@ -118,18 +101,15 @@
                 </div>
             </div>
 
-            <!-- File Upload Section -->
             <div class="form-section">
                 <h3>File Upload</h3>
 
                 <div class="file-upload-area" id="fileUploadArea">
-                    <input type="file" id="File" name="File" asp-for="File" 
-                           accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
-                           class="file-input" required />
+                    <input type="file" id="File" name="File" asp-for="File" accept=".pdf,.mp4,.mov,.avi,.wmv,.ppt,.pptx,.doc,.docx,.zip" class="file-input" />
                     <div class="file-upload-text">
-                        <span class="upload-icon">ðŸ“</span>
-                        <p>Drag and drop your file here or click to browse</p>
-                        <small>Supported formats: PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, JPEG, PNG (Max 50MB)</small>
+                        <span class="upload-icon">📦</span>
+                        <p>Drag and drop your lecture file here or click to browse</p>
+                        <small>Supported formats: PDF, MP4, MOV, AVI, PPT, PPTX, DOC, DOCX, ZIP (Max 100MB)</small>
                     </div>
                 </div>
 
@@ -142,26 +122,23 @@
                 <span asp-validation-for="File" class="text-danger"></span>
             </div>
 
-            <!-- Form Actions -->
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-large">Upload Past Paper</button>
-                <a href="@Url.Action("PastPapers", "Resource")" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-large">Upload Lecture</button>
+                <a asp-action="Lectures" asp-controller="Resource" class="btn btn-secondary">Cancel</a>
             </div>
 
-            <!-- Info Box -->
             <div class="info-box">
-                <h4>ðŸ“‹ Upload Guidelines</h4>
+                <h4>🎓 Upload Guidelines</h4>
                 <ul>
-                    <li>Make sure the file contains actual past paper questions</li>
-                    <li>Include all relevant information (year, semester, professor)</li>
-                    <li>Files must be clear and properly formatted</li>
-                    <li>All uploads are subject to admin review before publishing</li>
-                    <li>Do not upload copyrighted material without proper permission</li>
+                    <li>Use a meaningful lecture title and clear topic tags.</li>
+                    <li>Ensure recordings or notes are relevant to the selected course.</li>
+                    <li>Files should be easy to access and properly labeled.</li>
+                    <li>All uploads are subject to admin review before being published.</li>
                 </ul>
             </div>
         </form>
     </div>
-
+</div>
 
 <script>
     const fileInput = document.getElementById('File');
@@ -204,3 +181,7 @@
         fileSelected.style.display = 'block';
     }
 </script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

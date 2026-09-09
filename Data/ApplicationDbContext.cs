@@ -14,6 +14,7 @@ namespace student_resource_hub.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<PastPaper> PastPapers => Set<PastPaper>();
         public DbSet<Note> Notes => Set<Note>();
+        public DbSet<Lecture> Lectures => Set<Lecture>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,11 +33,13 @@ namespace student_resource_hub.Data
             modelBuilder.Entity<PastPaper>(entity =>
             {
                 entity.HasKey(paper => paper.Id);
+                entity.Property(paper => paper.Title).HasMaxLength(200).IsRequired();
                 entity.Property(paper => paper.SubjectName).HasMaxLength(200).IsRequired();
                 entity.Property(paper => paper.CourseCode).HasMaxLength(50).IsRequired();
                 entity.Property(paper => paper.Description).HasMaxLength(500);
                 entity.Property(paper => paper.ProfessorName).HasMaxLength(200).IsRequired();
                 entity.Property(paper => paper.FilePath).HasMaxLength(500).IsRequired();
+                entity.Property(paper => paper.OriginalFileName).HasMaxLength(255).IsRequired();
                 entity.Property(paper => paper.FileType).HasMaxLength(100);
                 entity.Property(paper => paper.ApprovalNotes).HasMaxLength(500);
                 entity.HasOne(paper => paper.UploadedByUser)
@@ -57,6 +60,7 @@ namespace student_resource_hub.Data
                 entity.Property(note => note.Description).HasMaxLength(1000);
                 entity.Property(note => note.ProfessorName).HasMaxLength(200);
                 entity.Property(note => note.FilePath).HasMaxLength(500).IsRequired();
+                entity.Property(note => note.OriginalFileName).HasMaxLength(255).IsRequired();
                 entity.Property(note => note.FileType).HasMaxLength(100);
                 entity.Property(note => note.ApprovalNotes).HasMaxLength(500);
                 entity.Property(note => note.AverageRating).HasPrecision(3, 2);
@@ -68,6 +72,28 @@ namespace student_resource_hub.Data
                 entity.HasIndex(note => note.Status);
                 entity.HasIndex(note => note.CreatedDate);
                 entity.HasIndex(note => note.AverageRating);
+            });
+
+            modelBuilder.Entity<Lecture>(entity =>
+            {
+                entity.HasKey(lecture => lecture.Id);
+                entity.Property(lecture => lecture.Title).HasMaxLength(200).IsRequired();
+                entity.Property(lecture => lecture.SubjectName).HasMaxLength(200).IsRequired();
+                entity.Property(lecture => lecture.CourseCode).HasMaxLength(50).IsRequired();
+                entity.Property(lecture => lecture.Description).HasMaxLength(1000);
+                entity.Property(lecture => lecture.ProfessorName).HasMaxLength(200);
+                entity.Property(lecture => lecture.Topics).HasMaxLength(100);
+                entity.Property(lecture => lecture.FilePath).HasMaxLength(500).IsRequired();
+                entity.Property(lecture => lecture.OriginalFileName).HasMaxLength(255).IsRequired();
+                entity.Property(lecture => lecture.FileType).HasMaxLength(100);
+                entity.Property(lecture => lecture.ApprovalNotes).HasMaxLength(500);
+                entity.HasOne(lecture => lecture.UploadedByUser)
+                    .WithMany()
+                    .HasForeignKey(lecture => lecture.UploadedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(lecture => new { lecture.Department, lecture.Year, lecture.Semester });
+                entity.HasIndex(lecture => lecture.Status);
+                entity.HasIndex(lecture => lecture.CreatedDate);
             });
         }
     }

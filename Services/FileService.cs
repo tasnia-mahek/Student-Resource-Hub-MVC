@@ -17,7 +17,7 @@ namespace student_resource_hub.Services
     {
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<FileService> _logger;
-        private readonly string[] _allowedExtensions = { ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt", ".jpg", ".jpeg", ".png", ".gif" };
+        private readonly string[] _allowedExtensions = { ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt", ".txt", ".jpg", ".jpeg", ".png", ".gif" };
 
         public FileService(IWebHostEnvironment env, ILogger<FileService> logger)
         {
@@ -144,6 +144,7 @@ namespace student_resource_hub.Services
             return fileExtension.ToLowerInvariant() switch
             {
                 ".pdf" => "application/pdf",
+                ".txt" => "text/plain",
                 ".doc" => "application/msword",
                 ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 ".xls" => "application/vnd.ms-excel",

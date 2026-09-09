@@ -1,8 +1,8 @@
 @using student_resource_hub.Models
-@model ResourceListViewModel<PastPaper>
+@model ResourceListViewModel<Lecture>
 
 @{
-    ViewData["Title"] = "Past Papers";
+    ViewData["Title"] = "Lectures";
 }
 
 <link rel="stylesheet" href="~/css/resource-list.css" />
@@ -12,7 +12,7 @@
     <aside class="filter-panel">
         <div class="filter-title">
             <h2>Filters</h2>
-            <a href="@Url.Action("PastPapers", "Resource")" class="clear-filters">Clear all</a>
+            <a href="@Url.Action("Lectures", "Resource")" class="clear-filters">Clear all</a>
         </div>
 
         <form method="get" class="filter-form">
@@ -63,8 +63,8 @@
         <div class="catalog-heading">
             <div>
                 <span class="eyebrow">RESOURCE LIBRARY</span>
-                <h1>Past Papers</h1>
-                <p>Practice with exams shared by students across departments.</p>
+                <h1>Lectures</h1>
+                <p>Access recorded lectures and materials from your courses.</p>
             </div>
             <div class="sort-upload">
                 <select id="sortSelect" onchange="updateSort(this.value)">
@@ -85,7 +85,7 @@
                 </select>
                 @if (User.IsInRole("Student") || User.IsInRole("Admin"))
                 {
-                    <a href="@Url.Action("UploadPastPaper", "Resource")" class="upload-button">+ Upload Past Paper</a>
+                    <a href="@Url.Action("UploadLecture", "Resource")" class="upload-button">+ Upload Lecture</a>
                 }
             </div>
         </div>
@@ -103,35 +103,35 @@
         <div class="document-list">
             @if (Model.Resources.Count > 0)
             {
-                @foreach (var paper in Model.Resources)
+                @foreach (var lecture in Model.Resources)
                 {
-                    var deptIcon = paper.Department.ToString().StartsWith("Computer") ? "blue" :
-                                   paper.Department.ToString().StartsWith("Engineering") ? "teal" :
-                                   paper.Department.ToString().StartsWith("Math") ? "gold" :
-                                   paper.Department.ToString().StartsWith("Physics") ? "violet" :
-                                   paper.Department.ToString().StartsWith("Chemistry") ? "red" : "green";
+                    var deptIcon = lecture.Department.ToString().StartsWith("Computer") ? "blue" :
+                                   lecture.Department.ToString().StartsWith("Engineering") ? "teal" :
+                                   lecture.Department.ToString().StartsWith("Math") ? "gold" :
+                                   lecture.Department.ToString().StartsWith("Physics") ? "violet" :
+                                   lecture.Department.ToString().StartsWith("Chemistry") ? "red" : "green";
 
                     <article class="document-card">
-                        <span class="document-icon @deptIcon">📄</span>
+                        <span class="document-icon @deptIcon">🎓</span>
                         <div class="document-main">
-                            <span class="subject-tag">@paper.Department.ToString().Replace("ComputerScience", "Computer Science")</span>
-                            <h2>@paper.Title</h2>
-                            <p>@paper.SubjectName · @paper.CourseCode</p>
+                            <span class="subject-tag">@lecture.Department.ToString().Replace("ComputerScience", "Computer Science")</span>
+                            <h2>@lecture.Title</h2>
+                            <p>@lecture.SubjectName · @lecture.CourseCode</p>
                             <div class="document-meta">
-                                <span>@paper.Year @paper.Semester</span>
-                                <span>👁 @paper.ViewCount</span>
-                                <span>⬇ @paper.DownloadCount</span>
-                                <span>@paper.FileType?.TrimStart('.').ToUpperInvariant()</span>
+                                <span>@lecture.Year @lecture.Semester</span>
+                                <span>👁 @lecture.ViewCount</span>
+                                <span>⬇ @lecture.DownloadCount</span>
+                                <span>@lecture.FileType?.TrimStart('.').ToUpperInvariant()</span>
                             </div>
-                            @if (!string.IsNullOrEmpty(paper.Description))
+                            @if (!string.IsNullOrEmpty(lecture.Description))
                             {
-                                <p class="meta-description">@paper.Description</p>
+                                <p class="meta-description">@lecture.Description</p>
                             }
-                            <small class="upload-meta">By: @paper.UploadedByUser?.FullName · Prof: @paper.ProfessorName</small>
+                            <small class="upload-meta">By: @lecture.UploadedByUser?.FullName · Prof: @lecture.ProfessorName</small>
                         </div>
                         <div class="document-actions">
-                            <a href="@Url.Action("PastPaperDetails", "Resource", new { id = paper.Id })" class="primary-button">👁 View</a>
-                            <a href="@Url.Action("Download", "Resource", new { id = paper.Id, type = "paper" })" class="primary-button" title="Download">⬇ Download</a>
+                            <a href="@Url.Action("LectureDetails", "Resource", new { id = lecture.Id })" class="primary-button">👁 View</a>
+                            <a href="@Url.Action("Download", "Resource", new { id = lecture.Id, type = "lecture" })" class="primary-button" title="Download">⬇ Download</a>
                         </div>
                     </article>
                 }
@@ -139,7 +139,7 @@
             else
             {
                 <div class="no-results">
-                    <p>No past papers found matching your filters.</p>
+                    <p>No lectures found matching your filters.</p>
                 </div>
             }
         </div>
@@ -148,29 +148,11 @@
 
 <script>
     function updateSort(sortValue) {
-        const currentParams = new URLSearchParams(window.location.search);
-        currentParams.set('sortBy', sortValue);
-        window.location.search = currentParams.toString();
+        // Get current filter values
+        const params = new URLSearchParams(window.location.search);
+        params.set('sortBy', sortValue);
+        
+        // Redirect with new sort parameter
+        window.location.href = window.location.pathname + '?' + params.toString();
     }
-
-    // Handle multiple checkbox selection
-    document.querySelectorAll('.filter-form input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const form = this.closest('.filter-form');
-            const formData = new FormData(form);
-            const params = new URLSearchParams();
-
-            formData.forEach((value, key) => {
-                if (value) params.append(key, value);
-            });
-
-            // Preserve sort parameter
-            const currentParams = new URLSearchParams(window.location.search);
-            if (currentParams.has('sortBy')) {
-                params.set('sortBy', currentParams.get('sortBy'));
-            }
-
-            window.location.search = params.toString();
-        });
-    });
 </script>

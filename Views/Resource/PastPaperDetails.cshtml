@@ -2,7 +2,7 @@
 @model PastPaper
 
 @{
-    ViewData["Title"] = Model.SubjectName;
+    ViewData["Title"] = Model.Title;
 }
 
 <link rel="stylesheet" href="~/css/resource-details.css" />
@@ -12,7 +12,7 @@
         <div class="breadcrumb">
             <a href="@Url.Action("PastPapers", "Resource")">← Back to Past Papers</a>
         </div>
-        <h1>@Model.SubjectName</h1>
+        <h1>@Model.Title</h1>
     </div>
 
     <div class="resource-content">
@@ -21,6 +21,10 @@
             <div class="info-card">
                 <h3>Resource Information</h3>
                 <div class="info-grid">
+                    <div class="info-item">
+                        <label>Subject:</label>
+                        <span>@Model.SubjectName</span>
+                    </div>
                     <div class="info-item">
                         <label>Course Code:</label>
                         <span>@Model.CourseCode</span>
@@ -44,6 +48,10 @@
                     <div class="info-item">
                         <label>File Type:</label>
                         <span>@Model.FileType?.TrimStart('.')</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Original Filename:</label>
+                        <span>@Model.OriginalFileName</span>
                     </div>
                     <div class="info-item">
                         <label>File Size:</label>
@@ -111,6 +119,15 @@
                        class="btn btn-primary btn-large">
                         <span>⬇</span> Download Paper
                     </a>
+                    @if (Model.FileType?.Equals(".pdf", StringComparison.OrdinalIgnoreCase) == true ||
+                         Model.FileType?.Equals(".jpg", StringComparison.OrdinalIgnoreCase) == true ||
+                         Model.FileType?.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) == true ||
+                         Model.FileType?.Equals(".png", StringComparison.OrdinalIgnoreCase) == true ||
+                         Model.FileType?.Equals(".txt", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        <a href="@Url.Action("ViewPastPaper", "Resource", new { id = Model.Id })"
+                           class="btn btn-secondary btn-large" target="_blank" rel="noopener">View File</a>
+                    }
                     <button class="btn btn-secondary btn-large" onclick="copyLink()">
                         <span>🔗</span> Share Link
                     </button>

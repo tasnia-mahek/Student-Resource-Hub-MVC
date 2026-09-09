@@ -39,6 +39,10 @@ namespace student_resource_hub.Models
         [StringLength(500)]
         public string FilePath { get; set; } = string.Empty;
 
+        [Required]
+        [StringLength(255)]
+        public string OriginalFileName { get; set; } = string.Empty;
+
         [StringLength(100)]
         public string? FileType { get; set; }
 

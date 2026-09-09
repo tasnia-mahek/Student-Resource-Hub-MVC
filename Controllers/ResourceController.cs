@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using student_resource_hub.Data;
 using student_resource_hub.Models;
 using student_resource_hub.Services;
@@ -30,7 +31,8 @@ namespace student_resource_hub.Controllers
             [FromQuery] string? department = null,
             [FromQuery] int? year = null,
             [FromQuery] string? semester = null,
-            [FromQuery] string? sortBy = "newest")
+            [FromQuery] string? sortBy = "newest",
+            [FromQuery] string? search = null)
         {
             try
             {
@@ -38,23 +40,32 @@ namespace student_resource_hub.Controllers
                     .Where(p => p.Status == ResourceStatus.Approved)
                     .AsQueryable();
 
-                // Apply filters
-                if (!string.IsNullOrEmpty(department) && Enum.TryParse<Department>(department, out var deptEnum))
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var searchTerm = search.Trim();
+                    query = query.Where(p =>
+                        p.Title.Contains(searchTerm) ||
+                        p.SubjectName.Contains(searchTerm) ||
+                        p.CourseCode.Contains(searchTerm) ||
+                        p.ProfessorName.Contains(searchTerm) ||
+                        p.Description != null && p.Description.Contains(searchTerm));
+                }
+
+                if (!string.IsNullOrWhiteSpace(department) && !department.Equals("All", StringComparison.OrdinalIgnoreCase) && Enum.TryParse(department, true, out Department deptEnum))
                 {
                     query = query.Where(p => p.Department == deptEnum);
                 }
 
-                if (year.HasValue)
+                if (year.HasValue && year.Value > 0)
                 {
                     query = query.Where(p => (int)p.Year == year.Value);
                 }
 
-                if (!string.IsNullOrEmpty(semester) && Enum.TryParse<Semester>(semester, out var semEnum))
+                if (!string.IsNullOrWhiteSpace(semester) && !semester.Equals("All", StringComparison.OrdinalIgnoreCase) && Enum.TryParse(semester, true, out Semester semEnum))
                 {
                     query = query.Where(p => p.Semester == semEnum);
                 }
 
-                // Apply sorting
                 query = sortBy switch
                 {
                     "oldest" => query.OrderBy(p => p.CreatedDate),
@@ -67,10 +78,11 @@ namespace student_resource_hub.Controllers
                 var viewModel = new ResourceListViewModel<PastPaper>
                 {
                     Resources = pastPapers,
-                    SelectedDepartment = department,
-                    SelectedYear = year,
-                    SelectedSemester = semester,
-                    SelectedSort = sortBy ?? "newest"
+                    SelectedDepartment = string.IsNullOrWhiteSpace(department) || department == "All" ? null : department,
+                    SelectedYear = year.HasValue && year.Value > 0 ? year : null,
+                    SelectedSemester = string.IsNullOrWhiteSpace(semester) || semester == "All" ? null : semester,
+                    SelectedSort = sortBy ?? "newest",
+                    SearchTerm = search
                 };
 
                 return View(viewModel);
@@ -88,7 +100,8 @@ namespace student_resource_hub.Controllers
             [FromQuery] string? department = null,
             [FromQuery] int? year = null,
             [FromQuery] string? semester = null,
-            [FromQuery] string? sortBy = "toprated")
+            [FromQuery] string? sortBy = "toprated",
+            [FromQuery] string? search = null)
         {
             try
             {
@@ -96,23 +109,31 @@ namespace student_resource_hub.Controllers
                     .Where(n => n.Status == ResourceStatus.Approved)
                     .AsQueryable();
 
-                // Apply filters
-                if (!string.IsNullOrEmpty(department) && Enum.TryParse<Department>(department, out var deptEnum))
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var searchTerm = search.Trim();
+                    query = query.Where(n =>
+                        n.Title.Contains(searchTerm) ||
+                        n.SubjectName.Contains(searchTerm) ||
+                        n.ProfessorName != null && n.ProfessorName.Contains(searchTerm) ||
+                        n.Description != null && n.Description.Contains(searchTerm));
+                }
+
+                if (!string.IsNullOrWhiteSpace(department) && department != "All" && Enum.TryParse<Department>(department, out var deptEnum))
                 {
                     query = query.Where(n => n.Department == deptEnum);
                 }
 
-                if (year.HasValue)
+                if (year.HasValue && year.Value > 0)
                 {
                     query = query.Where(n => (int)n.Year == year.Value);
                 }
 
-                if (!string.IsNullOrEmpty(semester) && Enum.TryParse<Semester>(semester, out var semEnum))
+                if (!string.IsNullOrWhiteSpace(semester) && semester != "All" && Enum.TryParse<Semester>(semester, out var semEnum))
                 {
                     query = query.Where(n => n.Semester == semEnum);
                 }
 
-                // Apply sorting
                 query = sortBy switch
                 {
                     "newest" => query.OrderByDescending(n => n.CreatedDate),
@@ -125,10 +146,11 @@ namespace student_resource_hub.Controllers
                 var viewModel = new ResourceListViewModel<Note>
                 {
                     Resources = notes,
-                    SelectedDepartment = department,
-                    SelectedYear = year,
-                    SelectedSemester = semester,
-                    SelectedSort = sortBy ?? "toprated"
+                    SelectedDepartment = string.IsNullOrWhiteSpace(department) || department == "All" ? null : department,
+                    SelectedYear = year.HasValue && year.Value > 0 ? year : null,
+                    SelectedSemester = string.IsNullOrWhiteSpace(semester) || semester == "All" ? null : semester,
+                    SelectedSort = sortBy ?? "toprated",
+                    SearchTerm = search
                 };
 
                 return View(viewModel);
@@ -137,6 +159,74 @@ namespace student_resource_hub.Controllers
             {
                 _logger.LogError($"Error loading notes: {ex.Message}");
                 return BadRequest("Error loading notes.");
+            }
+        }
+
+        // GET: Resource/Lectures
+        [HttpGet]
+        public async Task<IActionResult> Lectures(
+            [FromQuery] string? department = null,
+            [FromQuery] int? year = null,
+            [FromQuery] string? semester = null,
+            [FromQuery] string? sortBy = "newest",
+            [FromQuery] string? search = null)
+        {
+            try
+            {
+                var query = _context.Lectures
+                    .Where(l => l.Status == ResourceStatus.Approved)
+                    .AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var searchTerm = search.Trim();
+                    query = query.Where(l =>
+                        l.Title.Contains(searchTerm) ||
+                        l.SubjectName.Contains(searchTerm) ||
+                        l.ProfessorName != null && l.ProfessorName.Contains(searchTerm) ||
+                        l.Description != null && l.Description.Contains(searchTerm));
+                }
+
+                if (!string.IsNullOrWhiteSpace(department) && department != "All" && Enum.TryParse<Department>(department, out var deptEnum))
+                {
+                    query = query.Where(l => l.Department == deptEnum);
+                }
+
+                if (year.HasValue && year.Value > 0)
+                {
+                    query = query.Where(l => (int)l.Year == year.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(semester) && semester != "All" && Enum.TryParse<Semester>(semester, out var semEnum))
+                {
+                    query = query.Where(l => l.Semester == semEnum);
+                }
+
+                query = sortBy switch
+                {
+                    "oldest" => query.OrderBy(l => l.CreatedDate),
+                    "mostDownloaded" => query.OrderByDescending(l => l.DownloadCount),
+                    _ => query.OrderByDescending(l => l.CreatedDate)
+                };
+
+                var lectures = await query.Include(l => l.UploadedByUser).ToListAsync();
+
+                var viewModel = new ResourceListViewModel<Lecture>
+                {
+                    Resources = lectures,
+                    SelectedDepartment = string.IsNullOrWhiteSpace(department) || department == "All" ? null : department,
+                    SelectedYear = year.HasValue && year.Value > 0 ? year : null,
+                    SelectedSemester = string.IsNullOrWhiteSpace(semester) || semester == "All" ? null : semester,
+                    SelectedSort = sortBy ?? "newest",
+                    SearchTerm = search
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error loading lectures: {ex.Message}");
+                return BadRequest("Error loading lectures.");
             }
         }
 
@@ -198,12 +288,41 @@ namespace student_resource_hub.Controllers
             }
         }
 
+        // GET: Resource/LectureDetails/5
+        [HttpGet("Resource/LectureDetails/{id}")]
+        public async Task<IActionResult> LectureDetails(int id)
+        {
+            try
+            {
+                var lecture = await _context.Lectures
+                    .Include(l => l.UploadedByUser)
+                    .FirstOrDefaultAsync(l => l.Id == id && l.Status == ResourceStatus.Approved);
+
+                if (lecture == null)
+                {
+                    return NotFound("Lecture not found.");
+                }
+
+                // Increment view count
+                lecture.ViewCount++;
+                _context.Update(lecture);
+                await _context.SaveChangesAsync();
+
+                return View(lecture);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error loading lecture details: {ex.Message}");
+                return BadRequest("Error loading lecture details.");
+            }
+        }
+
         // GET: Resource/UploadPastPaper
         [Authorize(Roles = "Student,Admin")]
         [HttpGet]
         public IActionResult UploadPastPaper()
         {
-            return View();
+            return View(new UploadResourceViewModel());
         }
 
         // POST: Resource/UploadPastPaper
@@ -225,39 +344,64 @@ namespace student_resource_hub.Controllers
                     return View(model);
                 }
 
-                // Upload file
-                string filePath = await _fileService.UploadFileAsync(model.File, "uploads/past-papers");
-
-                var userId = HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value ??
-                             _context.Users.FirstOrDefault(u => u.Email == User.Identity!.Name)?.Id.ToString();
-
-                if (string.IsNullOrEmpty(userId))
+                if (!_fileService.ValidateFileUpload(model.File, 50 * 1024 * 1024))
                 {
-                    ModelState.AddModelError("", "Could not identify current user.");
+                    ModelState.AddModelError(nameof(model.File), "Unsupported or invalid file. Use PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, JPEG, PNG, or GIF up to 50MB.");
                     return View(model);
                 }
 
-                var paper = new PastPaper
+                string filePath = await _fileService.UploadFileAsync(model.File, "uploads/past-papers");
+
+                try
                 {
-                    SubjectName = model.SubjectName,
-                    CourseCode = model.CourseCode,
-                    Description = model.Description,
-                    ProfessorName = model.ProfessorName,
-                    Department = model.Department,
-                    Year = model.Year,
-                    Semester = model.Semester,
-                    FilePath = filePath,
-                    FileType = _fileService.GetFileExtension(model.File.FileName),
-                    FileSizeBytes = model.File.Length,
-                    UploadedByUserId = int.Parse(userId),
-                    Status = ResourceStatus.Pending,
-                    CreatedDate = DateTime.UtcNow
-                };
+                    var identityValues = User.Claims
+                        .Select(claim => claim.Value)
+                        .Where(value => !string.IsNullOrWhiteSpace(value))
+                        .Distinct()
+                        .ToArray();
+                    var user = await _context.Users
+                        .FirstOrDefaultAsync(u => identityValues.Contains(u.Email) || identityValues.Contains(u.FullName));
+                    var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? user?.Id.ToString();
 
-                _context.PastPapers.Add(paper);
-                await _context.SaveChangesAsync();
+                    if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out var uploadedByUserId))
+                    {
+                        ModelState.AddModelError("", "Could not identify current user.");
+                        await _fileService.DeleteFileAsync(filePath);
+                        return View(model);
+                    }
 
-                TempData["SuccessMessage"] = "Past paper uploaded successfully! It will be reviewed by admins.";
+                    var paper = new PastPaper
+                    {
+                        Title = model.Title,
+                        SubjectName = model.SubjectName,
+                        CourseCode = model.CourseCode,
+                        Description = model.Description,
+                        ProfessorName = model.ProfessorName,
+                        Department = model.Department,
+                        Year = model.Year,
+                        Semester = model.Semester,
+                        FilePath = filePath,
+                        OriginalFileName = Path.GetFileName(model.File.FileName),
+                        FileType = _fileService.GetFileExtension(model.File.FileName),
+                        FileSizeBytes = model.File.Length,
+                        UploadedByUserId = uploadedByUserId,
+                        Status = User.IsInRole("Admin") ? ResourceStatus.Approved : ResourceStatus.Pending,
+                        ApprovedDate = User.IsInRole("Admin") ? DateTime.UtcNow : null,
+                        CreatedDate = DateTime.UtcNow
+                    };
+
+                    _context.PastPapers.Add(paper);
+                    await _context.SaveChangesAsync();
+                }
+                catch
+                {
+                    await _fileService.DeleteFileAsync(filePath);
+                    throw;
+                }
+
+                TempData["SuccessMessage"] = User.IsInRole("Admin")
+                    ? "Past paper uploaded and approved successfully."
+                    : "Past paper uploaded successfully! It will be reviewed by admins.";
                 return RedirectToAction(nameof(PastPapers));
             }
             catch (Exception ex)
@@ -273,7 +417,7 @@ namespace student_resource_hub.Controllers
         [HttpGet]
         public IActionResult UploadNote()
         {
-            return View();
+            return View(new UploadNoteViewModel());
         }
 
         // POST: Resource/UploadNote
@@ -295,7 +439,12 @@ namespace student_resource_hub.Controllers
                     return View(model);
                 }
 
-                // Upload file
+                if (!_fileService.ValidateFileUpload(model.File, 50 * 1024 * 1024))
+                {
+                    ModelState.AddModelError(nameof(model.File), "Unsupported or invalid file. Use PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, JPEG, PNG, or GIF up to 50MB.");
+                    return View(model);
+                }
+
                 string filePath = await _fileService.UploadFileAsync(model.File, "uploads/notes");
 
                 var userId = HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value ??
@@ -318,6 +467,7 @@ namespace student_resource_hub.Controllers
                     Year = model.Year,
                     Semester = model.Semester,
                     FilePath = filePath,
+                    OriginalFileName = Path.GetFileName(model.File.FileName),
                     FileType = _fileService.GetFileExtension(model.File.FileName),
                     FileSizeBytes = model.File.Length,
                     UploadedByUserId = int.Parse(userId),
@@ -339,13 +489,150 @@ namespace student_resource_hub.Controllers
             }
         }
 
+        // GET: Resource/UploadLecture
+        [Authorize(Roles = "Student,Admin")]
+        [HttpGet]
+        public IActionResult UploadLecture()
+        {
+            return View(new UploadLectureViewModel());
+        }
+
+        // POST: Resource/UploadLecture
+        [Authorize(Roles = "Student,Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadLecture(UploadLectureViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                if (model.File == null || model.File.Length == 0)
+                {
+                    ModelState.AddModelError(nameof(model.File), "Please select a file to upload.");
+                    return View(model);
+                }
+
+                if (!_fileService.ValidateFileUpload(model.File, 50 * 1024 * 1024))
+                {
+                    ModelState.AddModelError(nameof(model.File), "Unsupported or invalid file. Use PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, JPEG, PNG, or GIF up to 50MB.");
+                    return View(model);
+                }
+
+                string filePath = await _fileService.UploadFileAsync(model.File, "uploads/lectures");
+
+                var userId = HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value ??
+                             _context.Users.FirstOrDefault(u => u.Email == User.Identity!.Name)?.Id.ToString();
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    ModelState.AddModelError("", "Could not identify current user.");
+                    return View(model);
+                }
+
+                var lecture = new Lecture
+                {
+                    Title = model.Title,
+                    SubjectName = model.SubjectName,
+                    CourseCode = model.CourseCode,
+                    Description = model.Description,
+                    ProfessorName = model.ProfessorName,
+                    Topics = model.Topics,
+                    Department = model.Department,
+                    Year = model.Year,
+                    Semester = model.Semester,
+                    FilePath = filePath,
+                    OriginalFileName = Path.GetFileName(model.File.FileName),
+                    FileType = _fileService.GetFileExtension(model.File.FileName),
+                    FileSizeBytes = model.File.Length,
+                    UploadedByUserId = int.Parse(userId),
+                    Status = ResourceStatus.Pending,
+                    CreatedDate = DateTime.UtcNow
+                };
+
+                _context.Lectures.Add(lecture);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Lecture uploaded successfully! It will be reviewed by admins.";
+                return RedirectToAction(nameof(Lectures));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error uploading lecture: {ex.Message}");
+                ModelState.AddModelError("", "Error uploading file. Please try again.");
+                return View(model);
+            }
+        }
+
+        // GET: Resource/ViewPastPaper/5
+        [HttpGet("Resource/ViewPastPaper/{id}")]
+        public async Task<IActionResult> ViewPastPaper(int id)
+        {
+            try
+            {
+                var paper = await _context.PastPapers
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(p => p.Id == id && p.Status == ResourceStatus.Approved);
+
+                if (paper == null)
+                {
+                    return NotFound("Past paper not found.");
+                }
+
+                if (!IsPastPaperPath(paper.FilePath))
+                {
+                    _logger.LogWarning("Rejected unsafe Past Paper file path for resource {Id}.", id);
+                    return BadRequest("The stored file path is invalid.");
+                }
+
+                var extension = _fileService.GetFileExtension(paper.FilePath);
+                if (extension != ".pdf" && extension != ".jpg" && extension != ".jpeg" && extension != ".png" && extension != ".txt")
+                {
+                    return RedirectToAction(nameof(Download), new { id, type = "paper" });
+                }
+
+                var stream = await _fileService.GetFileStreamAsync(paper.FilePath);
+                return File(stream, _fileService.GetMimeType(extension), enableRangeProcessing: true);
+            }
+            catch (FileNotFoundException)
+            {
+                return NotFound("The stored Past Paper file could not be found.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error viewing Past Paper {Id}.", id);
+                return BadRequest("Error viewing the Past Paper file.");
+            }
+        }
+
+        private bool IsPastPaperPath(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath) || Path.IsPathRooted(filePath))
+            {
+                return false;
+            }
+
+            var webRoot = Path.GetFullPath(_fileServiceRootPath());
+            var fullPath = Path.GetFullPath(Path.Combine(webRoot, filePath.Replace('/', Path.DirectorySeparatorChar)));
+            var pastPaperRoot = Path.GetFullPath(Path.Combine(webRoot, "uploads", "past-papers")) + Path.DirectorySeparatorChar;
+            return fullPath.StartsWith(pastPaperRoot, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private string _fileServiceRootPath()
+        {
+            return HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath;
+        }
+
         // GET: Resource/Download/5?type=paper
         [HttpGet("Resource/Download/{id}")]
         public async Task<IActionResult> Download(int id, string type)
         {
             try
             {
-                if (type != "paper" && type != "note")
+                if (type != "paper" && type != "note" && type != "lecture")
                 {
                     return BadRequest("Invalid resource type.");
                 }
@@ -358,16 +645,24 @@ namespace student_resource_hub.Controllers
                         return NotFound("Past paper not found.");
                     }
 
+                    if (!IsPastPaperPath(paper.FilePath))
+                    {
+                        _logger.LogWarning("Rejected unsafe Past Paper file path for resource {Id}.", id);
+                        return BadRequest("The stored file path is invalid.");
+                    }
+
                     // Increment download count
                     paper.DownloadCount++;
                     _context.Update(paper);
                     await _context.SaveChangesAsync();
 
                     var stream = await _fileService.GetFileStreamAsync(paper.FilePath);
-                    string mimeType = _fileService.GetMimeType(paper.FileType!);
-                    return File(stream, mimeType, $"{paper.CourseCode}_{paper.Year}.{paper.FileType!.TrimStart('.')}");
+                    string extension = _fileService.GetFileExtension(paper.OriginalFileName);
+                    string mimeType = _fileService.GetMimeType(extension);
+                    string downloadName = Path.GetFileName(paper.OriginalFileName);
+                    return File(stream, mimeType, downloadName);
                 }
-                else
+                else if (type == "note")
                 {
                     var note = await _context.Notes.FirstOrDefaultAsync(n => n.Id == id);
                     if (note == null)
@@ -383,6 +678,23 @@ namespace student_resource_hub.Controllers
                     var stream = await _fileService.GetFileStreamAsync(note.FilePath);
                     string mimeType = _fileService.GetMimeType(note.FileType!);
                     return File(stream, mimeType, $"{note.CourseCode}_{note.Title}.{note.FileType!.TrimStart('.')}");
+                }
+                else
+                {
+                    var lecture = await _context.Lectures.FirstOrDefaultAsync(l => l.Id == id);
+                    if (lecture == null)
+                    {
+                        return NotFound("Lecture not found.");
+                    }
+
+                    // Increment download count
+                    lecture.DownloadCount++;
+                    _context.Update(lecture);
+                    await _context.SaveChangesAsync();
+
+                    var stream = await _fileService.GetFileStreamAsync(lecture.FilePath);
+                    string mimeType = _fileService.GetMimeType(lecture.FileType!);
+                    return File(stream, mimeType, $"{lecture.CourseCode}_{lecture.Title}.{lecture.FileType!.TrimStart('.')}");
                 }
             }
             catch (Exception ex)
