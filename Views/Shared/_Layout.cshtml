@@ -11,156 +11,249 @@
     <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/notifications.css" asp-append-version="true" />
 </head>
-<body class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Account" && ViewContext.RouteData.Values["Action"]?.ToString() != "Profile" ? "auth-layout" : ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "dashboard-shell-layout" : "")">
-    <header class="site-header">
-        <div class="site-header-inner">
-            <a class="brand" asp-controller="Home" asp-action="Index" aria-label="StudyHub Home">
-                <span class="brand-mark" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" focusable="false">
-                        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-                        <path d="M6 6h10M6 10h10M6 14h6"/>
-                    </svg>
-                </span>
-                <div class="brand-text">
-                    <span class="brand-title">StudyHub</span>
-                    <span class="brand-subtitle">Student Resource Portal</span>
-                </div>
-            </a>
-
-            <label class="search-box" aria-label="Search resources">
-                <span class="search-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" focusable="false">
-                        <circle cx="11" cy="11" r="7"/>
-                        <path d="m20 20-3.5-3.5"/>
-                    </svg>
-                </span>
-                <input type="search" placeholder="Search for courses, notes, lectures, or past papers..." />
-                <span class="search-shortcut">⌘K</span>
-            </label>
-
-            <div class="header-actions">
-                <!-- Notification Center Bell Trigger & Dropdown -->
-                <div class="notification-wrapper">
-                    <button class="notification-bell-btn" type="button" aria-label="Open notifications" aria-haspopup="true" aria-expanded="false" title="Notifications">
-                        <svg class="bell-icon" viewBox="0 0 24 24" focusable="false">
-                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-                            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-                        </svg>
-                        <span class="notification-badge-count" aria-live="polite">0</span>
-                    </button>
-
-                    <!-- Dropdown Panel -->
-                    <div class="notification-dropdown" role="region" aria-label="Notifications panel">
-                        <div class="notification-dropdown-header">
-                            <div class="notif-header-title-wrap">
-                                <h3 class="notif-header-title">Notifications</h3>
-                                <span class="notif-unread-pill">0 new</span>
-                            </div>
-                            <button class="notif-mark-all-btn" type="button">
-                                <span>✓</span>
-                                <span>Mark all as read</span>
-                            </button>
-                        </div>
-
-                        <!-- Dropdown Filter Tabs -->
-                        <div class="notification-dropdown-tabs">
-                            <button class="notif-tab-btn is-active" type="button" data-filter="all">All</button>
-                            <button class="notif-tab-btn" type="button" data-filter="unread">Unread</button>
-                            <button class="notif-tab-btn" type="button" data-filter="academic">Academic</button>
-                            <button class="notif-tab-btn" type="button" data-filter="system">System</button>
-                        </div>
-
-                        <!-- Scrollable Notification List -->
-                        <div class="notification-dropdown-body">
-                            <!-- Populated dynamically by notifications.js -->
-                        </div>
-
-                        <!-- Dropdown Footer -->
-                        <div class="notification-dropdown-footer">
-                            <a class="notif-view-all-link" asp-controller="Home" asp-action="Notifications">
-                                <span>View all notifications</span>
-                                <span aria-hidden="true">&rarr;</span>
-                            </a>
-                            <button class="notif-clear-read-btn" type="button">Clear read</button>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme" title="Toggle dark/light theme">
-                    <span class="theme-icon-sun" aria-hidden="true">☀️</span>
-                    <span class="theme-icon-moon" aria-hidden="true">🌙</span>
-                </button>
-
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <a class="auth-user-pill profile-nav-link" asp-controller="Account" asp-action="Profile" title="Open your profile">
-                        <span class="profile-avatar profile-avatar-small" aria-hidden="true">@string.Concat((User.Identity?.Name ?? "Student").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(name => name[0]))</span>
-                        <span class="auth-user-name">@(User.Identity?.Name ?? "Student")</span>
-                        <span class="user-role-badge">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Student")</span>
-                    </a>
-                    <div class="auth-user-pill auth-user-actions">
-                        <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;margin:0;">
-                            <button class="auth-logout-btn" type="submit" title="Sign out">Logout</button>
-                        </form>
-                    </div>
-                }
-                else
-                {
-                    <div class="auth-group">
-                        <a class="auth-link" asp-controller="Account" asp-action="Login">Sign In</a>
-                        <a class="auth-link auth-link-primary" asp-controller="Account" asp-action="Register">Get Started</a>
-                    </div>
-                }
-            </div>
-        </div>
-
-        <nav class="resource-nav" aria-label="Resource navigation">
-            <div class="resource-nav-inner">
-                <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">
-                    <span class="nav-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    </span>
-                    <span>Dashboard</span>
-                </a>
-                <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "PastPapers" ? "active" : "")" asp-controller="Home" asp-action="PastPapers">
-                    <span class="nav-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    </span>
-                    <span>Past Papers</span>
-                </a>
-                <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Lectures" ? "active" : "")" asp-controller="Home" asp-action="Lectures">
-                    <span class="nav-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="15" rx="2"/><polygon points="10 8 16 11.5 10 15 10 8"/></svg>
-                    </span>
-                    <span>Lectures</span>
-                </a>
-                <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Notes" ? "active" : "")" asp-controller="Home" asp-action="Notes">
-                    <span class="nav-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                    </span>
-                    <span>Study Notes</span>
-                </a>
-                <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Favorites" ? "active" : "")" asp-controller="Home" asp-action="Favorites">
-                    <span class="nav-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    </span>
-                    <span>Favorites</span>
-                </a>
-                <a class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Privacy" ? "active" : "")" asp-controller="Home" asp-action="Privacy">
-                    <span class="nav-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </span>
-                    <span>Policy &amp; Guidelines</span>
-                </a>
-            </div>
-        </nav>
-    </header>
-
-    <div class="page-shell">
+@{
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString() ?? "";
+    var isAuthPage = currentController == "Account" && currentAction != "Profile";
+}
+<body class="@(isAuthPage ? "auth-layout" : "app-body")">
+    @if (isAuthPage)
+    {
+        <!-- Standalone Auth Page Shell -->
         <main role="main">
             @RenderBody()
         </main>
-    </div>
+    }
+    else
+    {
+        <!-- Unified Application Shell with Persistent Left Sidebar -->
+        <div class="app-shell">
+            <!-- Persistent Left Navigation Sidebar -->
+            <aside class="study-sidebar" aria-label="Main sidebar navigation">
+                <a class="study-brand" asp-controller="Home" asp-action="Index" aria-label="StudyHub Home">
+                    <span class="study-brand-mark">
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                            <path d="M6 6h10M6 10h10M6 14h6"/>
+                        </svg>
+                    </span>
+                    <span class="study-brand-name">StudyHub</span>
+                </a>
+
+                <nav class="study-sidebar-nav" aria-label="Dashboard navigation">
+                    <span class="study-nav-label">MAIN MENU</span>
+                    <a class="@(currentController == "Home" && currentAction == "Index" ? "study-nav-active" : "")" asp-controller="Home" asp-action="Index">
+                        <span class="nav-glyph">⌂</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="@(currentAction == "PastPapers" || currentAction == "PastPaperDetails" || currentAction == "UploadPastPaper" || currentAction == "ViewPastPaper" ? "study-nav-active" : "")" asp-controller="Home" asp-action="PastPapers">
+                        <span class="nav-glyph">▤</span>
+                        <span>Past Papers</span>
+                    </a>
+                    <a class="@(currentAction == "Lectures" || currentAction == "LectureDetails" || currentAction == "UploadLecture" ? "study-nav-active" : "")" asp-controller="Home" asp-action="Lectures">
+                        <span class="nav-glyph">▶</span>
+                        <span>Video Lectures</span>
+                    </a>
+                    <a class="@(currentAction == "Notes" || currentAction == "NoteDetails" || currentAction == "UploadNote" ? "study-nav-active" : "")" asp-controller="Home" asp-action="Notes">
+                        <span class="nav-glyph">▥</span>
+                        <span>Study Notes</span>
+                    </a>
+                    <a class="@(currentAction == "Favorites" ? "study-nav-active" : "")" asp-controller="Home" asp-action="Favorites">
+                        <span class="nav-glyph">☆</span>
+                        <span>Favorites</span>
+                    </a>
+
+                    <span class="study-nav-label study-nav-space">PREFERENCES</span>
+                    <a class="@(currentAction == "Privacy" ? "study-nav-active" : "")" asp-controller="Home" asp-action="Privacy">
+                        <span class="nav-glyph">🛡️</span>
+                        <span>Policy &amp; Rules</span>
+                    </a>
+                    <button class="study-theme-button" type="button" data-theme-toggle aria-label="Switch Theme">
+                        <span class="nav-glyph">◐</span>
+                        <span>Switch Theme</span>
+                    </button>
+                </nav>
+
+                <div class="study-sidebar-footer">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="study-sidebar-profile-link" asp-controller="Account" asp-action="Profile" title="Open your profile">
+                            <span class="study-avatar">@string.Concat((User.Identity?.Name ?? "Student").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(name => name[0]))</span>
+                            <div class="study-sidebar-user-info">
+                                <strong>@(User.Identity?.Name ?? "Student Account")</strong>
+                                <small>@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Active Scholar")</small>
+                            </div>
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="study-sidebar-profile-link" asp-controller="Account" asp-action="Login" title="Sign in to your account">
+                            <span class="study-avatar">ST</span>
+                            <div class="study-sidebar-user-info">
+                                <strong>Guest Student</strong>
+                                <small>Sign in to sync</small>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </aside>
+
+            <!-- Main Workspace Area -->
+            <div class="app-main-wrapper">
+                <!-- Global Topbar Header -->
+                <header class="site-header">
+                    <div class="site-header-inner">
+                        <label class="search-box" aria-label="Search resources">
+                            <span class="search-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <circle cx="11" cy="11" r="7"/>
+                                    <path d="m20 20-3.5-3.5"/>
+                                </svg>
+                            </span>
+                            <input type="search" placeholder="Search for courses, notes, lectures, or past papers..." />
+                            <span class="search-shortcut">⌘K</span>
+                        </label>
+
+                        <div class="header-actions">
+                            <!-- Notification Center Bell Trigger & Dropdown -->
+                            <div class="notification-wrapper">
+                                <button class="notification-bell-btn" type="button" aria-label="Open notifications" aria-haspopup="true" aria-expanded="false" title="Notifications">
+                                    <svg class="bell-icon" viewBox="0 0 24 24" focusable="false">
+                                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                                    </svg>
+                                    <span class="notification-badge-count" aria-live="polite">0</span>
+                                </button>
+
+                                <!-- Dropdown Panel -->
+                                <div class="notification-dropdown" role="region" aria-label="Notifications panel">
+                                    <div class="notification-dropdown-header">
+                                        <div class="notif-header-title-wrap">
+                                            <h3 class="notif-header-title">Notifications</h3>
+                                            <span class="notif-unread-pill">0 new</span>
+                                        </div>
+                                        <button class="notif-mark-all-btn" type="button">
+                                            <span>✓</span>
+                                            <span>Mark all as read</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Dropdown Filter Tabs -->
+                                    <div class="notification-dropdown-tabs">
+                                        <button class="notif-tab-btn is-active" type="button" data-filter="all">All</button>
+                                        <button class="notif-tab-btn" type="button" data-filter="unread">Unread</button>
+                                        <button class="notif-tab-btn" type="button" data-filter="academic">Academic</button>
+                                        <button class="notif-tab-btn" type="button" data-filter="system">System</button>
+                                    </div>
+
+                                    <!-- Scrollable Notification List -->
+                                    <div class="notification-dropdown-body">
+                                        <!-- Populated dynamically by notifications.js -->
+                                    </div>
+
+                                    <!-- Dropdown Footer -->
+                                    <div class="notification-dropdown-footer">
+                                        <a class="notif-view-all-link" asp-controller="Home" asp-action="Notifications">
+                                            <span>View all notifications</span>
+                                            <span aria-hidden="true">&rarr;</span>
+                                        </a>
+                                        <button class="notif-clear-read-btn" type="button">Clear read</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme" title="Toggle dark/light theme">
+                                <span class="theme-icon-sun" aria-hidden="true">☀️</span>
+                                <span class="theme-icon-moon" aria-hidden="true">🌙</span>
+                            </button>
+
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <a class="auth-user-pill profile-nav-link" asp-controller="Account" asp-action="Profile" title="Open your profile">
+                                    <span class="profile-avatar profile-avatar-small" aria-hidden="true">@string.Concat((User.Identity?.Name ?? "Student").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(name => name[0]))</span>
+                                    <span class="auth-user-name">@(User.Identity?.Name ?? "Student")</span>
+                                    <span class="user-role-badge">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Student")</span>
+                                </a>
+                                <div class="auth-user-pill auth-user-actions">
+                                    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;margin:0;">
+                                        <button class="auth-logout-btn" type="submit" title="Sign out">Logout</button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="auth-group">
+                                    <a class="auth-link" asp-controller="Account" asp-action="Login">Sign In</a>
+                                    <a class="auth-link auth-link-primary" asp-controller="Account" asp-action="Register">Get Started</a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Page Body Content -->
+                <main class="app-main-content" role="main">
+                    @RenderBody()
+                </main>
+
+                <!-- Modern Multi-Column Footer -->
+                <footer class="site-footer">
+                    <div class="footer-inner">
+                        <div class="footer-grid">
+                            <div class="footer-brand">
+                                <h4>
+                                    <span class="brand-mark" style="width:28px; height:28px; font-size:14px;">
+                                        <svg viewBox="0 0 24 24" style="width:16px; height:16px;"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
+                                    </span>
+                                    StudyHub
+                                </h4>
+                                <p>A unified, student-driven repository for past papers, recorded lectures, study notes, and focus planning.</p>
+                                <div class="footer-badges">
+                                    <span class="badge badge-emerald">● System Operational</span>
+                                    <span class="badge badge-outline">v2.4 LTS</span>
+                                </div>
+                            </div>
+                            <div class="footer-col">
+                                <h5>Resource Library</h5>
+                                <ul>
+                                    <li><a asp-controller="Home" asp-action="PastPapers">Past Examinations</a></li>
+                                    <li><a asp-controller="Home" asp-action="Lectures">Video Lectures</a></li>
+                                    <li><a asp-controller="Home" asp-action="Notes">Student Notes</a></li>
+                                    <li><a asp-controller="Home" asp-action="Favorites">Saved Collection</a></li>
+                                </ul>
+                            </div>
+                            <div class="footer-col">
+                                <h5>Account &amp; Access</h5>
+                                <ul>
+                                    <li><a asp-controller="Account" asp-action="Login">Student Login</a></li>
+                                    <li><a asp-controller="Account" asp-action="Register">Create Account</a></li>
+                                    <li><a asp-controller="Home" asp-action="Index">Dashboard Workspace</a></li>
+                                    <li><a asp-controller="Home" asp-action="Privacy">Academic Integrity</a></li>
+                                </ul>
+                            </div>
+                            <div class="footer-col">
+                                <h5>Guidelines &amp; Help</h5>
+                                <ul>
+                                    <li><a asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
+                                    <li><a asp-controller="Home" asp-action="Privacy">Content Submission Rules</a></li>
+                                    <li><a asp-controller="Home" asp-action="Privacy">Terms of Service</a></li>
+                                    <li><a href="mailto:support@studyhub.edu">Contact Support</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="footer-bottom">
+                            <div>&copy; 2026 StudyHub. Built for academic excellence and collaborative learning.</div>
+                            <div style="display:flex; gap:18px;">
+                                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+                                <a asp-controller="Home" asp-action="Privacy">Terms</a>
+                                <a asp-controller="Home" asp-action="Privacy">Security</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    }
 
     <!-- Global Resource Preview Modal -->
     <div class="modal-overlay" id="resourcePreviewModal" aria-hidden="true" role="dialog" aria-labelledby="modalResourceTitle">
@@ -203,62 +296,6 @@
 
     <!-- Toast Notification Container -->
     <div class="toast-container" aria-live="polite"></div>
-
-    <!-- Modern Multi-Column Footer -->
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <h4>
-                        <span class="brand-mark" style="width:28px; height:28px; font-size:14px;">
-                            <svg viewBox="0 0 24 24" style="width:16px; height:16px;"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
-                        </span>
-                        StudyHub
-                    </h4>
-                    <p>A unified, student-driven repository for past papers, recorded lectures, study notes, and focus planning.</p>
-                    <div class="footer-badges">
-                        <span class="badge badge-emerald">● System Operational</span>
-                        <span class="badge badge-outline">v2.4 LTS</span>
-                    </div>
-                </div>
-                <div class="footer-col">
-                    <h5>Resource Library</h5>
-                    <ul>
-                        <li><a asp-controller="Home" asp-action="PastPapers">Past Examinations</a></li>
-                        <li><a asp-controller="Home" asp-action="Lectures">Video Lectures</a></li>
-                        <li><a asp-controller="Home" asp-action="Notes">Student Notes</a></li>
-                        <li><a asp-controller="Home" asp-action="Favorites">Saved Collection</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h5>Account &amp; Access</h5>
-                    <ul>
-                        <li><a asp-controller="Account" asp-action="Login">Student Login</a></li>
-                        <li><a asp-controller="Account" asp-action="Register">Create Account</a></li>
-                        <li><a asp-controller="Home" asp-action="Index">Dashboard Workspace</a></li>
-                        <li><a asp-controller="Home" asp-action="Privacy">Academic Integrity</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h5>Guidelines &amp; Help</h5>
-                    <ul>
-                        <li><a asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
-                        <li><a asp-controller="Home" asp-action="Privacy">Content Submission Rules</a></li>
-                        <li><a asp-controller="Home" asp-action="Privacy">Terms of Service</a></li>
-                        <li><a href="mailto:support@studyhub.edu">Contact Support</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <div>&copy; 2026 StudyHub. Built for academic excellence and collaborative learning.</div>
-                <div style="display:flex; gap:18px;">
-                    <a asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    <a asp-controller="Home" asp-action="Privacy">Terms</a>
-                    <a asp-controller="Home" asp-action="Privacy">Security</a>
-                </div>
-            </div>
-        </div>
-    </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
