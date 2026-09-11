@@ -3,26 +3,8 @@
    Inspired by contemporary school & resource management dashboards
    ========================================================================== */
 
-/* Layout Shell: Full-bleed dashboard layout */
-.dashboard-shell-layout {
-    background-color: var(--bg-app);
-}
-
-.dashboard-shell-layout .site-header,
-.dashboard-shell-layout .resource-nav,
-.dashboard-shell-layout .site-footer {
-    display: none !important;
-}
-
-.dashboard-shell-layout .page-shell {
-    width: 100% !important;
-    max-width: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-/* --- Dashboard Master Grid --- */
-.study-dashboard {
+/* --- Master Application Shell Grid (Sidebar + Main Workspace) --- */
+.app-shell {
     display: grid;
     grid-template-columns: 260px minmax(0, 1fr);
     min-height: 100vh;
@@ -31,7 +13,21 @@
     transition: background-color 0.25s ease;
 }
 
-/* --- Sidebar Navigation --- */
+.app-main-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 100vh;
+    background-color: var(--bg-app);
+}
+
+.app-main-content {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+}
+
+/* --- Persistent Left Navigation Sidebar --- */
 .study-sidebar {
     display: flex;
     flex-direction: column;
@@ -42,7 +38,13 @@
     position: sticky;
     top: 0;
     height: 100vh;
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
     overflow-y: auto;
+    z-index: 100;
+    box-sizing: border-box;
+    transition: width 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
 }
 
 html[data-theme="dark"] .study-sidebar {
@@ -54,7 +56,7 @@ html[data-theme="dark"] .study-sidebar {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 0 12px 28px;
+    padding: 0 12px 24px;
     color: #ffffff;
     font-family: var(--font-display);
     font-size: 18px;
@@ -62,6 +64,13 @@ html[data-theme="dark"] .study-sidebar {
     text-decoration: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     margin-bottom: 20px;
+}
+
+.study-brand-name {
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.02em;
 }
 
 .study-brand-mark {
@@ -73,6 +82,7 @@ html[data-theme="dark"] .study-sidebar {
     background: linear-gradient(135deg, #4f46e5, #6366f1);
     color: #ffffff;
     box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+    flex-shrink: 0;
 }
 
 .study-brand-mark svg {
@@ -142,15 +152,31 @@ html[data-theme="dark"] .study-sidebar {
     width: 20px;
     font-size: 16px;
     color: inherit;
+    flex-shrink: 0;
 }
 
 .study-sidebar-footer {
     display: flex;
     align-items: center;
-    gap: 12px;
     margin-top: auto;
-    padding: 16px 12px 0;
+    padding: 16px 8px 0;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.study-sidebar-profile-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: var(--radius-md);
+    transition: background 0.18s ease;
+}
+
+.study-sidebar-profile-link:hover {
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .study-avatar {
@@ -163,16 +189,25 @@ html[data-theme="dark"] .study-sidebar {
     color: #ffffff;
     font-size: 12px;
     font-weight: 800;
+    flex-shrink: 0;
 }
 
-.study-sidebar-footer strong {
+.study-sidebar-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.study-sidebar-user-info strong {
     display: block;
     color: #f8fafc;
     font-size: 13px;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.study-sidebar-footer small {
+.study-sidebar-user-info small {
     display: block;
     color: #64748b;
     font-size: 11px;
@@ -181,8 +216,10 @@ html[data-theme="dark"] .study-sidebar {
 /* --- Dashboard Workspace Area --- */
 .study-workspace {
     min-width: 0;
-    padding: 32px clamp(24px, 4vw, 54px) 64px;
-    max-width: 1380px;
+    padding: 32px clamp(24px, 3.5vw, 48px) 64px;
+    max-width: 1400px;
+    margin: 0;
+    animation: page-fade-in 0.35s ease both;
 }
 
 /* Workspace Topbar */
@@ -605,20 +642,26 @@ html[data-theme="dark"] .study-sidebar {
     transform: translateX(3px);
 }
 
-/* --- Responsive Media Queries for Dashboard --- */
+/* --- Responsive Media Queries for Dashboard & App Shell --- */
 @media (max-width: 1080px) {
-    .study-dashboard {
+    .app-shell {
         grid-template-columns: 80px minmax(0, 1fr);
+    }
+    .study-sidebar {
+        width: 80px;
+        min-width: 80px;
+        max-width: 80px;
+        padding: 20px 8px;
     }
     .study-brand {
         justify-content: center;
         padding-inline: 0;
     }
-    .study-brand span:not(.study-brand-mark),
+    .study-brand-name,
     .study-nav-label,
     .study-sidebar-nav a span:not(.nav-glyph),
     .study-theme-button span:not(.nav-glyph),
-    .study-sidebar-footer div {
+    .study-sidebar-user-info {
         display: none;
     }
     .study-sidebar-nav a,
@@ -626,7 +669,8 @@ html[data-theme="dark"] .study-sidebar {
         justify-content: center;
         padding: 0;
     }
-    .study-sidebar-footer {
+    .study-sidebar-footer,
+    .study-sidebar-profile-link {
         justify-content: center;
         padding-inline: 0;
     }
@@ -638,10 +682,13 @@ html[data-theme="dark"] .study-sidebar {
 }
 
 @media (max-width: 640px) {
-    .study-dashboard {
+    .app-shell {
         display: block;
     }
     .study-sidebar {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
         height: auto;
         position: static;
         padding: 14px 16px;
