@@ -166,10 +166,10 @@ button, input, select, textarea {
     align-items: center;
     justify-content: space-between;
     min-height: var(--header-height);
-    padding: 0 28px;
+    padding: 0 clamp(24px, 3.5vw, 48px);
     gap: 24px;
-    max-width: 1440px;
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
 }
 
 /* Brand */
@@ -242,7 +242,7 @@ button, input, select, textarea {
     gap: 10px;
     flex: 1;
     max-width: 520px;
-    margin: 0 auto;
+    margin: 0;
     padding: 0 16px;
     height: 44px;
     background: var(--bg-surface-alt);
@@ -716,6 +716,9 @@ html[data-theme="dark"] .theme-icon-moon { display: block; }
     grid-template-columns: 260px minmax(0, 1fr);
     gap: 32px;
     align-items: start;
+    padding: 32px clamp(24px, 3.5vw, 48px) 64px;
+    max-width: 1400px;
+    margin: 0;
     animation: page-fade-in 0.35s ease both;
 }
 
@@ -1310,9 +1313,9 @@ html[data-theme="dark"] .theme-icon-moon { display: block; }
 }
 
 .footer-inner {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 0 28px;
+    width: 100%;
+    margin: 0;
+    padding: 0 clamp(24px, 3.5vw, 48px);
 }
 
 .footer-grid {

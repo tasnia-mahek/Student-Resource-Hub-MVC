@@ -31,6 +31,11 @@ namespace student_resource_hub.Controllers
             return View();
         }
 
+        public IActionResult Notifications()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();
