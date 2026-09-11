@@ -1,0 +1,176 @@
+@using student_resource_hub.Models
+@model ResourceListViewModel<PastPaper>
+
+@{
+    ViewData["Title"] = "Past Papers";
+}
+
+<link rel="stylesheet" href="~/css/resource-list.css" />
+
+<div class="catalog-layout document-catalog">
+    <!-- Filter Panel -->
+    <aside class="filter-panel">
+        <div class="filter-title">
+            <h2>Filters</h2>
+            <a href="@Url.Action("PastPapers", "Resource")" class="clear-filters">Clear all</a>
+        </div>
+
+        <form method="get" class="filter-form">
+            <div class="mb-3">
+                <label for="search">Search</label>
+                <input type="search" id="search" name="search" value="@Model.SearchTerm" class="form-control" placeholder="Title, subject, professor..." />
+            </div>
+
+            <fieldset>
+                <legend>Department</legend>
+                <select name="department" class="form-control">
+                    <option value="All">All</option>
+                    @foreach (var dept in Model.Departments)
+                    {
+                        <option value="@dept" selected="@(Model.SelectedDepartment == dept ? true : null)">@dept.Replace("ComputerScience", "Computer Science")</option>
+                    }
+                </select>
+            </fieldset>
+
+            <fieldset>
+                <legend>Year</legend>
+                <select name="year" class="form-control">
+                    <option value="0">All</option>
+                    @foreach (var yr in Model.Years)
+                    {
+                        <option value="@yr" selected="@(Model.SelectedYear == yr ? true : null)">@yr</option>
+                    }
+                </select>
+            </fieldset>
+
+            <fieldset>
+                <legend>Semester</legend>
+                <select name="semester" class="form-control">
+                    <option value="All">All</option>
+                    @foreach (var sem in Model.Semesters)
+                    {
+                        <option value="@sem" selected="@(Model.SelectedSemester == sem ? true : null)">@sem</option>
+                    }
+                </select>
+            </fieldset>
+
+            <button type="submit" class="filter-button">Apply Filters</button>
+        </form>
+    </aside>
+
+    <!-- Content Section -->
+    <section class="catalog-content">
+        <div class="catalog-heading">
+            <div>
+                <span class="eyebrow">RESOURCE LIBRARY</span>
+                <h1>Past Papers</h1>
+                <p>Practice with exams shared by students across departments.</p>
+            </div>
+            <div class="sort-upload">
+                <select id="sortSelect" onchange="updateSort(this.value)">
+                    @{
+                        var sorts = new[] { ("newest", "Newest first"), ("oldest", "Oldest first"), ("mostDownloaded", "Most downloaded") };
+                        foreach (var (value, text) in sorts)
+                        {
+                            if (Model.SelectedSort == value)
+                            {
+                                <option value="@value" selected="selected">@text</option>
+                            }
+                            else
+                            {
+                                <option value="@value">@text</option>
+                            }
+                        }
+                    }
+                </select>
+                @if (User.IsInRole("Student") || User.IsInRole("Admin"))
+                {
+                    <a href="@Url.Action("UploadPastPaper", "Resource")" class="upload-button">+ Upload Past Paper</a>
+                }
+            </div>
+        </div>
+
+        <!-- Message Display -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Resource List -->
+        <div class="document-list">
+            @if (Model.Resources.Count > 0)
+            {
+                @foreach (var paper in Model.Resources)
+                {
+                    var deptIcon = paper.Department.ToString().StartsWith("Computer") ? "blue" :
+                                   paper.Department.ToString().StartsWith("Engineering") ? "teal" :
+                                   paper.Department.ToString().StartsWith("Math") ? "gold" :
+                                   paper.Department.ToString().StartsWith("Physics") ? "violet" :
+                                   paper.Department.ToString().StartsWith("Chemistry") ? "red" : "green";
+
+                    <article class="document-card">
+                        <span class="document-icon @deptIcon">📄</span>
+                        <div class="document-main">
+                            <span class="subject-tag">@paper.Department.ToString().Replace("ComputerScience", "Computer Science")</span>
+                            <h2>@paper.Title</h2>
+                            <p>@paper.SubjectName · @paper.CourseCode</p>
+                            <div class="document-meta">
+                                <span>@paper.Year @paper.Semester</span>
+                                <span>👁 @paper.ViewCount</span>
+                                <span>⬇ @paper.DownloadCount</span>
+                                <span>@paper.FileType?.TrimStart('.').ToUpperInvariant()</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(paper.Description))
+                            {
+                                <p class="meta-description">@paper.Description</p>
+                            }
+                            <small class="upload-meta">By: @paper.UploadedByUser?.FullName · Prof: @paper.ProfessorName</small>
+                        </div>
+                        <div class="document-actions">
+                            <a href="@Url.Action("PastPaperDetails", "Resource", new { id = paper.Id })" class="primary-button">👁 View</a>
+                            <a href="@Url.Action("Download", "Resource", new { id = paper.Id, type = "paper" })" class="primary-button" title="Download">⬇ Download</a>
+                        </div>
+                    </article>
+                }
+            }
+            else
+            {
+                <div class="no-results">
+                    <p>No past papers found matching your filters.</p>
+                </div>
+            }
+        </div>
+    </section>
+</div>
+
+<script>
+    function updateSort(sortValue) {
+        const currentParams = new URLSearchParams(window.location.search);
+        currentParams.set('sortBy', sortValue);
+        window.location.search = currentParams.toString();
+    }
+
+    // Handle multiple checkbox selection
+    document.querySelectorAll('.filter-form input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const form = this.closest('.filter-form');
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+
+            formData.forEach((value, key) => {
+                if (value) params.append(key, value);
+            });
+
+            // Preserve sort parameter
+            const currentParams = new URLSearchParams(window.location.search);
+            if (currentParams.has('sortBy')) {
+                params.set('sortBy', currentParams.get('sortBy'));
+            }
+
+            window.location.search = params.toString();
+        });
+    });
+</script>
