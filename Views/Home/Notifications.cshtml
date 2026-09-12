@@ -1,0 +1,126 @@
+@{
+    ViewData["Title"] = "Notification Center";
+}
+
+<div class="notif-center-page">
+    <!-- Breadcrumb & Header -->
+    <div class="notif-center-header">
+        <div class="notif-center-title-group">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <a asp-controller="Home" asp-action="Index" style="color:var(--text-muted); font-size:13px; font-weight:600;">Dashboard</a>
+                <span style="color:var(--text-muted); font-size:13px;">/</span>
+                <span style="color:var(--brand-primary); font-size:13px; font-weight:700;">Notification Center</span>
+            </div>
+            <h1>Academic Notifications</h1>
+            <p>Manage announcements, course uploads, moderation tasks, and real-time portal updates.</p>
+        </div>
+
+        <div class="notif-center-actions">
+            <button class="btn btn-secondary btn-sm" id="btnPageMarkAllRead" type="button">
+                <span>✓</span>
+                <span>Mark all as read</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btnPageClearRead" type="button">
+                <span>Clear read</span>
+            </button>
+            <button class="btn btn-outline btn-sm" id="btnPageResetDefaults" type="button" title="Restore sample mock alerts">
+                <span>↺</span>
+                <span>Reset Demo Alerts</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Metric Stats Grid -->
+    <div class="notif-stats-grid">
+        <div class="notif-stat-card">
+            <div class="notif-stat-icon" style="background:var(--brand-primary-light); color:var(--brand-primary);">
+                <span>🔔</span>
+            </div>
+            <div class="notif-stat-content">
+                <span class="notif-stat-number" id="statTotalNotifs">0</span>
+                <span class="notif-stat-label">Total Alerts</span>
+            </div>
+        </div>
+
+        <div class="notif-stat-card">
+            <div class="notif-stat-icon" style="background:var(--accent-rose-bg); color:var(--accent-rose);">
+                <span>●</span>
+            </div>
+            <div class="notif-stat-content">
+                <span class="notif-stat-number" id="statUnreadNotifs">0</span>
+                <span class="notif-stat-label">Unread</span>
+            </div>
+        </div>
+
+        <div class="notif-stat-card">
+            <div class="notif-stat-icon" style="background:var(--accent-emerald-bg); color:var(--accent-emerald);">
+                <span>✓</span>
+            </div>
+            <div class="notif-stat-content">
+                <span class="notif-stat-number" id="statReadNotifs">0</span>
+                <span class="notif-stat-label">Read</span>
+            </div>
+        </div>
+
+        <div class="notif-stat-card">
+            <div class="notif-stat-icon" style="background:var(--accent-amber-bg); color:var(--accent-amber);">
+                <span>⚡</span>
+            </div>
+            <div class="notif-stat-content">
+                <span class="notif-stat-number" id="statAlertsNotifs">0</span>
+                <span class="notif-stat-label">Priority Tasks</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls & Filters Toolbar -->
+    <div class="notif-controls-panel">
+        <div class="notif-controls-top">
+            <!-- Filter Tabs -->
+            <div class="notif-filter-group" role="tablist" aria-label="Notification filters">
+                <button class="notif-page-tab is-active" type="button" data-status-filter="all">All Alerts</button>
+                <button class="notif-page-tab" type="button" data-status-filter="unread">Unread Only</button>
+                <button class="notif-page-tab" type="button" data-status-filter="read">Read Archive</button>
+            </div>
+
+            <!-- Search Field -->
+            <div class="notif-search-input-box">
+                <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:var(--text-muted); stroke-width:2;"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input type="search" id="notifSearchInput" placeholder="Filter by title or keyword..." aria-label="Search notifications" />
+            </div>
+        </div>
+
+        <!-- Role Switcher Bar -->
+        <div class="notif-role-bar">
+            <div class="notif-role-selector-wrap">
+                <span class="notif-role-label">Preview Role Persona:</span>
+                <select id="notifRoleSelect" class="notif-role-select" aria-label="Select role persona to preview notifications">
+                    <option value="Student">Student (Academic &amp; Course alerts)</option>
+                    <option value="CR">Class Representative (Moderation &amp; Requests)</option>
+                    <option value="Admin">Administrator (System &amp; Security)</option>
+                    <option value="Worker">Worker / Tutor (Opportunities &amp; Applications)</option>
+                    <option value="Employer">Employer / Partner (Candidates &amp; Postings)</option>
+                </select>
+            </div>
+            <span style="font-size:12px; color:var(--text-muted);">Notifications synchronize instantly across the navbar and all open tabs.</span>
+        </div>
+    </div>
+
+    <!-- Notification Cards List Container -->
+    <div class="notif-page-list" id="notifPageList">
+        <!-- Rendered by notifications.js -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="notif-page-empty" id="notifPageEmpty" style="display:none;">
+        <svg class="notif-page-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <h3>No Notifications Found</h3>
+        <p>You are completely caught up! There are no matching alerts for your current filter selection.</p>
+        <button class="btn btn-secondary btn-sm" type="button" onclick="document.getElementById('btnPageResetDefaults').click();">
+            Restore Sample Notifications
+        </button>
+    </div>
+</div>

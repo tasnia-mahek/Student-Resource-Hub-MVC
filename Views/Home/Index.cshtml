@@ -2,236 +2,181 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<section class="study-dashboard" aria-label="Student Resource Dashboard">
-    <!-- Left Navigation Sidebar -->
-    <aside class="study-sidebar">
-        <a class="study-brand" asp-controller="Home" asp-action="Index">
-            <span class="study-brand-mark">
-                <svg viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10M6 14h6"/></svg>
+<div class="study-workspace">
+    <header class="study-topbar">
+        <div>
+            <span class="study-overline">
+                <span style="color:var(--accent-emerald);">●</span>
+                TUESDAY, SEPTEMBER 8, 2026 · SEMESTER FALL
             </span>
-            <span>StudyHub</span>
-        </a>
-
-        <nav class="study-sidebar-nav" aria-label="Dashboard navigation">
-            <span class="study-nav-label">MAIN MENU</span>
-            <a class="study-nav-active" asp-action="Index">
-                <span class="nav-glyph">⌂</span>
-                <span>Dashboard</span>
-            </a>
-            <a asp-action="PastPapers">
-                <span class="nav-glyph">▤</span>
-                <span>Past Papers</span>
-            </a>
-            <a asp-action="Lectures">
-                <span class="nav-glyph">▶</span>
-                <span>Video Lectures</span>
-            </a>
-            <a asp-action="Notes">
-                <span class="nav-glyph">▥</span>
-                <span>Study Notes</span>
-            </a>
-            <a asp-action="Favorites">
-                <span class="nav-glyph">☆</span>
-                <span>Favorites</span>
-            </a>
-
-            <span class="study-nav-label study-nav-space">PREFERENCES</span>
-            <a asp-action="Privacy">
-                <span class="nav-glyph">🛡️</span>
-                <span>Policy &amp; Rules</span>
-            </a>
-            <button class="study-theme-button" type="button" data-theme-toggle>
-                <span class="nav-glyph">◐</span>
-                <span>Switch Theme</span>
+            <h1>Good morning, @(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Scholar").</h1>
+        </div>
+        <div class="study-top-actions">
+            <button class="study-icon-button" type="button" aria-label="Notifications" title="Notifications" onclick="StudyHub.showToast('You have 2 new lecture uploads in CS-201');">
+                🔔
             </button>
-        </nav>
-
-        <div class="study-sidebar-footer">
-            <span class="study-avatar">ST</span>
-            <div>
-                <strong>@(User.Identity?.Name ?? "Student Account")</strong>
-                <small>Active Scholar · Level 3</small>
-            </div>
+            <button class="study-add-button" type="button" data-focus-action>
+                + Add focus goal
+            </button>
         </div>
-    </aside>
+    </header>
 
-    <!-- Main Workspace -->
-    <div class="study-workspace">
-        <header class="study-topbar">
-            <div>
-                <span class="study-overline">
-                    <span style="color:var(--accent-emerald);">●</span>
-                    TUESDAY, SEPTEMBER 8, 2026 · SEMESTER FALL
-                </span>
-                <h1>Good morning, @(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Scholar").</h1>
+    <!-- KPI Summary Statistics -->
+    <section class="study-stat-grid" aria-label="Study statistics">
+        <article class="study-stat-card">
+            <div class="study-stat-info">
+                <span>Course Completion</span>
+                <strong>84<small>%</small></strong>
+                <div style="margin-top:8px; display:flex; align-items:center; gap:6px;">
+                    <span class="badge badge-emerald">+6% this week</span>
+                </div>
             </div>
-            <div class="study-top-actions">
-                <button class="study-icon-button" type="button" aria-label="Notifications" title="Notifications" onclick="StudyHub.showToast('You have 2 new lecture uploads in CS-201');">
-                    🔔
-                </button>
-                <button class="study-add-button" type="button" data-focus-action>
-                    + Add focus goal
-                </button>
+            <span class="study-stat-art stat-bars">📊</span>
+        </article>
+
+        <article class="study-stat-card">
+            <div class="study-stat-info">
+                <span>Study Streak</span>
+                <strong>12 <small>days</small></strong>
+                <div style="margin-top:8px; display:flex; align-items:center; gap:6px;">
+                    <span class="badge badge-amber">🔥 Top 5% Scholar</span>
+                </div>
             </div>
-        </header>
+            <span class="study-stat-art stat-spark">✦</span>
+        </article>
 
-        <!-- KPI Summary Statistics -->
-        <section class="study-stat-grid" aria-label="Study statistics">
-            <article class="study-stat-card">
-                <div class="study-stat-info">
-                    <span>Course Completion</span>
-                    <strong>84<small>%</small></strong>
-                    <div style="margin-top:8px; display:flex; align-items:center; gap:6px;">
-                        <span class="badge badge-emerald">+6% this week</span>
-                    </div>
+        <article class="study-stat-card">
+            <div class="study-stat-info">
+                <span>Focus Time Today</span>
+                <strong>2h 45m</strong>
+                <div style="margin-top:8px; display:flex; align-items:center; gap:6px;">
+                    <span class="badge badge-primary">🎯 Goal met (110%)</span>
                 </div>
-                <span class="study-stat-art stat-bars">📊</span>
-            </article>
+            </div>
+            <span class="study-stat-art stat-clock">⏱️</span>
+        </article>
+    </section>
 
-            <article class="study-stat-card">
-                <div class="study-stat-info">
-                    <span>Study Streak</span>
-                    <strong>12 <small>days</small></strong>
-                    <div style="margin-top:8px; display:flex; align-items:center; gap:6px;">
-                        <span class="badge badge-amber">🔥 Top 5% Scholar</span>
-                    </div>
-                </div>
-                <span class="study-stat-art stat-spark">✦</span>
-            </article>
-
-            <article class="study-stat-card">
-                <div class="study-stat-info">
-                    <span>Focus Time Today</span>
-                    <strong>2h 45m</strong>
-                    <div style="margin-top:8px; display:flex; align-items:center; gap:6px;">
-                        <span class="badge badge-primary">🎯 Goal met (110%)</span>
-                    </div>
-                </div>
-                <span class="study-stat-art stat-clock">⏱️</span>
-            </article>
-        </section>
-
-        <!-- 2-Column Schedule & Analytics -->
-        <div class="study-content-grid">
-            <!-- Weekly Study Plan -->
-            <section class="study-panel">
-                <div class="study-panel-heading">
-                    <div>
-                        <span class="study-overline">WEEKLY SYLLABUS</span>
-                        <h2>Planned Milestones</h2>
-                    </div>
-                    <a asp-action="Lectures">Explore All &rarr;</a>
-                </div>
-
-                <div class="study-week">
-                    <span class="study-day-done">Mon<small>12</small></span>
-                    <span class="study-day-done">Tue<small>13</small></span>
-                    <span class="study-day-current">Wed<small>14</small></span>
-                    <span>Thu<small>15</small></span>
-                    <span>Fri<small>16</small></span>
-                    <span>Sat<small>17</small></span>
-                    <span>Sun<small>18</small></span>
-                </div>
-
-                <div class="study-plan-list">
-                    <a class="study-plan-item" asp-action="Lectures">
-                        <span class="study-plan-icon purple">▶</span>
-                        <div>
-                            <strong>Advanced Algorithms &amp; Complexity</strong>
-                            <small>CS-301 · Lecture 14 · 45 minutes</small>
-                        </div>
-                        <span class="badge badge-violet">80% Done</span>
-                    </a>
-
-                    <a class="study-plan-item" asp-action="Notes">
-                        <span class="study-plan-icon green">▥</span>
-                        <div>
-                            <strong>Calculus III: Vector Calculus Summary</strong>
-                            <small>MATH-301 · Study notes · 30 minutes</small>
-                        </div>
-                        <span class="badge badge-emerald">In Progress</span>
-                    </a>
-
-                    <a class="study-plan-item" asp-action="PastPapers">
-                        <span class="study-plan-icon purple" style="background:var(--accent-sky-bg); color:var(--accent-sky);">▤</span>
-                        <div>
-                            <strong>Computer Architecture Midterm Review</strong>
-                            <small>CS-204 · Past Exam · 60 minutes</small>
-                        </div>
-                        <span class="badge badge-sky">Scheduled</span>
-                    </a>
-                </div>
-            </section>
-
-            <!-- Learning Activity CSS Bar Chart -->
-            <section class="study-panel study-progress-panel">
-                <div class="study-panel-heading">
-                    <div>
-                        <span class="study-overline">HOURS SPENT</span>
-                        <h2>Learning Activity</h2>
-                    </div>
-                    <span class="badge badge-primary">18.5 hrs total</span>
-                </div>
-
-                <div class="study-chart" aria-label="Weekly study hours breakdown">
-                    <i style="height: 48%" title="Monday: 2.4 hrs"></i>
-                    <i style="height: 72%" title="Tuesday: 3.6 hrs"></i>
-                    <i style="height: 55%" title="Wednesday: 2.8 hrs"></i>
-                    <i style="height: 90%" title="Thursday: 4.5 hrs"></i>
-                    <i style="height: 65%" title="Friday: 3.2 hrs"></i>
-                    <i style="height: 35%" title="Saturday: 1.5 hrs"></i>
-                    <i style="height: 20%" title="Sunday: 0.8 hrs"></i>
-                </div>
-                <div class="study-chart-labels">
-                    <span>Mon</span>
-                    <span>Tue</span>
-                    <span>Wed</span>
-                    <span>Thu</span>
-                    <span>Fri</span>
-                    <span>Sat</span>
-                    <span>Sun</span>
-                </div>
-            </section>
-        </div>
-
-        <!-- Continue Learning / Recent Resources Grid -->
-        <section class="study-panel study-resources">
+    <!-- 2-Column Schedule & Analytics -->
+    <div class="study-content-grid">
+        <!-- Weekly Study Plan -->
+        <section class="study-panel">
             <div class="study-panel-heading">
                 <div>
-                    <span class="study-overline">CONTINUE STUDYING</span>
-                    <h2>Featured &amp; Recent Resources</h2>
+                    <span class="study-overline">WEEKLY SYLLABUS</span>
+                    <h2>Planned Milestones</h2>
                 </div>
-                <a asp-action="PastPapers">View Full Library &rarr;</a>
+                <a asp-controller="Home" asp-action="Lectures">Explore All &rarr;</a>
             </div>
 
-            <div class="study-resource-grid">
-                <a asp-action="PastPapers" data-preview-trigger>
-                    <span class="study-resource-icon orange">▤</span>
+            <div class="study-week">
+                <span class="study-day-done">Mon<small>12</small></span>
+                <span class="study-day-done">Tue<small>13</small></span>
+                <span class="study-day-current">Wed<small>14</small></span>
+                <span>Thu<small>15</small></span>
+                <span>Fri<small>16</small></span>
+                <span>Sat<small>17</small></span>
+                <span>Sun<small>18</small></span>
+            </div>
+
+            <div class="study-plan-list">
+                <a class="study-plan-item" asp-controller="Home" asp-action="Lectures">
+                    <span class="study-plan-icon purple">▶</span>
                     <div>
-                        <strong>Data Structures Final Exam</strong>
-                        <small>CS-201 · Fall 2024 Past Paper</small>
+                        <strong>Advanced Algorithms &amp; Complexity</strong>
+                        <small>CS-301 · Lecture 14 · 45 minutes</small>
                     </div>
-                    <b>&rarr;</b>
+                    <span class="badge badge-violet">80% Done</span>
                 </a>
 
-                <a asp-action="Notes" data-preview-trigger>
-                    <span class="study-resource-icon blue">▥</span>
+                <a class="study-plan-item" asp-controller="Home" asp-action="Notes">
+                    <span class="study-plan-icon green">▥</span>
                     <div>
-                        <strong>Complete Data Structures Notes</strong>
-                        <small>CS-201 · 45 pages · ★ 4.8</small>
+                        <strong>Calculus III: Vector Calculus Summary</strong>
+                        <small>MATH-301 · Study notes · 30 minutes</small>
                     </div>
-                    <b>&rarr;</b>
+                    <span class="badge badge-emerald">In Progress</span>
                 </a>
 
-                <a asp-action="Lectures" data-preview-trigger>
-                    <span class="study-resource-icon pink">▶</span>
+                <a class="study-plan-item" asp-controller="Home" asp-action="PastPapers">
+                    <span class="study-plan-icon purple" style="background:var(--accent-sky-bg); color:var(--accent-sky);">▤</span>
                     <div>
-                        <strong>Introduction to Machine Learning</strong>
-                        <small>CS-501 · Prof. Johnson · 1h 24m</small>
+                        <strong>Computer Architecture Midterm Review</strong>
+                        <small>CS-204 · Past Exam · 60 minutes</small>
                     </div>
-                    <b>&rarr;</b>
+                    <span class="badge badge-sky">Scheduled</span>
                 </a>
+            </div>
+        </section>
+
+        <!-- Learning Activity CSS Bar Chart -->
+        <section class="study-panel study-progress-panel">
+            <div class="study-panel-heading">
+                <div>
+                    <span class="study-overline">HOURS SPENT</span>
+                    <h2>Learning Activity</h2>
+                </div>
+                <span class="badge badge-primary">18.5 hrs total</span>
+            </div>
+
+            <div class="study-chart" aria-label="Weekly study hours breakdown">
+                <i style="height: 48%" title="Monday: 2.4 hrs"></i>
+                <i style="height: 72%" title="Tuesday: 3.6 hrs"></i>
+                <i style="height: 55%" title="Wednesday: 2.8 hrs"></i>
+                <i style="height: 90%" title="Thursday: 4.5 hrs"></i>
+                <i style="height: 65%" title="Friday: 3.2 hrs"></i>
+                <i style="height: 35%" title="Saturday: 1.5 hrs"></i>
+                <i style="height: 20%" title="Sunday: 0.8 hrs"></i>
+            </div>
+            <div class="study-chart-labels">
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+                <span>Sun</span>
             </div>
         </section>
     </div>
-</section>
+
+    <!-- Continue Learning / Recent Resources Grid -->
+    <section class="study-panel study-resources">
+        <div class="study-panel-heading">
+            <div>
+                <span class="study-overline">CONTINUE STUDYING</span>
+                <h2>Featured &amp; Recent Resources</h2>
+            </div>
+            <a asp-controller="Home" asp-action="PastPapers">View Full Library &rarr;</a>
+        </div>
+
+        <div class="study-resource-grid">
+            <a asp-controller="Home" asp-action="PastPapers" data-preview-trigger>
+                <span class="study-resource-icon orange">▤</span>
+                <div>
+                    <strong>Data Structures Final Exam</strong>
+                    <small>CS-201 · Fall 2024 Past Paper</small>
+                </div>
+                <b>&rarr;</b>
+            </a>
+
+            <a asp-controller="Home" asp-action="Notes" data-preview-trigger>
+                <span class="study-resource-icon blue">▥</span>
+                <div>
+                    <strong>Complete Data Structures Notes</strong>
+                    <small>CS-201 · 45 pages · ★ 4.8</small>
+                </div>
+                <b>&rarr;</b>
+            </a>
+
+            <a asp-controller="Home" asp-action="Lectures" data-preview-trigger>
+                <span class="study-resource-icon pink">▶</span>
+                <div>
+                    <strong>Introduction to Machine Learning</strong>
+                    <small>CS-501 · Prof. Johnson · 1h 24m</small>
+                </div>
+                <b>&rarr;</b>
+            </a>
+        </div>
+    </section>
+</div>
