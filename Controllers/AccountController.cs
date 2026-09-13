@@ -140,6 +140,7 @@ namespace student_resource_hub.Controllers
 
             var claims = new List<Claim>
             {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new(ClaimTypes.Name, user.FullName),
                 new(ClaimTypes.Email, user.Email),
                 new(ClaimTypes.Role, user.Role)
@@ -258,6 +259,7 @@ namespace student_resource_hub.Controllers
         {
             var claims = new List<Claim>
             {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new(ClaimTypes.Name, user.FullName),
                 new(ClaimTypes.Email, user.Email),
                 new(ClaimTypes.Role, user.Role)
