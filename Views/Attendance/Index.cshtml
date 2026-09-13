@@ -1,0 +1,949 @@
+@model student_resource_hub.ViewModels.AttendanceDashboardViewModel
+@{
+    ViewData["Title"] = "Attendance Hub";
+}
+
+<div class="attendance-hub-container">
+    <!-- Ambient Neon Glowing Bloom Background -->
+    <div class="neon-glow-bloom bloom-top-center" aria-hidden="true"></div>
+
+    <!-- Page Header -->
+    <div class="attendance-page-header">
+        <div>
+            <div class="outpayz-pill-badge">
+                <span class="spark-icon">📅</span>
+                <span>Live Campus Attendance System</span>
+            </div>
+            <h1 class="attendance-header-title">
+                Academic <span class="outpayz-gradient-text">Attendance Portal</span>
+            </h1>
+            <p class="attendance-header-subtitle">
+                @if (Model.IsAdmin)
+                {
+                    <span>Manage class sessions, create secure passcode-protected check-ins, and track student presence in real time.</span>
+                }
+                else if (Model.IsCR)
+                {
+                    <span>Check in to your active lectures, view attendance histories, and inspect class attendance rosters as Class Representative.</span>
+                }
+                else
+                {
+                    <span>Enter your session passcode to record your lecture presence, maintain academic standing, and track verified attendance records.</span>
+                }
+            </p>
+        </div>
+
+        <div class="attendance-header-meta">
+            <div class="attendance-role-pill">
+                <span class="role-indicator-dot @(Model.IsAdmin ? "admin" : Model.IsCR ? "cr" : "student")"></span>
+                <span>Role: <strong>@Model.CurrentUserRole</strong></span>
+            </div>
+            @if (Model.IsAdmin)
+            {
+                <button class="outpayz-btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#createSessionCollapse" aria-expanded="false" aria-controls="createSessionCollapse">
+                    <span>+ New Session</span>
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Alert Notifications -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="outpayz-alert alert-success">
+            <span class="alert-icon">✓</span>
+            <div>@TempData["SuccessMessage"]</div>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="outpayz-alert alert-danger">
+            <span class="alert-icon">✕</span>
+            <div>@TempData["ErrorMessage"]</div>
+        </div>
+    }
+
+    <!-- Top KPI Performance Grid -->
+    <div class="attendance-kpi-grid">
+        <div class="kpi-card">
+            <span class="kpi-label">ATTENDANCE RATE</span>
+            <div class="kpi-main-row">
+                <span class="kpi-value text-neon">@Model.AttendancePercentage%</span>
+                <span class="stat-pill-green">@(Model.AttendancePercentage >= 75 ? "Eligible for Exams" : "Warning < 75%")</span>
+            </div>
+            <span class="kpi-subtext">Overall academic attendance standing</span>
+        </div>
+
+        <div class="kpi-card">
+            <span class="kpi-label">ATTENDED SESSIONS</span>
+            <div class="kpi-main-row">
+                <span class="kpi-value">@Model.TotalAttendedSessions</span>
+                <span class="stat-pill-green">Verified</span>
+            </div>
+            <span class="kpi-subtext">Sessions marked as Present</span>
+        </div>
+
+        <div class="kpi-card">
+            <span class="kpi-label">ACTIVE SESSIONS TODAY</span>
+            <div class="kpi-main-row">
+                <span class="kpi-value">@Model.ActiveSessions.Count</span>
+                <span class="stat-pill-gold">Live Now</span>
+            </div>
+            <span class="kpi-subtext">Sessions currently accepting check-in</span>
+        </div>
+
+        <div class="kpi-card">
+            <span class="kpi-label">SESSION REPUTATION</span>
+            <div class="kpi-main-row">
+                <span class="kpi-value">Verified ★</span>
+                <span class="stat-pill-green">Good</span>
+            </div>
+            <span class="kpi-subtext">Zero unverified absences</span>
+        </div>
+    </div>
+
+    @if (Model.IsAdmin)
+    {
+        <!-- ADMIN ONLY: Session Creation Panel (Collapsible) -->
+        <div class="collapse mb-4" id="createSessionCollapse">
+            <div class="outpayz-form-card">
+                <div class="form-card-header">
+                    <h3>Create New Attendance Session</h3>
+                    <p>Set a session code, course details, time window, and passcode for students to check in.</p>
+                </div>
+
+                <form asp-action="CreateSession" method="post" class="outpayz-create-form">
+                    @Html.AntiForgeryToken()
+                    <div class="form-row-2">
+                        <div class="form-group-outpayz">
+                            <label asp-for="NewSession.CourseCode">Course Code *</label>
+                            <input asp-for="NewSession.CourseCode" class="outpayz-input" placeholder="e.g. CSE-320, EEE-204" required />
+                            <span asp-validation-for="NewSession.CourseCode" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group-outpayz">
+                            <label asp-for="NewSession.SessionTitle">Session Title *</label>
+                            <input asp-for="NewSession.SessionTitle" class="outpayz-input" placeholder="e.g. Midterm Prep & Complexity Analysis" required />
+                            <span asp-validation-for="NewSession.SessionTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row-4">
+                        <div class="form-group-outpayz">
+                            <label asp-for="NewSession.Department">Department *</label>
+                            <select asp-for="NewSession.Department" class="outpayz-input select-styled" required>
+                                <option value="ComputerScience">Computer Science</option>
+                                <option value="ElectricalEngineering">Electrical Engineering</option>
+                                <option value="BusinessAdministration">Business Administration</option>
+                                <option value="CivilEngineering">Civil Engineering</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                                <option value="Law">Law</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group-outpayz">
+                            <label asp-for="NewSession.SessionDate">Date *</label>
+                            <input asp-for="NewSession.SessionDate" type="date" class="outpayz-input" required />
+                        </div>
+
+                        <div class="form-group-outpayz">
+                            <label asp-for="NewSession.StartTime">Start Time</label>
+                            <input asp-for="NewSession.StartTime" type="time" class="outpayz-input" required />
+                        </div>
+
+                        <div class="form-group-outpayz">
+                            <label asp-for="NewSession.EndTime">End Time</label>
+                            <input asp-for="NewSession.EndTime" type="time" class="outpayz-input" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row-2 align-items-end">
+                        <div class="form-group-outpayz">
+                            <label asp-for="NewSession.Passcode">Check-In Passcode (Share with class) *</label>
+                            <div class="input-with-action">
+                                <input asp-for="NewSession.Passcode" id="passcodeInput" class="outpayz-input font-monospace" placeholder="e.g. 849201" required />
+                                <button type="button" class="btn-input-action" onclick="document.getElementById('passcodeInput').value = Math.floor(100000 + Math.random() * 900000);">🎲 Generate</button>
+                            </div>
+                            <span asp-validation-for="NewSession.Passcode" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group-outpayz d-flex gap-2">
+                            <button type="submit" class="outpayz-btn-primary flex-grow-1">
+                                <span>Publish Session</span>
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ADMIN: Session Management Table -->
+        <div class="attendance-section-card">
+            <div class="section-card-header">
+                <div>
+                    <h2>All Campus Attendance Sessions</h2>
+                    <p>Control active sessions, review passcodes, and monitor attendee rosters.</p>
+                </div>
+            </div>
+
+            @if (Model.AllSessions.Any())
+            {
+                <div class="table-responsive outpayz-table-wrap">
+                    <table class="outpayz-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Course</th>
+                                <th>Session Title</th>
+                                <th>Date &amp; Time</th>
+                                <th>Passcode</th>
+                                <th>Attendees</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model.AllSessions)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (s.IsActive)
+                                        {
+                                            <span class="status-chip active"><span class="chip-dot"></span> Open</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-chip closed">Closed</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="course-code-badge">@s.CourseCode</span>
+                                        <small class="d-block text-muted">@s.Department</small>
+                                    </td>
+                                    <td>
+                                        <strong>@s.SessionTitle</strong>
+                                    </td>
+                                    <td>
+                                        <div>@s.SessionDate.ToString("dd MMM yyyy")</div>
+                                        <small class="text-muted">@s.StartTime.ToString(@"hh\:mm") - @s.EndTime.ToString(@"hh\:mm")</small>
+                                    </td>
+                                    <td>
+                                        <span class="passcode-box font-monospace">@s.Passcode</span>
+                                    </td>
+                                    <td>
+                                        <span class="attendee-count-chip">@(s.AttendanceRecords?.Count ?? 0) Present</span>
+                                    </td>
+                                    <td>
+                                        <div class="table-action-btns">
+                                            <a asp-action="Roster" asp-route-id="@s.Id" class="btn-action-sm btn-view-roster" title="View Roster">
+                                                <span>📋 Roster</span>
+                                            </a>
+
+                                            <form asp-action="ToggleSession" asp-route-id="@s.Id" method="post" style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn-action-sm @(s.IsActive ? "btn-close-session" : "btn-open-session")" title="@(s.IsActive ? "Close Session" : "Reopen Session")">
+                                                    @(s.IsActive ? "Close" : "Open")
+                                                </button>
+                                            </form>
+
+                                            <form asp-action="DeleteSession" asp-route-id="@s.Id" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this session?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn-action-sm btn-delete-session" title="Delete">🗑</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-roster-state">
+                    <span class="empty-icon">📅</span>
+                    <h4>No attendance sessions created yet</h4>
+                    <p>Click "+ New Session" above to launch your first session for students to record attendance.</p>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- STUDENT & CR: Live Check-In & Active Sessions -->
+        <div class="attendance-student-grid">
+            <!-- Left: Check-In Form -->
+            <div class="outpayz-form-card checkin-card">
+                <div class="form-card-header">
+                    <div class="bento-badge">
+                        <span class="spark-icon">⚡</span>
+                        <span>Instant Check-In</span>
+                    </div>
+                    <h3>Enter Session Passcode</h3>
+                    <p>Select your active lecture and provide the secret passcode given by your instructor or CR.</p>
+                </div>
+
+                @if (Model.ActiveSessions.Any(s => !Model.AttendedSessionIds.Contains(s.Id)))
+                {
+                    <form asp-action="SubmitAttendance" method="post" class="checkin-form">
+                        @Html.AntiForgeryToken()
+                        <div class="form-group-outpayz">
+                            <label asp-for="CheckIn.SessionId">Select Active Session *</label>
+                            <select asp-for="CheckIn.SessionId" class="outpayz-input select-styled" required>
+                                <option value="">-- Choose active lecture --</option>
+                                @foreach (var s in Model.ActiveSessions.Where(s => !Model.AttendedSessionIds.Contains(s.Id)))
+                                {
+                                    <option value="@s.Id">@s.CourseCode - @s.SessionTitle (@s.SessionDate.ToString("dd MMM"))</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="form-group-outpayz">
+                            <label asp-for="CheckIn.Passcode">Session Passcode *</label>
+                            <input asp-for="CheckIn.Passcode" class="outpayz-input font-monospace text-center fs-4 letter-spacing-2" placeholder="••••••" maxlength="20" required autocomplete="off" />
+                        </div>
+
+                        <button type="submit" class="outpayz-btn-primary w-100 py-3 mt-2">
+                            <span>Submit Attendance</span>
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </form>
+                }
+                else if (Model.ActiveSessions.Any())
+                {
+                    <div class="checkin-complete-box">
+                        <div class="checkin-complete-icon">✓</div>
+                        <h4>You are all caught up!</h4>
+                        <p>You have already submitted attendance for all currently open sessions.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="checkin-empty-box">
+                        <span class="empty-icon">⏳</span>
+                        <h4>No Active Sessions Right Now</h4>
+                        <p>When an instructor or CR opens a session, it will appear here for passcode check-in.</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Right: Open Sessions List -->
+            <div class="active-sessions-panel">
+                <div class="panel-header">
+                    <h3>Currently Active Sessions</h3>
+                    <span class="active-count-tag">@Model.ActiveSessions.Count Live</span>
+                </div>
+
+                <div class="active-sessions-stack">
+                    @if (Model.ActiveSessions.Any())
+                    {
+                        @foreach (var s in Model.ActiveSessions)
+                        {
+                            var hasAttended = Model.AttendedSessionIds.Contains(s.Id);
+                            <div class="session-stack-card @(hasAttended ? "is-attended" : "")">
+                                <div class="session-card-top">
+                                    <span class="course-code-badge">@s.CourseCode</span>
+                                    @if (hasAttended)
+                                    {
+                                        <span class="status-chip present"><span class="chip-dot"></span> Present</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-chip active"><span class="chip-dot"></span> Open for check-in</span>
+                                    }
+                                </div>
+                                <h4>@s.SessionTitle</h4>
+                                <div class="session-meta-row">
+                                    <span>🗓️ @s.SessionDate.ToString("dd MMM yyyy")</span>
+                                    <span>⏱️ @s.StartTime.ToString(@"hh\:mm") - @s.EndTime.ToString(@"hh\:mm")</span>
+                                    <span>🏛️ @s.Department</span>
+                                </div>
+                                @if (Model.IsCR)
+                                {
+                                    <div class="session-card-cr-footer">
+                                        <span class="text-muted">Passcode: <strong class="text-neon">@s.Passcode</strong></span>
+                                        <a asp-action="Roster" asp-route-id="@s.Id" class="btn-cr-roster">View Class Roster &rarr;</a>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="no-sessions-card">
+                            <p>No active sessions found for today. Check back during scheduled class hours.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Attendance History Table -->
+        <div class="attendance-section-card mt-5">
+            <div class="section-card-header">
+                <div>
+                    <h2>My Attendance History</h2>
+                    <p>Chronological record of verified lecture attendances submitted by you.</p>
+                </div>
+            </div>
+
+            @if (Model.MyAttendanceRecords.Any())
+            {
+                <div class="table-responsive outpayz-table-wrap">
+                    <table class="outpayz-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Course</th>
+                                <th>Session Title</th>
+                                <th>Session Date</th>
+                                <th>Time Checked In</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model.MyAttendanceRecords)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="status-chip present"><span class="chip-dot"></span> Present</span>
+                                    </td>
+                                    <td>
+                                        <span class="course-code-badge">@r.AttendanceSession?.CourseCode</span>
+                                    </td>
+                                    <td>
+                                        <strong>@r.AttendanceSession?.SessionTitle</strong>
+                                    </td>
+                                    <td>
+                                        @r.AttendanceSession?.SessionDate.ToString("dd MMM yyyy")
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">@r.SubmittedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-roster-state">
+                    <span class="empty-icon">📝</span>
+                    <h4>No attendance records yet</h4>
+                    <p>Submit your passcode for an open session above to build your attendance track record.</p>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+/* Attendance Hub Specific Styles */
+.attendance-hub-container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 30px 24px 60px;
+    position: relative;
+}
+
+.attendance-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+
+.attendance-header-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.03em;
+    margin: 12px 0 8px;
+}
+
+.attendance-header-subtitle {
+    color: var(--text-secondary);
+    font-size: 15px;
+    max-width: 680px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.attendance-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.attendance-role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #0E1018;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    color: #ffffff;
+}
+
+.role-indicator-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.role-indicator-dot.admin { background: #F43F5E; box-shadow: 0 0 8px #F43F5E; }
+.role-indicator-dot.cr { background: #A855F7; box-shadow: 0 0 8px #A855F7; }
+.role-indicator-dot.student { background: #00FF66; box-shadow: 0 0 8px #00FF66; }
+
+/* KPI Grid */
+.attendance-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 36px;
+}
+
+.kpi-card {
+    background: #090A10;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    transition: all 0.2s ease;
+}
+
+.kpi-card:hover {
+    border-color: rgba(0, 255, 102, 0.3);
+    transform: translateY(-2px);
+}
+
+.kpi-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.kpi-main-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+}
+
+.kpi-value.text-neon {
+    color: var(--brand-primary);
+    text-shadow: 0 0 20px rgba(0, 255, 102, 0.4);
+}
+
+.kpi-subtext {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+}
+
+/* OutPayz Form Card */
+.outpayz-form-card {
+    background: #0C0D14;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 30px;
+}
+
+.form-card-header h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 6px;
+}
+
+.form-card-header p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0 0 22px;
+}
+
+.form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 16px;
+}
+
+.form-row-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 16px;
+}
+
+.form-group-outpayz label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #E5E7EB;
+    margin-bottom: 8px;
+}
+
+.outpayz-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: #06070B;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-md);
+    color: #ffffff;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.outpayz-input:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 15px rgba(0, 255, 102, 0.25);
+    outline: none;
+}
+
+.select-styled {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+
+.input-with-action {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-input-action {
+    padding: 0 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-md);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.btn-input-action:hover {
+    background: rgba(0, 255, 102, 0.15);
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
+}
+
+/* Tables */
+.attendance-section-card {
+    background: #090A10;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    padding: 26px;
+}
+
+.section-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.section-card-header h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 4px;
+}
+
+.section-card-header p {
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    margin: 0;
+}
+
+.outpayz-table-wrap {
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.outpayz-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.outpayz-table th {
+    background: #0E1019;
+    padding: 14px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.outpayz-table td {
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #E5E7EB;
+    vertical-align: middle;
+}
+
+.outpayz-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.course-code-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(0, 255, 102, 0.12);
+    border: 1px solid rgba(0, 255, 102, 0.25);
+    color: var(--brand-primary);
+    border-radius: var(--radius-xs);
+    font-weight: 700;
+    font-size: 12.5px;
+}
+
+.passcode-box {
+    padding: 6px 12px;
+    background: #050507;
+    border: 1px dashed rgba(0, 255, 102, 0.4);
+    border-radius: var(--radius-xs);
+    color: var(--brand-primary);
+    font-weight: 700;
+}
+
+.status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 600;
+}
+.status-chip.active { background: rgba(0, 255, 102, 0.15); color: #00FF66; border: 1px solid rgba(0, 255, 102, 0.3); }
+.status-chip.closed { background: rgba(255, 255, 255, 0.08); color: var(--text-muted); }
+.status-chip.present { background: rgba(0, 255, 102, 0.2); color: #00FF66; border: 1px solid rgba(0, 255, 102, 0.35); }
+
+.chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
+}
+
+.attendee-count-chip {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: #38BDF8;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.table-action-btns {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-action-sm {
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+}
+
+.btn-view-roster {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+.btn-view-roster:hover { background: rgba(255, 255, 255, 0.15); color: #ffffff; }
+
+.btn-close-session {
+    background: rgba(244, 63, 94, 0.12);
+    color: #F43F5E;
+    border-color: rgba(244, 63, 94, 0.3);
+}
+.btn-close-session:hover { background: #F43F5E; color: #ffffff; }
+
+.btn-open-session {
+    background: rgba(0, 255, 102, 0.12);
+    color: #00FF66;
+    border-color: rgba(0, 255, 102, 0.3);
+}
+.btn-open-session:hover { background: #00FF66; color: #050507; }
+
+.btn-delete-session {
+    background: transparent;
+    color: var(--text-muted);
+}
+.btn-delete-session:hover { color: #F43F5E; }
+
+/* Student & CR Grid */
+.attendance-student-grid {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 28px;
+}
+
+.checkin-card {
+    margin-bottom: 0;
+}
+
+.active-sessions-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.session-stack-card {
+    background: #090A10;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.session-stack-card:hover {
+    border-color: rgba(0, 255, 102, 0.3);
+    background: #0D0F17;
+}
+
+.session-stack-card.is-attended {
+    border-color: rgba(0, 255, 102, 0.4);
+    background: rgba(0, 255, 102, 0.03);
+}
+
+.session-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.session-stack-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 10px;
+}
+
+.session-meta-row {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.session-card-cr-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 13px;
+}
+
+.btn-cr-roster {
+    color: var(--brand-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+.btn-cr-roster:hover { text-decoration: underline; }
+
+.checkin-complete-box,
+.checkin-empty-box,
+.empty-roster-state {
+    text-align: center;
+    padding: 36px 20px;
+}
+
+.checkin-complete-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(0, 255, 102, 0.15);
+    color: #00FF66;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 16px;
+    border: 1px solid rgba(0, 255, 102, 0.3);
+}
+
+.empty-icon {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.outpayz-alert {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
+    font-size: 14px;
+    font-weight: 500;
+}
+.outpayz-alert.alert-success {
+    background: rgba(0, 255, 102, 0.12);
+    border: 1px solid rgba(0, 255, 102, 0.3);
+    color: #00FF66;
+}
+.outpayz-alert.alert-danger {
+    background: rgba(244, 63, 94, 0.12);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    color: #F43F5E;
+}
+
+@@media (max-width: 992px) {
+    .attendance-kpi-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .attendance-student-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-row-4 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@@media (max-width: 576px) {
+    .attendance-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-row-2, .form-row-4 {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
