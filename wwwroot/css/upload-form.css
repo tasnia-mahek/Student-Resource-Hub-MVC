@@ -1,100 +1,119 @@
-/* Upload Form Styles */
+/* ==========================================================================
+   StudyHub - OutPayz SaaS Upload Form Styles
+   Obsidian Black & Electric Neon Green Visual Theme
+   ========================================================================== */
+
 .upload-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+    max-width: 860px;
+    margin: 40px auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 2;
 }
 
 .upload-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 36px;
 }
 
 .upload-header h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    font-size: clamp(28px, 3vw, 40px);
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
 }
 
 .upload-header p {
-    color: #6c757d;
-    font-size: 1rem;
+    color: var(--text-secondary);
+    font-size: 15px;
+    margin: 0;
 }
 
 .upload-form {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
+    background: #0B0D14;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    padding: 36px clamp(20px, 4vw, 44px);
+    backdrop-filter: blur(16px);
 }
 
 .form-section {
-    margin-bottom: 2rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .form-section:last-of-type {
     border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .form-section h3 {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    color: #212529;
-    border-left: 3px solid #007bff;
-    padding-left: 0.75rem;
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #FFFFFF;
+    border-left: 3px solid #00FF66;
+    padding-left: 12px;
+    letter-spacing: -0.01em;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 20px;
 }
 
 .form-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
 }
 
 label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 6px;
     font-weight: 600;
-    color: #495057;
+    font-size: 13px;
+    color: var(--text-secondary);
 }
 
 .form-control {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
+    padding: 11px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    background: #10121C;
+    color: #FFFFFF;
+    font-size: 13.5px;
+    transition: all 0.2s ease;
 }
 
 .form-control:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    border-color: #00FF66;
+    box-shadow: 0 0 16px rgba(0, 255, 102, 0.25);
+    background: #141724;
+    color: #FFFFFF;
 }
 
+/* Glowing Neon File Upload Area */
 .file-upload-area {
-    border: 2px dashed #007bff;
-    border-radius: 8px;
-    padding: 2rem;
+    border: 2px dashed rgba(0, 255, 102, 0.35);
+    border-radius: var(--radius-lg);
+    padding: 36px 20px;
     text-align: center;
-    background: #f8f9fa;
+    background: rgba(0, 255, 102, 0.03);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
 }
 
-.file-upload-area:hover {
-    background: #e7f3ff;
-    border-color: #0056b3;
-}
-
+.file-upload-area:hover,
 .file-upload-area.dragover {
-    background: #e7f3ff;
-    border-color: #0056b3;
+    background: rgba(0, 255, 102, 0.08);
+    border-color: #00FF66;
+    box-shadow: 0 0 30px rgba(0, 255, 102, 0.15);
 }
 
 .file-input {
@@ -102,153 +121,142 @@ label {
 }
 
 .upload-icon {
-    font-size: 3rem;
+    font-size: 38px;
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 12px;
+    color: #00FF66;
 }
 
 .file-upload-text p {
-    margin: 0 0 0.5rem 0;
-    font-weight: 500;
-    color: #212529;
+    margin: 0 0 6px 0;
+    font-weight: 700;
+    font-size: 14.5px;
+    color: #FFFFFF;
 }
 
 .file-upload-text small {
-    color: #6c757d;
+    color: var(--text-muted);
+    font-size: 12.5px;
 }
 
 .file-selected {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    border-radius: 4px;
-    padding: 1rem;
-    margin-top: 1rem;
+    background: rgba(0, 255, 102, 0.1);
+    border: 1px solid rgba(0, 255, 102, 0.3);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-top: 16px;
 }
 
 .file-selected p {
-    margin: 0.5rem 0;
-    color: #155724;
+    margin: 6px 0;
+    color: #00FF66;
+    font-weight: 600;
 }
 
 .change-file-btn {
-    background: #28a745;
-    color: white;
+    background: #00FF66;
+    color: #050507;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    padding: 8px 18px;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: 12.5px;
     cursor: pointer;
-    margin-top: 0.5rem;
-    transition: background-color 0.3s ease;
+    margin-top: 8px;
+    transition: all 0.2s ease;
 }
 
 .change-file-btn:hover {
-    background: #218838;
+    background: #1aff75;
+    box-shadow: 0 0 16px rgba(0, 255, 102, 0.5);
 }
 
 .text-danger {
-    color: #dc3545;
-    font-size: 0.85rem;
-    margin-top: 0.25rem;
+    color: var(--accent-rose);
+    font-size: 12px;
+    margin-top: 4px;
     display: block;
-}
-
-.alert {
-    padding: 1rem;
-    border-radius: 4px;
-    margin-bottom: 1.5rem;
+    font-weight: 600;
 }
 
 .alert-danger {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.alert ul {
-    margin: 0.5rem 0 0 1rem;
-    padding-left: 1rem;
+    background: rgba(244, 63, 94, 0.12);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    color: #FF6B81;
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
 }
 
 .form-actions {
     display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid #e0e0e0;
-}
-
-.btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    text-align: center;
-    transition: all 0.3s ease;
+    gap: 14px;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .btn-primary {
-    background: #007bff;
-    color: white;
+    background: #00FF66 !important;
+    color: #050507 !important;
+    border: none;
+    border-radius: var(--radius-full);
+    font-weight: 800;
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.35);
+    padding: 12px 28px;
+    transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-    background: #0056b3;
+    background: #1aff75 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 0 30px rgba(0, 255, 102, 0.6);
 }
 
 .btn-secondary {
-    background: #6c757d;
-    color: white;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    padding: 12px 24px;
 }
 
 .btn-secondary:hover {
-    background: #5a6268;
-}
-
-.btn-large {
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    flex: 1;
+    background: rgba(255, 255, 255, 0.1) !important;
 }
 
 .info-box {
-    background: #e7f3ff;
-    border-left: 4px solid #007bff;
-    padding: 1rem;
-    border-radius: 4px;
-    margin-top: 2rem;
+    background: rgba(0, 255, 102, 0.05);
+    border-left: 3px solid #00FF66;
+    border-radius: var(--radius-md);
+    padding: 18px 22px;
+    margin-top: 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .info-box h4 {
-    margin-top: 0;
-    color: #0056b3;
+    margin: 0 0 8px;
+    color: #00FF66;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .info-box ul {
-    margin: 0.5rem 0;
-    padding-left: 1.5rem;
-    color: #004085;
-}
-
-.info-box li {
-    margin-bottom: 0.5rem;
+    margin: 0;
+    padding-left: 18px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 @media (max-width: 768px) {
     .upload-form {
-        padding: 1rem;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
+        padding: 20px 16px;
     }
 
     .form-actions {
         flex-direction: column;
-    }
-
-    .btn-large {
-        width: 100%;
     }
 }
