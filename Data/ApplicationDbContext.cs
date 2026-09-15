@@ -15,6 +15,8 @@ namespace student_resource_hub.Data
         public DbSet<PastPaper> PastPapers => Set<PastPaper>();
         public DbSet<Note> Notes => Set<Note>();
         public DbSet<Lecture> Lectures => Set<Lecture>();
+        public DbSet<AttendanceSession> AttendanceSessions => Set<AttendanceSession>();
+        public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -94,6 +96,40 @@ namespace student_resource_hub.Data
                 entity.HasIndex(lecture => new { lecture.Department, lecture.Year, lecture.Semester });
                 entity.HasIndex(lecture => lecture.Status);
                 entity.HasIndex(lecture => lecture.CreatedDate);
+            });
+
+            modelBuilder.Entity<AttendanceSession>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+                entity.Property(s => s.SessionTitle).HasMaxLength(200).IsRequired();
+                entity.Property(s => s.CourseCode).HasMaxLength(50).IsRequired();
+                entity.Property(s => s.Department).HasMaxLength(100).IsRequired();
+                entity.Property(s => s.Passcode).HasMaxLength(50).IsRequired();
+                entity.HasOne(s => s.CreatedByUser)
+                    .WithMany()
+                    .HasForeignKey(s => s.CreatedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(s => s.AttendanceRecords)
+                    .WithOne(r => r.AttendanceSession)
+                    .HasForeignKey(r => r.AttendanceSessionId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(s => s.SessionDate);
+                entity.HasIndex(s => s.CourseCode);
+                entity.HasIndex(s => s.IsActive);
+            });
+
+            modelBuilder.Entity<AttendanceRecord>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+                entity.Property(r => r.StudentName).HasMaxLength(120).IsRequired();
+                entity.Property(r => r.StudentEmail).HasMaxLength(256).IsRequired();
+                entity.Property(r => r.Role).HasMaxLength(20).IsRequired();
+                entity.Property(r => r.Status).HasMaxLength(20).IsRequired();
+                entity.HasOne(r => r.User)
+                    .WithMany()
+                    .HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(r => new { r.AttendanceSessionId, r.UserId }).IsUnique();
             });
         }
     }
