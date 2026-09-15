@@ -1,113 +1,140 @@
 @{
-    ViewData["Title"] = "Favorites";
+    ViewData["Title"] = "Favorites - Saved Library";
 }
 
-<div class="catalog-layout">
-    <!-- Left Summary Panel -->
+<link rel="stylesheet" href="~/css/resource-list.css" asp-append-version="true" />
+
+<div class="catalog-layout document-catalog">
+    <!-- Left Summary & Quick Filter Panel -->
     <aside class="filter-panel" aria-label="Favorites summary">
-        <div class="filter-header">
-            <h2>
-                <span>⭐</span>
-                Saved Library
-            </h2>
-            <button class="filter-clear-btn" type="button" data-clear-favorites>Clear All</button>
+        <div class="filter-title">
+            <h2>⭐ Saved Library</h2>
+            <button class="filter-clear-btn" type="button" data-clear-favorites>Clear all</button>
         </div>
 
-        <p style="color:var(--text-secondary); font-size:13px; line-height:1.6; margin:0 0 20px;">
-            Your personal collection of bookmarked exams, video lectures, and revision guides.
+        <p style="color:var(--text-secondary); font-size:13px; line-height:1.6; margin:0 0 18px;">
+            Your personal collection of bookmarked examinations, lecture videos, and student study guides.
         </p>
 
-        <div style="padding:16px; border-radius:var(--radius-md); background:var(--bg-surface-alt); border:1px solid var(--border-default); text-align:center;">
+        <!-- Saved Count Stat Card -->
+        <div class="favorites-stat-card">
             <div class="favorites-count-number">3</div>
-            <small style="color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Saved Items</small>
+            <span class="favorites-stat-label">Saved Resources</span>
         </div>
 
-        <div style="margin-top:20px;">
-            <a class="btn btn-secondary btn-sm" asp-action="PastPapers" style="width:100%; text-align:center;">+ Explore More Materials</a>
+        <!-- Quick Category Filter Chips -->
+        <div class="favorites-filter-group">
+            <a class="favorites-filter-chip is-active" href="#all" data-fav-filter="all">
+                <span>📁 All Bookmarks</span>
+                <span class="stat-pill-green" style="padding:2px 8px; font-size:11px;">3</span>
+            </a>
+            <a class="favorites-filter-chip" href="#papers" data-fav-filter="paper">
+                <span>📄 Past Papers</span>
+                <small style="color:var(--text-muted);">1</small>
+            </a>
+            <a class="favorites-filter-chip" href="#notes" data-fav-filter="note">
+                <span>📝 Study Notes</span>
+                <small style="color:var(--text-muted);">1</small>
+            </a>
+            <a class="favorites-filter-chip" href="#lectures" data-fav-filter="lecture">
+                <span>🎬 Video Lectures</span>
+                <small style="color:var(--text-muted);">1</small>
+            </a>
+        </div>
+
+        <div>
+            <a class="upload-button" asp-controller="Resource" asp-action="PastPapers" style="width:100%; justify-content:center;">
+                <span>+ Browse More Material</span>
+            </a>
         </div>
     </aside>
 
-    <!-- Main Favorites Section -->
+    <!-- Main Favorites Content Section -->
     <section class="catalog-content">
-        <header class="page-heading">
+        <div class="catalog-heading">
             <div>
-                <span class="page-eyebrow">PERSONAL STUDY DECK</span>
-                <h1 class="page-title">Favorite &amp; Bookmarked Resources</h1>
-                <p class="page-description">Quick access to the study assets you use most frequently throughout the term.</p>
-            </div>
-        </header>
-
-        <div class="catalog-toolbar">
-            <div class="catalog-stats-pill">
-                <span>📌</span>
-                <span>Active Bookmarks</span>
+                <span class="eyebrow">PERSONAL STUDY DECK</span>
+                <h1>Favorite &amp; Bookmarked Resources</h1>
+                <p>Quick access to the study assets you use most frequently throughout the semester.</p>
             </div>
 
-            <div class="catalog-sort-select">
-                <label for="sortFavorites">Sort by:</label>
-                <select id="sortFavorites" class="select-input" aria-label="Sort favorites">
-                    <option>Recently added</option>
-                    <option>Course code</option>
-                    <option>Resource type</option>
+            <div class="sort-upload">
+                <select id="sortFavorites" aria-label="Sort favorites list">
+                    <option value="recent">Recently bookmarked</option>
+                    <option value="code">Course code</option>
+                    <option value="type">Resource type</option>
                 </select>
+                <a class="outpayz-btn-primary mockup-btn-sm" asp-controller="Resource" asp-action="PastPapers">+ Add More</a>
             </div>
         </div>
 
         <!-- Favorites List -->
         <div class="document-list favorites-list">
-            <article class="document-card">
-                <span class="document-icon-box icon-blue">▤</span>
+            <!-- Favorite Card 1: Past Paper -->
+            <article class="document-card" data-category="paper">
+                <span class="document-icon blue">📄</span>
                 <div class="document-main">
-                    <div class="document-header-row">
-                        <span class="badge badge-primary">Computer Science</span>
-                        <span class="document-course-code">CS-201 · Past Paper</span>
+                    <div>
+                        <span class="subject-tag">Computer Science</span>
+                        <span style="color:var(--text-muted); font-size:12.5px; margin-left:8px; font-weight:600;">CS-201 · Past Paper</span>
                     </div>
-                    <h2 class="document-title">Data Structures and Algorithms Final Exam</h2>
-                    <div class="document-meta-row">
-                        <span class="document-meta-item">🗓️ Fall 2024</span>
-                        <span class="document-meta-item">⭐ Saved yesterday</span>
+                    <h2 style="font-size:17px; font-weight:700; color:#FFFFFF; margin:6px 0;">Data Structures and Algorithms Final Exam</h2>
+                    <div class="document-meta">
+                        <span>🗓️ Fall 2024</span>
+                        <span>⭐ Saved yesterday</span>
+                        <span>⬇ 420 downloads</span>
+                        <span>PDF</span>
                     </div>
+                    <small class="upload-meta" style="margin-top:6px;">By: Alex Morgan · Prof: Dr. Rahman</small>
                 </div>
                 <div class="document-actions">
-                    <a class="btn btn-primary btn-sm" asp-action="PastPapers">Open Exam</a>
+                    <a class="primary-button" asp-controller="Resource" asp-action="PastPapers">👁 View Exam</a>
                     <button class="star-btn is-active favorite-remove" type="button" aria-label="Remove from favorites" title="Remove from favorites">★</button>
                 </div>
             </article>
 
-            <article class="document-card">
-                <span class="document-icon-box icon-violet">▥</span>
+            <!-- Favorite Card 2: Study Note -->
+            <article class="document-card" data-category="note">
+                <span class="document-icon violet">📝</span>
                 <div class="document-main">
-                    <div class="document-header-row">
-                        <span class="badge badge-violet">Physics</span>
-                        <span class="document-course-code">PHY-402 · Study Notes</span>
+                    <div>
+                        <span class="subject-tag" style="background:rgba(168, 85, 247, 0.1); color:#A855F7; border-color:rgba(168, 85, 247, 0.25);">Physics</span>
+                        <span style="color:var(--text-muted); font-size:12.5px; margin-left:8px; font-weight:600;">PHY-402 · Study Notes</span>
                     </div>
-                    <h2 class="document-title">Quantum Mechanics Derivations Study Guide</h2>
-                    <div class="document-meta-row">
-                        <span class="document-meta-item">📄 38 pages</span>
-                        <span class="document-meta-item">⭐ Saved 3 days ago</span>
+                    <h2 style="font-size:17px; font-weight:700; color:#FFFFFF; margin:6px 0;">Quantum Mechanics Derivations Study Guide</h2>
+                    <div class="document-meta">
+                        <span>📄 38 pages</span>
+                        <span>⭐ Saved 3 days ago</span>
+                        <span>⬇ 185 downloads</span>
+                        <span>PDF</span>
                     </div>
+                    <small class="upload-meta" style="margin-top:6px;">By: Sarah Jenkins · Prof: Dr. Alim</small>
                 </div>
                 <div class="document-actions">
-                    <a class="btn btn-primary btn-sm" asp-action="Notes">Read Notes</a>
+                    <a class="primary-button" asp-controller="Resource" asp-action="Notes">👁 Read Notes</a>
                     <button class="star-btn is-active favorite-remove" type="button" aria-label="Remove from favorites" title="Remove from favorites">★</button>
                 </div>
             </article>
 
-            <article class="document-card">
-                <span class="document-icon-box icon-teal">▶</span>
+            <!-- Favorite Card 3: Video Lecture -->
+            <article class="document-card" data-category="lecture">
+                <span class="document-icon teal">🎬</span>
                 <div class="document-main">
-                    <div class="document-header-row">
-                        <span class="badge badge-teal">Computer Science</span>
-                        <span class="document-course-code">CS-501 · Video Lecture</span>
+                    <div>
+                        <span class="subject-tag" style="background:rgba(45, 212, 191, 0.1); color:#2DD4BF; border-color:rgba(45, 212, 191, 0.25);">Computer Science</span>
+                        <span style="color:var(--text-muted); font-size:12.5px; margin-left:8px; font-weight:600;">CS-501 · Video Lecture</span>
                     </div>
-                    <h2 class="document-title">Introduction to Machine Learning &amp; Neural Nets</h2>
-                    <div class="document-meta-row">
-                        <span class="document-meta-item">⏱️ 1:24:32</span>
-                        <span class="document-meta-item">⭐ Saved last week</span>
+                    <h2 style="font-size:17px; font-weight:700; color:#FFFFFF; margin:6px 0;">Introduction to Machine Learning &amp; Neural Nets</h2>
+                    <div class="document-meta">
+                        <span>⏱️ 1:24:32</span>
+                        <span>⭐ Saved last week</span>
+                        <span>👁 1,240 views</span>
+                        <span>HD Video</span>
                     </div>
+                    <small class="upload-meta" style="margin-top:6px;">By: Prof. Tariq Hasan · High Yield</small>
                 </div>
                 <div class="document-actions">
-                    <a class="btn btn-primary btn-sm" asp-action="Lectures">Watch Lecture</a>
+                    <a class="primary-button" asp-controller="Resource" asp-action="Lectures">▶ Watch Lecture</a>
                     <button class="star-btn is-active favorite-remove" type="button" aria-label="Remove from favorites" title="Remove from favorites">★</button>
                 </div>
             </article>
@@ -116,11 +143,13 @@
         <!-- Empty State (Shown when all favorites are removed) -->
         <div class="favorites-empty-state" hidden>
             <div class="empty-state-icon">⭐</div>
-            <h3 style="font-size:18px; margin-bottom:6px;">Your favorites collection is empty</h3>
-            <p style="color:var(--text-secondary); font-size:14px; margin:0 0 20px;">
-                Bookmark past papers, lectures, and notes by clicking the star icon across the catalog.
+            <h3>Your Saved Collection is Empty</h3>
+            <p>
+                You haven't bookmarked any study materials yet. Star past papers, video lectures, and notes across the catalog for quick access.
             </p>
-            <a class="btn btn-primary btn-sm" asp-action="Index">Back to Dashboard</a>
+            <a class="upload-button" asp-controller="Resource" asp-action="PastPapers">
+                <span>+ Explore Resource Catalog</span>
+            </a>
         </div>
     </section>
 </div>

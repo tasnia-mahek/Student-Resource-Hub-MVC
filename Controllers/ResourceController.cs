@@ -9,6 +9,7 @@ using student_resource_hub.ViewModels;
 
 namespace student_resource_hub.Controllers
 {
+    [Authorize]
     public class ResourceController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -318,7 +319,7 @@ namespace student_resource_hub.Controllers
         }
 
         // GET: Resource/UploadPastPaper
-        [Authorize(Roles = "Student,Admin")]
+        [Authorize(Roles = "Admin,CR")]
         [HttpGet]
         public IActionResult UploadPastPaper()
         {
@@ -326,7 +327,7 @@ namespace student_resource_hub.Controllers
         }
 
         // POST: Resource/UploadPastPaper
-        [Authorize(Roles = "Student,Admin")]
+        [Authorize(Roles = "Admin,CR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadPastPaper(UploadResourceViewModel model)
@@ -354,16 +355,20 @@ namespace student_resource_hub.Controllers
 
                 try
                 {
-                    var identityValues = User.Claims
-                        .Select(claim => claim.Value)
-                        .Where(value => !string.IsNullOrWhiteSpace(value))
-                        .Distinct()
-                        .ToArray();
-                    var user = await _context.Users
-                        .FirstOrDefaultAsync(u => identityValues.Contains(u.Email) || identityValues.Contains(u.FullName));
-                    var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? user?.Id.ToString();
+                    var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    int uploadedByUserId = 0;
+                    if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var parsedId))
+                    {
+                        uploadedByUserId = parsedId;
+                    }
+                    else
+                    {
+                        var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                        if (user != null) uploadedByUserId = user.Id;
+                    }
 
-                    if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out var uploadedByUserId))
+                    if (uploadedByUserId == 0)
                     {
                         ModelState.AddModelError("", "Could not identify current user.");
                         await _fileService.DeleteFileAsync(filePath);
@@ -413,7 +418,7 @@ namespace student_resource_hub.Controllers
         }
 
         // GET: Resource/UploadNote
-        [Authorize(Roles = "Student,Admin")]
+        [Authorize(Roles = "Admin,CR")]
         [HttpGet]
         public IActionResult UploadNote()
         {
@@ -421,7 +426,7 @@ namespace student_resource_hub.Controllers
         }
 
         // POST: Resource/UploadNote
-        [Authorize(Roles = "Student,Admin")]
+        [Authorize(Roles = "Admin,CR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadNote(UploadNoteViewModel model)
@@ -447,10 +452,20 @@ namespace student_resource_hub.Controllers
 
                 string filePath = await _fileService.UploadFileAsync(model.File, "uploads/notes");
 
-                var userId = HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value ??
-                             _context.Users.FirstOrDefault(u => u.Email == User.Identity!.Name)?.Id.ToString();
+                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                int uploadedByUserId = 0;
+                if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var parsedId))
+                {
+                    uploadedByUserId = parsedId;
+                }
+                else
+                {
+                    var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                    if (user != null) uploadedByUserId = user.Id;
+                }
 
-                if (string.IsNullOrEmpty(userId))
+                if (uploadedByUserId == 0)
                 {
                     ModelState.AddModelError("", "Could not identify current user.");
                     return View(model);
@@ -470,7 +485,7 @@ namespace student_resource_hub.Controllers
                     OriginalFileName = Path.GetFileName(model.File.FileName),
                     FileType = _fileService.GetFileExtension(model.File.FileName),
                     FileSizeBytes = model.File.Length,
-                    UploadedByUserId = int.Parse(userId),
+                    UploadedByUserId = uploadedByUserId,
                     Status = ResourceStatus.Pending,
                     CreatedDate = DateTime.UtcNow
                 };
@@ -490,7 +505,7 @@ namespace student_resource_hub.Controllers
         }
 
         // GET: Resource/UploadLecture
-        [Authorize(Roles = "Student,Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult UploadLecture()
         {
@@ -498,7 +513,7 @@ namespace student_resource_hub.Controllers
         }
 
         // POST: Resource/UploadLecture
-        [Authorize(Roles = "Student,Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadLecture(UploadLectureViewModel model)
@@ -524,10 +539,20 @@ namespace student_resource_hub.Controllers
 
                 string filePath = await _fileService.UploadFileAsync(model.File, "uploads/lectures");
 
-                var userId = HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value ??
-                             _context.Users.FirstOrDefault(u => u.Email == User.Identity!.Name)?.Id.ToString();
+                var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                int uploadedByUserId = 0;
+                if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var parsedId))
+                {
+                    uploadedByUserId = parsedId;
+                }
+                else
+                {
+                    var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                    if (user != null) uploadedByUserId = user.Id;
+                }
 
-                if (string.IsNullOrEmpty(userId))
+                if (uploadedByUserId == 0)
                 {
                     ModelState.AddModelError("", "Could not identify current user.");
                     return View(model);
@@ -548,7 +573,7 @@ namespace student_resource_hub.Controllers
                     OriginalFileName = Path.GetFileName(model.File.FileName),
                     FileType = _fileService.GetFileExtension(model.File.FileName),
                     FileSizeBytes = model.File.Length,
-                    UploadedByUserId = int.Parse(userId),
+                    UploadedByUserId = uploadedByUserId,
                     Status = ResourceStatus.Pending,
                     CreatedDate = DateTime.UtcNow
                 };

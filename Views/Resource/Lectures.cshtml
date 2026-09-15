@@ -83,7 +83,7 @@
                         }
                     }
                 </select>
-                @if (User.IsInRole("Student") || User.IsInRole("Admin"))
+                @if (User.IsInRole("Admin"))
                 {
                     <a href="@Url.Action("UploadLecture", "Resource")" class="upload-button">+ Upload Lecture</a>
                 }
