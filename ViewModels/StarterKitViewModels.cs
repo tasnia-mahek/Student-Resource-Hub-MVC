@@ -6,7 +6,7 @@ namespace student_resource_hub.ViewModels
     {
         public string? SelectedDepartment { get; set; }
         public string? SelectedSemester { get; set; }
-        public bool IsGenerated => !string.IsNullOrWhiteSpace(SelectedDepartment) && !string.IsNullOrWhiteSpace(SelectedSemester);
+        public bool IsGenerated { get; set; } = false;
 
         public List<DepartmentOption> DepartmentOptions => new()
         {
