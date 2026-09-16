@@ -486,7 +486,8 @@ namespace student_resource_hub.Controllers
                     FileType = _fileService.GetFileExtension(model.File.FileName),
                     FileSizeBytes = model.File.Length,
                     UploadedByUserId = uploadedByUserId,
-                    Status = ResourceStatus.Pending,
+                    Status = User.IsInRole("Admin") ? ResourceStatus.Approved : ResourceStatus.Pending,
+                    ApprovedDate = User.IsInRole("Admin") ? DateTime.UtcNow : null,
                     CreatedDate = DateTime.UtcNow
                 };
 
@@ -574,7 +575,8 @@ namespace student_resource_hub.Controllers
                     FileType = _fileService.GetFileExtension(model.File.FileName),
                     FileSizeBytes = model.File.Length,
                     UploadedByUserId = uploadedByUserId,
-                    Status = ResourceStatus.Pending,
+                    Status = User.IsInRole("Admin") ? ResourceStatus.Approved : ResourceStatus.Pending,
+                    ApprovedDate = User.IsInRole("Admin") ? DateTime.UtcNow : null,
                     CreatedDate = DateTime.UtcNow
                 };
 
