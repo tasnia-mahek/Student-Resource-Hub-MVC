@@ -38,6 +38,7 @@ namespace student_resource_hub.Controllers
 
                 if (isDeptValid && isSemValid)
                 {
+                    viewModel.IsGenerated = true;
                     try
                     {
                         // 1. Fetch all approved past papers for selected department and semester
