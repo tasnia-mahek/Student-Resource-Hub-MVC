@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using student_resource_hub.Data;
 
@@ -11,9 +12,11 @@ using student_resource_hub.Data;
 namespace student_resource_hub.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260911064858_AddAttendanceModule")]
+    partial class AddAttendanceModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -490,8 +493,8 @@ namespace student_resource_hub.Migrations
 
             modelBuilder.Entity("student_resource_hub.Models.AttendanceRecord", b =>
                 {
-                    b.HasOne("student_resource_hub.Models.AttendanceSession", "AttendanceSession")
-                        .WithMany("AttendanceRecords")
+                    b.HasOne("student_resource_hub.Models.AttendanceSession", "Session")
+                        .WithMany("Records")
                         .HasForeignKey("AttendanceSessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -502,7 +505,7 @@ namespace student_resource_hub.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("AttendanceSession");
+                    b.Navigation("Session");
 
                     b.Navigation("User");
                 });
@@ -553,7 +556,7 @@ namespace student_resource_hub.Migrations
 
             modelBuilder.Entity("student_resource_hub.Models.AttendanceSession", b =>
                 {
-                    b.Navigation("AttendanceRecords");
+                    b.Navigation("Records");
                 });
 #pragma warning restore 612, 618
         }

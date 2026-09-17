@@ -1,0 +1,142 @@
+@model student_resource_hub.ViewModels.SessionRosterViewModel
+@{
+    ViewData["Title"] = $"Roster: {Model.Session.CourseCode}";
+}
+
+<div class="attendance-hub-container">
+    <div class="roster-page-header">
+        <div>
+            <a asp-action="Index" class="back-link">&larr; Back to Attendance Hub</a>
+            <div class="d-flex align-items-center gap-3 mt-2">
+                <span class="course-code-badge fs-6">@Model.Session.CourseCode</span>
+                <h1 class="roster-title">@Model.Session.SessionTitle</h1>
+            </div>
+            <p class="roster-subtitle">
+                <span>🗓️ @Model.Session.SessionDate.ToString("dd MMMM yyyy")</span> &bull; 
+                <span>⏱️ @Model.Session.StartTime.ToString(@"hh\:mm") - @Model.Session.EndTime.ToString(@"hh\:mm")</span> &bull;
+                <span>🏛️ @Model.Session.Department</span> &bull;
+                <span>Passcode: <strong class="text-neon font-monospace">@Model.Session.Passcode</strong></span>
+            </p>
+        </div>
+
+        <div class="roster-stat-pill">
+            <span class="fs-4 fw-bold text-neon">@Model.Attendees.Count</span>
+            <small class="text-muted d-block text-uppercase">Verified Attendees</small>
+        </div>
+    </div>
+
+    <div class="attendance-section-card mt-4">
+        <div class="section-card-header">
+            <div>
+                <h2>Verified Class Attendee Roster</h2>
+                <p>List of students and representatives who successfully checked in with the session passcode.</p>
+            </div>
+        </div>
+
+        @if (Model.Attendees.Any())
+        {
+            <div class="table-responsive outpayz-table-wrap">
+                <table class="outpayz-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Status</th>
+                            <th>Student / Scholar</th>
+                            <th>Email Address</th>
+                            <th>Role</th>
+                            <th>Checked In At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var index = 1; }
+                        @foreach (var a in Model.Attendees)
+                        {
+                            <tr>
+                                <td class="text-muted">@(index++)</td>
+                                <td>
+                                    <span class="status-chip present"><span class="chip-dot"></span> Present</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="study-avatar" style="width:32px; height:32px; font-size:12px;">@string.Concat(a.StudentName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(n => n[0]))</span>
+                                        <strong>@a.StudentName</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-muted">@a.StudentEmail</span>
+                                </td>
+                                <td>
+                                    <span class="role-badge @(a.Role.ToLower())">@a.Role</span>
+                                </td>
+                                <td>
+                                    <span class="text-secondary">@a.SubmittedAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm:ss tt")</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-roster-state">
+                <span class="empty-icon">👥</span>
+                <h4>No attendees recorded yet</h4>
+                <p>Students can check in to this session using the passcode: <strong class="text-neon">@Model.Session.Passcode</strong></p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+.roster-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-wrap: wrap;
+}
+
+.back-link {
+    color: var(--brand-primary);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 600;
+}
+.back-link:hover { text-decoration: underline; }
+
+.roster-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+}
+
+.roster-subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.roster-stat-pill {
+    background: #090A10;
+    border: 1px solid rgba(0, 255, 102, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 16px 24px;
+    text-align: center;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: var(--radius-xs);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.role-badge.admin { background: rgba(244, 63, 94, 0.15); color: #F43F5E; }
+.role-badge.cr { background: rgba(168, 85, 247, 0.15); color: #A855F7; }
+.role-badge.student { background: rgba(0, 255, 102, 0.15); color: #00FF66; }
+</style>
