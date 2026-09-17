@@ -1,0 +1,278 @@
+@model student_resource_hub.ViewModels.StarterKitViewModel
+@{
+    ViewData["Title"] = "First-Year Starter Kit";
+}
+
+<link rel="stylesheet" href="~/css/starter-kit.css" asp-append-version="true" />
+
+<div class="starter-kit-container">
+    <!-- Hero Onboarding Banner -->
+    <header class="sk-hero">
+        <span class="sk-badge">🎓 FIRST-YEAR ONBOARDING</span>
+        <h1>First-Year Starter Kit</h1>
+        <p>Welcome to Student Resource Hub! Discover the essential course materials, past papers, lecture recordings, and study notes curated specifically for your department and semester.</p>
+    </header>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="background: rgba(244, 63, 94, 0.15); border-color: rgba(244, 63, 94, 0.4); color: #f43f5e; border-radius: 12px;">
+            @ViewBag.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (!Model.IsGenerated)
+    {
+        <!-- Step-by-Step Selection Card -->
+        <section class="sk-selector-card">
+            <form method="get" asp-controller="StarterKit" asp-action="Index">
+                <!-- Step 1: Department -->
+                <div class="sk-step-title">
+                    <span class="sk-step-num">1</span>
+                    <span>Choose your department</span>
+                </div>
+                <div class="sk-dept-grid">
+                    @foreach (var dept in Model.DepartmentOptions)
+                    {
+                        var isChecked = string.Equals(Model.SelectedDepartment, dept.Value, StringComparison.OrdinalIgnoreCase);
+                        <label class="sk-dept-option">
+                            <input type="radio" name="department" value="@dept.Value" @(isChecked ? "checked" : "") required />
+                            <div class="sk-dept-box">
+                                <span class="sk-dept-icon">@dept.Icon</span>
+                                <span class="sk-dept-name">@dept.DisplayName</span>
+                                <span class="sk-dept-code">@dept.Code</span>
+                            </div>
+                        </label>
+                    }
+                </div>
+
+                <!-- Step 2: Semester -->
+                <div class="sk-step-title">
+                    <span class="sk-step-num">2</span>
+                    <span>Choose your semester</span>
+                </div>
+                <div class="sk-semester-grid">
+                    @foreach (var sem in Model.SemesterOptions)
+                    {
+                        var isChecked = string.Equals(Model.SelectedSemester, sem.Value, StringComparison.OrdinalIgnoreCase);
+                        <label class="sk-sem-option">
+                            <input type="radio" name="semester" value="@sem.Value" @(isChecked ? "checked" : "") required />
+                            <div class="sk-sem-box">
+                                <div class="sk-sem-top">
+                                    <span class="sk-sem-name">@sem.DisplayName</span>
+                                    <span class="sk-sem-badge">@sem.Badge</span>
+                                </div>
+                                <p class="sk-sem-desc">@sem.Description</p>
+                            </div>
+                        </label>
+                    }
+                </div>
+
+                <!-- Action Button -->
+                <div class="sk-action-wrapper">
+                    <button type="submit" class="sk-build-btn">
+                        <span>Build My Starter Kit</span>
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </section>
+    }
+    else
+    {
+        <!-- Personalized Kit Results Section -->
+        <section class="sk-results-section" id="starter-kit-results">
+            <div class="sk-results-header">
+                <div class="sk-results-title">
+                    <h2>Your First-Year Starter Kit</h2>
+                    <div class="sk-results-meta">
+                        <span class="sk-meta-tag">@Model.GetDepartmentDisplayName()</span>
+                        <span class="sk-meta-tag">@Model.GetSemesterDisplayName()</span>
+                        <span>•</span>
+                        <span>@Model.TotalSubjectsCount Subject@(Model.TotalSubjectsCount == 1 ? "" : "s")</span>
+                        <span>•</span>
+                        <span>@Model.TotalResourcesCount Available Resource@(Model.TotalResourcesCount == 1 ? "" : "s")</span>
+                    </div>
+                </div>
+                <a href="@Url.Action("Index", "StarterKit")" class="sk-change-btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                    <span>Reset Selection</span>
+                </a>
+            </div>
+
+            @if (Model.SubjectGroups.Count > 0)
+            {
+                @foreach (var group in Model.SubjectGroups)
+                {
+                    <article class="sk-subject-card">
+                        <header class="sk-subject-header">
+                            <div class="sk-subject-title-area">
+                                <span class="sk-course-badge">@group.CourseCode</span>
+                                <h3 class="sk-subject-name">@group.SubjectName</h3>
+                            </div>
+                            <div class="sk-subject-stats">
+                                <span class="sk-stat-pill @(group.HasPastPapers ? "available" : "")">
+                                    📄 Past Papers: @group.PastPapersCount
+                                </span>
+                                <span class="sk-stat-pill @(group.HasNotes ? "available" : "")">
+                                    📝 Notes: @(group.HasNotes ? group.NotesCount.ToString() : "Coming Soon")
+                                </span>
+                                <span class="sk-stat-pill @(group.HasLectures ? "available" : "")">
+                                    🎥 Videos: @(group.HasLectures ? group.LecturesCount.ToString() : "Coming Soon")
+                                </span>
+                            </div>
+                        </header>
+
+                        <div class="sk-category-grid">
+                            <!-- Category 1: Past Papers -->
+                            <div class="sk-category-col">
+                                <div class="sk-cat-header">
+                                    <div class="sk-cat-title">
+                                        <span>📄 Past Papers</span>
+                                    </div>
+                                    <span class="sk-cat-badge @(group.HasPastPapers ? "badge-available" : "badge-empty")">
+                                        @(group.HasPastPapers ? $"{group.PastPapersCount} Available" : "Empty")
+                                    </span>
+                                </div>
+
+                                @if (group.HasPastPapers)
+                                {
+                                    <div class="sk-item-list">
+                                        @foreach (var paper in group.PastPapers.Take(3))
+                                        {
+                                            <div class="sk-resource-item">
+                                                <div class="sk-item-info">
+                                                    <div class="sk-item-title" title="@paper.Title">@paper.Title</div>
+                                                    <div class="sk-item-meta">@((int)paper.Year) • @paper.ProfessorName</div>
+                                                </div>
+                                                <div class="sk-item-actions">
+                                                    <a href="@Url.Action("PastPaperDetails", "Resource", new { id = paper.Id })" class="sk-btn-view" title="View Details">👁 View</a>
+                                                    <a href="@Url.Action("Download", "Resource", new { id = paper.Id, type = "paper" })" class="sk-btn-download" title="Download">⬇</a>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="sk-cat-footer">
+                                        <a href="@Url.Action("PastPapers", "Resource", new { department = Model.SelectedDepartment, semester = Model.SelectedSemester, search = group.CourseCode })" class="sk-browse-link">
+                                            View all @group.PastPapersCount papers &rarr;
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="sk-coming-soon">
+                                        <span class="sk-cs-icon">⏳</span>
+                                        <div class="sk-cs-title">No Past Papers Yet</div>
+                                        <p class="sk-cs-text">New papers uploaded for this subject will appear here automatically.</p>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Category 2: Study Notes -->
+                            <div class="sk-category-col">
+                                <div class="sk-cat-header">
+                                    <div class="sk-cat-title">
+                                        <span>📝 Study Notes</span>
+                                    </div>
+                                    <span class="sk-cat-badge @(group.HasNotes ? "badge-available" : "badge-empty")">
+                                        @(group.HasNotes ? $"{group.NotesCount} Available" : "Coming Soon")
+                                    </span>
+                                </div>
+
+                                @if (group.HasNotes)
+                                {
+                                    <div class="sk-item-list">
+                                        @foreach (var note in group.Notes.Take(3))
+                                        {
+                                            <div class="sk-resource-item">
+                                                <div class="sk-item-info">
+                                                    <div class="sk-item-title" title="@note.Title">@note.Title</div>
+                                                    <div class="sk-item-meta">Rating: ⭐ @note.AverageRating.ToString("F1") • @((int)note.Year)</div>
+                                                </div>
+                                                <div class="sk-item-actions">
+                                                    <a href="@Url.Action("NoteDetails", "Resource", new { id = note.Id })" class="sk-btn-view" title="View Details">👁 View</a>
+                                                    <a href="@Url.Action("Download", "Resource", new { id = note.Id, type = "note" })" class="sk-btn-download" title="Download">⬇</a>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="sk-cat-footer">
+                                        <a href="@Url.Action("Notes", "Resource", new { department = Model.SelectedDepartment, semester = Model.SelectedSemester, search = group.CourseCode })" class="sk-browse-link">
+                                            View all @group.NotesCount notes &rarr;
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="sk-coming-soon">
+                                        <span class="sk-cs-icon">📚</span>
+                                        <div class="sk-cs-title">Coming Soon</div>
+                                        <p class="sk-cs-text">Class notes are being prepared and will appear as soon as they are uploaded.</p>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Category 3: Video Lectures -->
+                            <div class="sk-category-col">
+                                <div class="sk-cat-header">
+                                    <div class="sk-cat-title">
+                                        <span>🎥 Video Lectures</span>
+                                    </div>
+                                    <span class="sk-cat-badge @(group.HasLectures ? "badge-available" : "badge-empty")">
+                                        @(group.HasLectures ? $"{group.LecturesCount} Available" : "Coming Soon")
+                                    </span>
+                                </div>
+
+                                @if (group.HasLectures)
+                                {
+                                    <div class="sk-item-list">
+                                        @foreach (var lecture in group.Lectures.Take(3))
+                                        {
+                                            <div class="sk-resource-item">
+                                                <div class="sk-item-info">
+                                                    <div class="sk-item-title" title="@lecture.Title">@lecture.Title</div>
+                                                    <div class="sk-item-meta">@lecture.ProfessorName • @((int)lecture.Year)</div>
+                                                </div>
+                                                <div class="sk-item-actions">
+                                                    <a href="@Url.Action("LectureDetails", "Resource", new { id = lecture.Id })" class="sk-btn-view" title="View Details">👁 View</a>
+                                                    <a href="@Url.Action("Download", "Resource", new { id = lecture.Id, type = "lecture" })" class="sk-btn-download" title="Download">⬇</a>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="sk-cat-footer">
+                                        <a href="@Url.Action("Lectures", "Resource", new { department = Model.SelectedDepartment, semester = Model.SelectedSemester, search = group.CourseCode })" class="sk-browse-link">
+                                            View all @group.LecturesCount lectures &rarr;
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="sk-coming-soon">
+                                        <span class="sk-cs-icon">🎬</span>
+                                        <div class="sk-cs-title">Coming Soon</div>
+                                        <p class="sk-cs-text">Recorded lectures and tutorial sessions will be available shortly.</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            }
+            else
+            {
+                <div class="sk-empty-kit">
+                    <div class="sk-empty-icon">🎒</div>
+                    <h3>No Starter Kit Resources Found Yet</h3>
+                    <p>There are currently no approved resources uploaded for <strong>@Model.GetDepartmentDisplayName()</strong> in the <strong>@Model.GetSemesterDisplayName()</strong>. When your peers, CRs, or instructors upload materials, they will be organized right here.</p>
+                    <a href="@Url.Action("Index", "StarterKit")" class="sk-build-btn" style="display: inline-flex;">
+                        Try Another Department or Semester
+                    </a>
+                </div>
+            }
+        </section>
+    }
+</div>
