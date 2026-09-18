@@ -18,9 +18,11 @@ namespace student_resource_hub.Controllers
         private static readonly HashSet<string> StopWords = new(StringComparer.OrdinalIgnoreCase)
         {
             "a", "about", "all", "an", "and", "are", "as", "at", "available", "be", "by", "can",
-            "could", "do", "does", "find", "for", "from", "get", "give", "have", "help", "how",
-            "i", "in", "is", "it", "me", "need", "of", "on", "or", "our", "paper", "papers",
-            "past", "please", "search", "show", "some", "tell", "the", "there", "to", "what",
+            "could", "course", "courses", "do", "does", "exam", "exams", "final", "find", "for",
+            "from", "get", "give", "have", "help", "how", "i", "in", "is", "it", "lecture",
+            "lectures", "material", "materials", "me", "midterm", "need", "note", "notes", "of",
+            "on", "or", "our", "paper", "papers", "past", "please", "resource", "resources",
+            "search", "show", "slide", "slides", "some", "tell", "the", "there", "to", "what",
             "where", "which", "with", "you", "your"
         };
 
