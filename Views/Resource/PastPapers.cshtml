@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="~/css/resource-list.css" />
 
 <div class="catalog-layout document-catalog">
+    @if (Model.SelectedAcademicSemesterId != null)
+    {
     <!-- Filter Panel -->
     <aside class="filter-panel">
         <div class="filter-title">
@@ -57,8 +59,11 @@
             <button type="submit" class="filter-button">Apply Filters</button>
         </form>
     </aside>
+    }
 
     <!-- Content Section -->
+    @if (Model.SelectedAcademicSemesterId != null)
+    {
     <section class="catalog-content">
         <div class="catalog-heading">
             <div>
@@ -101,39 +106,30 @@
 
         <!-- Resource List -->
         <div class="document-list">
-            @if (Model.Resources.Count > 0)
+            @if (Model.CourseGroups.Count > 0)
             {
-                @foreach (var paper in Model.Resources)
+                @foreach (var course in Model.CourseGroups)
                 {
-                    var deptIcon = paper.Department.ToString().StartsWith("Computer") ? "blue" :
-                                   paper.Department.ToString().StartsWith("Engineering") ? "teal" :
-                                   paper.Department.ToString().StartsWith("Math") ? "gold" :
-                                   paper.Department.ToString().StartsWith("Physics") ? "violet" :
-                                   paper.Department.ToString().StartsWith("Chemistry") ? "red" : "green";
-
-                    <article class="document-card">
-                        <span class="document-icon @deptIcon">📄</span>
-                        <div class="document-main">
-                            <span class="subject-tag">@paper.Department.ToString().Replace("ComputerScience", "Computer Science")</span>
-                            <h2>@paper.Title</h2>
-                            <p>@paper.SubjectName · @paper.CourseCode</p>
-                            <div class="document-meta">
-                                <span>@paper.Year @paper.Semester</span>
-                                <span>👁 @paper.ViewCount</span>
-                                <span>⬇ @paper.DownloadCount</span>
-                                <span>@paper.FileType?.TrimStart('.').ToUpperInvariant()</span>
-                            </div>
-                            @if (!string.IsNullOrEmpty(paper.Description))
-                            {
-                                <p class="meta-description">@paper.Description</p>
-                            }
-                            <small class="upload-meta">By: @paper.UploadedByUser?.FullName · Prof: @paper.ProfessorName</small>
-                        </div>
-                        <div class="document-actions">
-                            <a href="@Url.Action("PastPaperDetails", "Resource", new { id = paper.Id })" class="primary-button">👁 View</a>
-                            <a href="@Url.Action("Download", "Resource", new { id = paper.Id, type = "paper" })" class="primary-button" title="Download">⬇ Download</a>
-                        </div>
-                    </article>
+                    <section class="course-resource-group">
+                        <div class="catalog-heading"><div><span class="eyebrow">COURSE</span><h2>@course.CourseCode</h2><p>@course.SubjectName</p></div><span class="subject-tag">@course.Resources.Count paper(s)</span></div>
+                        @foreach (var paper in course.Resources)
+                        {
+                            var deptIcon = paper.Department.ToString().StartsWith("Computer") ? "blue" : paper.Department.ToString().StartsWith("Engineering") ? "teal" : paper.Department.ToString().StartsWith("Math") ? "gold" : paper.Department.ToString().StartsWith("Physics") ? "violet" : paper.Department.ToString().StartsWith("Chemistry") ? "red" : "green";
+                            <article class="document-card">
+                                <span class="document-icon @deptIcon">📄</span>
+                                <div class="document-main">
+                                    <span class="subject-tag">@paper.Department.ToString().Replace("ComputerScience", "Computer Science")</span>
+                                    <h2>@paper.Title</h2>
+                                    <p>@paper.SubjectName · @paper.CourseCode</p>
+                                    <div class="document-meta"><span>@paper.Year @paper.Semester</span><span>👁 @paper.ViewCount</span><span>⬇ @paper.DownloadCount</span><span>@paper.FileType?.TrimStart('.').ToUpperInvariant()</span></div>
+                                    @if (!string.IsNullOrEmpty(paper.Description))
+                                    { <p class="meta-description">@paper.Description</p> }
+                                    <small class="upload-meta">By: @paper.UploadedByUser?.FullName · Prof: @paper.ProfessorName</small>
+                                </div>
+                                <div class="document-actions"><a href="@Url.Action("PastPaperDetails", "Resource", new { id = paper.Id })" class="primary-button">👁 View</a><a href="@Url.Action("Sessions", "Study", new { resourceType = "paper", resourceId = paper.Id })" class="primary-button">📁 Organize</a><a href="@Url.Action("Download", "Resource", new { id = paper.Id, type = "paper" })" class="primary-button" title="Download">⬇ Download</a></div>
+                            </article>
+                        }
+                    </section>
                 }
             }
             else
@@ -144,6 +140,47 @@
             }
         </div>
     </section>
+    }
+    else
+    {
+        <section class="catalog-content">
+            <div class="catalog-heading">
+                <div>
+                    <span class="eyebrow">RESOURCE LIBRARY</span>
+                    <h1>@(Model.SelectedAcademicDepartmentId == null ? "Past Papers by Department" : "Choose a Semester")</h1>
+                    <p>@(Model.SelectedAcademicDepartmentId == null ? "Choose a department to browse its past papers." : "Choose a semester to see every paper for this department.")</p>
+                </div>
+            </div>
+            <div class="document-list">
+                @if (Model.SelectedAcademicDepartmentId == null)
+                {
+                    @foreach (var group in Model.DepartmentGroups)
+                    {
+                        <a class="document-card" href="@Url.Action("PastPapers", "Resource", new { academicDepartmentId = group.AcademicDepartmentId })" style="background-image:linear-gradient(90deg,rgba(7,12,20,.94),rgba(7,12,20,.45)),url('@group.ImageUrl');background-size:cover;background-position:center;">
+                            <span class="document-icon blue">📚</span>
+                            <div class="document-main"><span class="subject-tag">@group.UniversityName</span><h2>@group.Name</h2><p>@group.Count past papers available</p></div>
+                            <span class="primary-button">Browse →</span>
+                        </a>
+                    }
+                }
+                else
+                {
+                    @foreach (var group in Model.SemesterGroups)
+                    {
+                        <a class="document-card" href="@Url.Action("PastPapers", "Resource", new { academicDepartmentId = group.AcademicDepartmentId, academicSemesterId = group.AcademicSemesterId })">
+                            <span class="document-icon teal">🗓</span>
+                            <div class="document-main"><span class="subject-tag">Semester</span><h2>@group.Name</h2><p>@group.Count past papers available</p></div>
+                            <span class="primary-button">View papers →</span>
+                        </a>
+                    }
+                }
+                @if ((Model.SelectedAcademicDepartmentId == null && Model.DepartmentGroups.Count == 0) || (Model.SelectedAcademicDepartmentId != null && Model.SemesterGroups.Count == 0))
+                {
+                    <div class="no-results"><p>No approved past papers are available at this level yet.</p></div>
+                }
+            </div>
+        </section>
+    }
 </div>
 
 <script>

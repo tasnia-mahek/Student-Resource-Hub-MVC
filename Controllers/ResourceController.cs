@@ -33,13 +33,89 @@ namespace student_resource_hub.Controllers
             [FromQuery] int? year = null,
             [FromQuery] string? semester = null,
             [FromQuery] string? sortBy = "newest",
-            [FromQuery] string? search = null)
+            [FromQuery] string? search = null,
+            [FromQuery] int? academicDepartmentId = null,
+            [FromQuery] int? academicSemesterId = null)
         {
             try
             {
+                if (!academicDepartmentId.HasValue && string.IsNullOrWhiteSpace(department))
+                {
+                    return View(await BuildPastPaperDepartments());
+                }
+
+                if (academicDepartmentId.HasValue && !academicSemesterId.HasValue)
+                {
+                    return View(await BuildPastPaperSemesters(academicDepartmentId.Value));
+                }
+
+                if (academicDepartmentId.HasValue && academicSemesterId.HasValue)
+                {
+                    var dynamicQuery = _context.PastPapers
+                        .Where(p => p.Status == ResourceStatus.Approved && p.AcademicDepartmentId == academicDepartmentId && p.AcademicSemesterId == academicSemesterId);
+                    dynamicQuery = ApplyPastPaperSearch(dynamicQuery, search);
+                    dynamicQuery = sortBy switch
+                    {
+                        "oldest" => dynamicQuery.OrderBy(p => p.CreatedDate),
+                        "mostDownloaded" => dynamicQuery.OrderByDescending(p => p.DownloadCount),
+                        _ => dynamicQuery.OrderByDescending(p => p.CreatedDate)
+                    };
+                    var papers = await dynamicQuery.Include(p => p.UploadedByUser).ToListAsync();
+                    return View(new ResourceListViewModel<PastPaper> { Resources = papers, CourseGroups = BuildCourseGroups(papers, paper => paper.CourseCode, paper => paper.SubjectName), SelectedAcademicDepartmentId = academicDepartmentId, SelectedAcademicSemesterId = academicSemesterId, SelectedSort = sortBy ?? "newest", SearchTerm = search });
+                }
+
                 var query = _context.PastPapers
                     .Where(p => p.Status == ResourceStatus.Approved)
                     .AsQueryable();
+
+                Department? selectedDepartment = null;
+                Semester? selectedSemester = null;
+
+                if (!string.IsNullOrWhiteSpace(department) && !department.Equals("All", StringComparison.OrdinalIgnoreCase) && Enum.TryParse(department, true, out Department deptEnum))
+                {
+                    selectedDepartment = deptEnum;
+                    query = query.Where(p => p.Department == deptEnum);
+                }
+
+                if (year.HasValue && year.Value > 0)
+                {
+                    query = query.Where(p => (int)p.Year == year.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(semester) && !semester.Equals("All", StringComparison.OrdinalIgnoreCase) && Enum.TryParse(semester, true, out Semester semEnum))
+                {
+                    selectedSemester = semEnum;
+                    query = query.Where(p => p.Semester == semEnum);
+                }
+
+                var browseModel = new ResourceListViewModel<PastPaper>
+                {
+                    SelectedDepartment = selectedDepartment?.ToString(),
+                    SelectedYear = year.HasValue && year.Value > 0 ? year : null,
+                    SelectedSemester = selectedSemester?.ToString(),
+                    SelectedSort = sortBy ?? "newest",
+                    SearchTerm = search
+                };
+
+                if (!selectedDepartment.HasValue)
+                {
+                    browseModel.DepartmentGroups = await query
+                        .GroupBy(p => p.Department)
+                        .Select(group => new ResourceBrowseGroup { Department = group.Key, Count = group.Count() })
+                        .OrderBy(group => group.Department)
+                        .ToListAsync();
+                    return View(browseModel);
+                }
+
+                if (!selectedSemester.HasValue)
+                {
+                    browseModel.SemesterGroups = await query
+                        .GroupBy(p => p.Semester)
+                        .Select(group => new ResourceBrowseGroup { Department = selectedDepartment.Value, Semester = group.Key, Count = group.Count() })
+                        .OrderBy(group => group.Semester)
+                        .ToListAsync();
+                    return View(browseModel);
+                }
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
@@ -52,21 +128,6 @@ namespace student_resource_hub.Controllers
                         p.Description != null && p.Description.Contains(searchTerm));
                 }
 
-                if (!string.IsNullOrWhiteSpace(department) && !department.Equals("All", StringComparison.OrdinalIgnoreCase) && Enum.TryParse(department, true, out Department deptEnum))
-                {
-                    query = query.Where(p => p.Department == deptEnum);
-                }
-
-                if (year.HasValue && year.Value > 0)
-                {
-                    query = query.Where(p => (int)p.Year == year.Value);
-                }
-
-                if (!string.IsNullOrWhiteSpace(semester) && !semester.Equals("All", StringComparison.OrdinalIgnoreCase) && Enum.TryParse(semester, true, out Semester semEnum))
-                {
-                    query = query.Where(p => p.Semester == semEnum);
-                }
-
                 query = sortBy switch
                 {
                     "oldest" => query.OrderBy(p => p.CreatedDate),
@@ -76,17 +137,10 @@ namespace student_resource_hub.Controllers
 
                 var pastPapers = await query.Include(p => p.UploadedByUser).ToListAsync();
 
-                var viewModel = new ResourceListViewModel<PastPaper>
-                {
-                    Resources = pastPapers,
-                    SelectedDepartment = string.IsNullOrWhiteSpace(department) || department == "All" ? null : department,
-                    SelectedYear = year.HasValue && year.Value > 0 ? year : null,
-                    SelectedSemester = string.IsNullOrWhiteSpace(semester) || semester == "All" ? null : semester,
-                    SelectedSort = sortBy ?? "newest",
-                    SearchTerm = search
-                };
+                browseModel.Resources = pastPapers;
+                browseModel.CourseGroups = BuildCourseGroups(pastPapers, paper => paper.CourseCode, paper => paper.SubjectName);
 
-                return View(viewModel);
+                return View(browseModel);
             }
             catch (Exception ex)
             {
@@ -102,13 +156,89 @@ namespace student_resource_hub.Controllers
             [FromQuery] int? year = null,
             [FromQuery] string? semester = null,
             [FromQuery] string? sortBy = "toprated",
-            [FromQuery] string? search = null)
+            [FromQuery] string? search = null,
+            [FromQuery] int? academicDepartmentId = null,
+            [FromQuery] int? academicSemesterId = null)
         {
             try
             {
+                if (!academicDepartmentId.HasValue && string.IsNullOrWhiteSpace(department))
+                {
+                    return View(await BuildNoteDepartments());
+                }
+
+                if (academicDepartmentId.HasValue && !academicSemesterId.HasValue)
+                {
+                    return View(await BuildNoteSemesters(academicDepartmentId.Value));
+                }
+
+                if (academicDepartmentId.HasValue && academicSemesterId.HasValue)
+                {
+                    var dynamicQuery = _context.Notes
+                        .Where(n => n.Status == ResourceStatus.Approved && n.AcademicDepartmentId == academicDepartmentId && n.AcademicSemesterId == academicSemesterId);
+                    dynamicQuery = ApplyNoteSearch(dynamicQuery, search);
+                    dynamicQuery = sortBy switch
+                    {
+                        "newest" => dynamicQuery.OrderByDescending(n => n.CreatedDate),
+                        "mostDownloaded" => dynamicQuery.OrderByDescending(n => n.DownloadCount),
+                        _ => dynamicQuery.OrderByDescending(n => n.AverageRating)
+                    };
+                    var groupedNotes = await dynamicQuery.Include(n => n.UploadedByUser).ToListAsync();
+                    return View(new ResourceListViewModel<Note> { Resources = groupedNotes, CourseGroups = BuildCourseGroups(groupedNotes, note => note.CourseCode, note => note.SubjectName), SelectedAcademicDepartmentId = academicDepartmentId, SelectedAcademicSemesterId = academicSemesterId, SelectedSort = sortBy ?? "toprated", SearchTerm = search });
+                }
+
                 var query = _context.Notes
                     .Where(n => n.Status == ResourceStatus.Approved)
                     .AsQueryable();
+
+                Department? selectedDepartment = null;
+                Semester? selectedSemester = null;
+
+                if (!string.IsNullOrWhiteSpace(department) && department != "All" && Enum.TryParse<Department>(department, out var deptEnum))
+                {
+                    selectedDepartment = deptEnum;
+                    query = query.Where(n => n.Department == deptEnum);
+                }
+
+                if (year.HasValue && year.Value > 0)
+                {
+                    query = query.Where(n => (int)n.Year == year.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(semester) && semester != "All" && Enum.TryParse<Semester>(semester, out var semEnum))
+                {
+                    selectedSemester = semEnum;
+                    query = query.Where(n => n.Semester == semEnum);
+                }
+
+                var browseModel = new ResourceListViewModel<Note>
+                {
+                    SelectedDepartment = selectedDepartment?.ToString(),
+                    SelectedYear = year.HasValue && year.Value > 0 ? year : null,
+                    SelectedSemester = selectedSemester?.ToString(),
+                    SelectedSort = sortBy ?? "toprated",
+                    SearchTerm = search
+                };
+
+                if (!selectedDepartment.HasValue)
+                {
+                    browseModel.DepartmentGroups = await query
+                        .GroupBy(n => n.Department)
+                        .Select(group => new ResourceBrowseGroup { Department = group.Key, Count = group.Count() })
+                        .OrderBy(group => group.Department)
+                        .ToListAsync();
+                    return View(browseModel);
+                }
+
+                if (!selectedSemester.HasValue)
+                {
+                    browseModel.SemesterGroups = await query
+                        .GroupBy(n => n.Semester)
+                        .Select(group => new ResourceBrowseGroup { Department = selectedDepartment.Value, Semester = group.Key, Count = group.Count() })
+                        .OrderBy(group => group.Semester)
+                        .ToListAsync();
+                    return View(browseModel);
+                }
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
@@ -120,21 +250,6 @@ namespace student_resource_hub.Controllers
                         n.Description != null && n.Description.Contains(searchTerm));
                 }
 
-                if (!string.IsNullOrWhiteSpace(department) && department != "All" && Enum.TryParse<Department>(department, out var deptEnum))
-                {
-                    query = query.Where(n => n.Department == deptEnum);
-                }
-
-                if (year.HasValue && year.Value > 0)
-                {
-                    query = query.Where(n => (int)n.Year == year.Value);
-                }
-
-                if (!string.IsNullOrWhiteSpace(semester) && semester != "All" && Enum.TryParse<Semester>(semester, out var semEnum))
-                {
-                    query = query.Where(n => n.Semester == semEnum);
-                }
-
                 query = sortBy switch
                 {
                     "newest" => query.OrderByDescending(n => n.CreatedDate),
@@ -144,17 +259,10 @@ namespace student_resource_hub.Controllers
 
                 var notes = await query.Include(n => n.UploadedByUser).ToListAsync();
 
-                var viewModel = new ResourceListViewModel<Note>
-                {
-                    Resources = notes,
-                    SelectedDepartment = string.IsNullOrWhiteSpace(department) || department == "All" ? null : department,
-                    SelectedYear = year.HasValue && year.Value > 0 ? year : null,
-                    SelectedSemester = string.IsNullOrWhiteSpace(semester) || semester == "All" ? null : semester,
-                    SelectedSort = sortBy ?? "toprated",
-                    SearchTerm = search
-                };
+                browseModel.Resources = notes;
+                browseModel.CourseGroups = BuildCourseGroups(notes, note => note.CourseCode, note => note.SubjectName);
 
-                return View(viewModel);
+                return View(browseModel);
             }
             catch (Exception ex)
             {
@@ -170,13 +278,89 @@ namespace student_resource_hub.Controllers
             [FromQuery] int? year = null,
             [FromQuery] string? semester = null,
             [FromQuery] string? sortBy = "newest",
-            [FromQuery] string? search = null)
+            [FromQuery] string? search = null,
+            [FromQuery] int? academicDepartmentId = null,
+            [FromQuery] int? academicSemesterId = null)
         {
             try
             {
+                if (!academicDepartmentId.HasValue && string.IsNullOrWhiteSpace(department))
+                {
+                    return View(await BuildLectureDepartments());
+                }
+
+                if (academicDepartmentId.HasValue && !academicSemesterId.HasValue)
+                {
+                    return View(await BuildLectureSemesters(academicDepartmentId.Value));
+                }
+
+                if (academicDepartmentId.HasValue && academicSemesterId.HasValue)
+                {
+                    var dynamicQuery = _context.Lectures
+                        .Where(l => l.Status == ResourceStatus.Approved && l.AcademicDepartmentId == academicDepartmentId && l.AcademicSemesterId == academicSemesterId);
+                    dynamicQuery = ApplyLectureSearch(dynamicQuery, search);
+                    dynamicQuery = sortBy switch
+                    {
+                        "oldest" => dynamicQuery.OrderBy(l => l.CreatedDate),
+                        "mostDownloaded" => dynamicQuery.OrderByDescending(l => l.DownloadCount),
+                        _ => dynamicQuery.OrderByDescending(l => l.CreatedDate)
+                    };
+                    var groupedLectures = await dynamicQuery.Include(l => l.UploadedByUser).ToListAsync();
+                    return View(new ResourceListViewModel<Lecture> { Resources = groupedLectures, CourseGroups = BuildCourseGroups(groupedLectures, lecture => lecture.CourseCode, lecture => lecture.SubjectName), SelectedAcademicDepartmentId = academicDepartmentId, SelectedAcademicSemesterId = academicSemesterId, SelectedSort = sortBy ?? "newest", SearchTerm = search });
+                }
+
                 var query = _context.Lectures
                     .Where(l => l.Status == ResourceStatus.Approved)
                     .AsQueryable();
+
+                Department? selectedDepartment = null;
+                Semester? selectedSemester = null;
+
+                if (!string.IsNullOrWhiteSpace(department) && department != "All" && Enum.TryParse<Department>(department, out var deptEnum))
+                {
+                    selectedDepartment = deptEnum;
+                    query = query.Where(l => l.Department == deptEnum);
+                }
+
+                if (year.HasValue && year.Value > 0)
+                {
+                    query = query.Where(l => (int)l.Year == year.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(semester) && semester != "All" && Enum.TryParse<Semester>(semester, out var semEnum))
+                {
+                    selectedSemester = semEnum;
+                    query = query.Where(l => l.Semester == semEnum);
+                }
+
+                var browseModel = new ResourceListViewModel<Lecture>
+                {
+                    SelectedDepartment = selectedDepartment?.ToString(),
+                    SelectedYear = year.HasValue && year.Value > 0 ? year : null,
+                    SelectedSemester = selectedSemester?.ToString(),
+                    SelectedSort = sortBy ?? "newest",
+                    SearchTerm = search
+                };
+
+                if (!selectedDepartment.HasValue)
+                {
+                    browseModel.DepartmentGroups = await query
+                        .GroupBy(l => l.Department)
+                        .Select(group => new ResourceBrowseGroup { Department = group.Key, Count = group.Count() })
+                        .OrderBy(group => group.Department)
+                        .ToListAsync();
+                    return View(browseModel);
+                }
+
+                if (!selectedSemester.HasValue)
+                {
+                    browseModel.SemesterGroups = await query
+                        .GroupBy(l => l.Semester)
+                        .Select(group => new ResourceBrowseGroup { Department = selectedDepartment.Value, Semester = group.Key, Count = group.Count() })
+                        .OrderBy(group => group.Semester)
+                        .ToListAsync();
+                    return View(browseModel);
+                }
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
@@ -188,21 +372,6 @@ namespace student_resource_hub.Controllers
                         l.Description != null && l.Description.Contains(searchTerm));
                 }
 
-                if (!string.IsNullOrWhiteSpace(department) && department != "All" && Enum.TryParse<Department>(department, out var deptEnum))
-                {
-                    query = query.Where(l => l.Department == deptEnum);
-                }
-
-                if (year.HasValue && year.Value > 0)
-                {
-                    query = query.Where(l => (int)l.Year == year.Value);
-                }
-
-                if (!string.IsNullOrWhiteSpace(semester) && semester != "All" && Enum.TryParse<Semester>(semester, out var semEnum))
-                {
-                    query = query.Where(l => l.Semester == semEnum);
-                }
-
                 query = sortBy switch
                 {
                     "oldest" => query.OrderBy(l => l.CreatedDate),
@@ -212,23 +381,126 @@ namespace student_resource_hub.Controllers
 
                 var lectures = await query.Include(l => l.UploadedByUser).ToListAsync();
 
-                var viewModel = new ResourceListViewModel<Lecture>
-                {
-                    Resources = lectures,
-                    SelectedDepartment = string.IsNullOrWhiteSpace(department) || department == "All" ? null : department,
-                    SelectedYear = year.HasValue && year.Value > 0 ? year : null,
-                    SelectedSemester = string.IsNullOrWhiteSpace(semester) || semester == "All" ? null : semester,
-                    SelectedSort = sortBy ?? "newest",
-                    SearchTerm = search
-                };
+                browseModel.Resources = lectures;
+                browseModel.CourseGroups = BuildCourseGroups(lectures, lecture => lecture.CourseCode, lecture => lecture.SubjectName);
 
-                return View(viewModel);
+                return View(browseModel);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error loading lectures: {ex.Message}");
                 return BadRequest("Error loading lectures.");
             }
+        }
+
+        private async Task<ResourceListViewModel<PastPaper>> BuildPastPaperDepartments()
+        {
+            return new ResourceListViewModel<PastPaper>
+            {
+                DepartmentGroups = await _context.AcademicDepartments
+                    .Where(department => department.IsActive && department.University!.IsActive)
+                    .OrderBy(department => department.Name)
+                    .Select(department => new ResourceBrowseGroup { AcademicDepartmentId = department.Id, Name = department.Name, ImageUrl = department.ImageUrl, UniversityName = department.University!.Name, Count = _context.PastPapers.Count(paper => paper.Status == ResourceStatus.Approved && paper.AcademicDepartmentId == department.Id) })
+                    .ToListAsync()
+            };
+        }
+
+        private async Task<ResourceListViewModel<PastPaper>> BuildPastPaperSemesters(int departmentId)
+        {
+            return new ResourceListViewModel<PastPaper>
+            {
+                SelectedAcademicDepartmentId = departmentId,
+                SemesterGroups = await _context.AcademicSemesters
+                    .Where(semester => semester.IsActive && semester.DepartmentId == departmentId)
+                    .OrderBy(semester => semester.SortOrder)
+                    .Select(semester => new ResourceBrowseGroup { AcademicDepartmentId = departmentId, AcademicSemesterId = semester.Id, Name = semester.Name, Count = _context.PastPapers.Count(paper => paper.Status == ResourceStatus.Approved && paper.AcademicSemesterId == semester.Id) })
+                    .ToListAsync()
+            };
+        }
+
+        private async Task<ResourceListViewModel<Note>> BuildNoteDepartments()
+        {
+            return new ResourceListViewModel<Note>
+            {
+                DepartmentGroups = await _context.AcademicDepartments
+                    .Where(department => department.IsActive && department.University!.IsActive)
+                    .OrderBy(department => department.Name)
+                    .Select(department => new ResourceBrowseGroup { AcademicDepartmentId = department.Id, Name = department.Name, ImageUrl = department.ImageUrl, UniversityName = department.University!.Name, Count = _context.Notes.Count(note => note.Status == ResourceStatus.Approved && note.AcademicDepartmentId == department.Id) })
+                    .ToListAsync()
+            };
+        }
+
+        private async Task<ResourceListViewModel<Note>> BuildNoteSemesters(int departmentId)
+        {
+            return new ResourceListViewModel<Note>
+            {
+                SelectedAcademicDepartmentId = departmentId,
+                SemesterGroups = await _context.AcademicSemesters
+                    .Where(semester => semester.IsActive && semester.DepartmentId == departmentId)
+                    .OrderBy(semester => semester.SortOrder)
+                    .Select(semester => new ResourceBrowseGroup { AcademicDepartmentId = departmentId, AcademicSemesterId = semester.Id, Name = semester.Name, Count = _context.Notes.Count(note => note.Status == ResourceStatus.Approved && note.AcademicSemesterId == semester.Id) })
+                    .ToListAsync()
+            };
+        }
+
+        private async Task<ResourceListViewModel<Lecture>> BuildLectureDepartments()
+        {
+            return new ResourceListViewModel<Lecture>
+            {
+                DepartmentGroups = await _context.AcademicDepartments
+                    .Where(department => department.IsActive && department.University!.IsActive)
+                    .OrderBy(department => department.Name)
+                    .Select(department => new ResourceBrowseGroup { AcademicDepartmentId = department.Id, Name = department.Name, ImageUrl = department.ImageUrl, UniversityName = department.University!.Name, Count = _context.Lectures.Count(lecture => lecture.Status == ResourceStatus.Approved && lecture.AcademicDepartmentId == department.Id) })
+                    .ToListAsync()
+            };
+        }
+
+        private async Task<ResourceListViewModel<Lecture>> BuildLectureSemesters(int departmentId)
+        {
+            return new ResourceListViewModel<Lecture>
+            {
+                SelectedAcademicDepartmentId = departmentId,
+                SemesterGroups = await _context.AcademicSemesters
+                    .Where(semester => semester.IsActive && semester.DepartmentId == departmentId)
+                    .OrderBy(semester => semester.SortOrder)
+                    .Select(semester => new ResourceBrowseGroup { AcademicDepartmentId = departmentId, AcademicSemesterId = semester.Id, Name = semester.Name, Count = _context.Lectures.Count(lecture => lecture.Status == ResourceStatus.Approved && lecture.AcademicSemesterId == semester.Id) })
+                    .ToListAsync()
+            };
+        }
+
+        private static IQueryable<PastPaper> ApplyPastPaperSearch(IQueryable<PastPaper> query, string? search)
+        {
+            if (string.IsNullOrWhiteSpace(search)) return query;
+            var term = search.Trim();
+            return query.Where(paper => paper.Title.Contains(term) || paper.SubjectName.Contains(term) || paper.CourseCode.Contains(term) || paper.ProfessorName.Contains(term) || paper.Description != null && paper.Description.Contains(term));
+        }
+
+        private static IQueryable<Note> ApplyNoteSearch(IQueryable<Note> query, string? search)
+        {
+            if (string.IsNullOrWhiteSpace(search)) return query;
+            var term = search.Trim();
+            return query.Where(note => note.Title.Contains(term) || note.SubjectName.Contains(term) || note.ProfessorName != null && note.ProfessorName.Contains(term) || note.Description != null && note.Description.Contains(term));
+        }
+
+        private static IQueryable<Lecture> ApplyLectureSearch(IQueryable<Lecture> query, string? search)
+        {
+            if (string.IsNullOrWhiteSpace(search)) return query;
+            var term = search.Trim();
+            return query.Where(lecture => lecture.Title.Contains(term) || lecture.SubjectName.Contains(term) || lecture.ProfessorName != null && lecture.ProfessorName.Contains(term) || lecture.Description != null && lecture.Description.Contains(term));
+        }
+
+        private static List<ResourceCourseGroup<T>> BuildCourseGroups<T>(IEnumerable<T> resources, Func<T, string> courseCode, Func<T, string> subjectName) where T : class
+        {
+            return resources
+                .GroupBy(resource => new { CourseCode = courseCode(resource), SubjectName = subjectName(resource) })
+                .OrderBy(group => group.Key.CourseCode)
+                .Select(group => new ResourceCourseGroup<T>
+                {
+                    CourseCode = group.Key.CourseCode,
+                    SubjectName = group.Key.SubjectName,
+                    Resources = group.ToList()
+                })
+                .ToList();
         }
 
         // GET: Resource/PastPaperDetails/5
@@ -318,12 +590,37 @@ namespace student_resource_hub.Controllers
             }
         }
 
+        [HttpGet("Resource/StreamLecture/{id}")]
+        public async Task<IActionResult> StreamLecture(int id)
+        {
+            var lecture = await _context.Lectures
+                .AsNoTracking()
+                .FirstOrDefaultAsync(l => l.Id == id && l.Status == ResourceStatus.Approved);
+
+            if (lecture == null || !IsLecturePath(lecture.FilePath))
+            {
+                return NotFound("Lecture file not found.");
+            }
+
+            try
+            {
+                var extension = _fileService.GetFileExtension(lecture.FilePath);
+                return File(await _fileService.GetFileStreamAsync(lecture.FilePath), _fileService.GetMimeType(extension), enableRangeProcessing: true);
+            }
+            catch (FileNotFoundException)
+            {
+                return NotFound("The lecture file could not be found.");
+            }
+        }
+
         // GET: Resource/UploadPastPaper
         [Authorize(Roles = "Admin,CR")]
         [HttpGet]
-        public IActionResult UploadPastPaper()
+        public async Task<IActionResult> UploadPastPaper()
         {
-            return View(new UploadResourceViewModel());
+            var model = new UploadResourceViewModel();
+            await PopulateUploadOptions(model);
+            return View(model);
         }
 
         // POST: Resource/UploadPastPaper
@@ -334,6 +631,14 @@ namespace student_resource_hub.Controllers
         {
             if (!ModelState.IsValid)
             {
+                await PopulateUploadOptions(model);
+                return View(model);
+            }
+
+            if (!await HasValidAcademicPlacement(model.AcademicDepartmentId, model.AcademicSemesterId))
+            {
+                ModelState.AddModelError(nameof(model.AcademicSemesterId), "The selected semester does not belong to the selected department.");
+                await PopulateUploadOptions(model);
                 return View(model);
             }
 
@@ -342,12 +647,14 @@ namespace student_resource_hub.Controllers
                 if (model.File == null || model.File.Length == 0)
                 {
                     ModelState.AddModelError(nameof(model.File), "Please select a file to upload.");
+                    await PopulateUploadOptions(model);
                     return View(model);
                 }
 
                 if (!_fileService.ValidateFileUpload(model.File, 50 * 1024 * 1024))
                 {
                     ModelState.AddModelError(nameof(model.File), "Unsupported or invalid file. Use PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, JPEG, PNG, or GIF up to 50MB.");
+                    await PopulateUploadOptions(model);
                     return View(model);
                 }
 
@@ -372,6 +679,7 @@ namespace student_resource_hub.Controllers
                     {
                         ModelState.AddModelError("", "Could not identify current user.");
                         await _fileService.DeleteFileAsync(filePath);
+                        await PopulateUploadOptions(model);
                         return View(model);
                     }
 
@@ -385,6 +693,8 @@ namespace student_resource_hub.Controllers
                         Department = model.Department,
                         Year = model.Year,
                         Semester = model.Semester,
+                        AcademicDepartmentId = model.AcademicDepartmentId,
+                        AcademicSemesterId = model.AcademicSemesterId,
                         FilePath = filePath,
                         OriginalFileName = Path.GetFileName(model.File.FileName),
                         FileType = _fileService.GetFileExtension(model.File.FileName),
@@ -413,6 +723,7 @@ namespace student_resource_hub.Controllers
             {
                 _logger.LogError($"Error uploading past paper: {ex.Message}");
                 ModelState.AddModelError("", "Error uploading file. Please try again.");
+                await PopulateUploadOptions(model);
                 return View(model);
             }
         }
@@ -420,9 +731,11 @@ namespace student_resource_hub.Controllers
         // GET: Resource/UploadNote
         [Authorize(Roles = "Admin,CR")]
         [HttpGet]
-        public IActionResult UploadNote()
+        public async Task<IActionResult> UploadNote()
         {
-            return View(new UploadNoteViewModel());
+            var model = new UploadNoteViewModel();
+            await PopulateUploadOptions(model);
+            return View(model);
         }
 
         // POST: Resource/UploadNote
@@ -433,6 +746,14 @@ namespace student_resource_hub.Controllers
         {
             if (!ModelState.IsValid)
             {
+                await PopulateUploadOptions(model);
+                return View(model);
+            }
+
+            if (!await HasValidAcademicPlacement(model.AcademicDepartmentId, model.AcademicSemesterId))
+            {
+                ModelState.AddModelError(nameof(model.AcademicSemesterId), "The selected semester does not belong to the selected department.");
+                await PopulateUploadOptions(model);
                 return View(model);
             }
 
@@ -441,12 +762,14 @@ namespace student_resource_hub.Controllers
                 if (model.File == null || model.File.Length == 0)
                 {
                     ModelState.AddModelError(nameof(model.File), "Please select a file to upload.");
+                    await PopulateUploadOptions(model);
                     return View(model);
                 }
 
                 if (!_fileService.ValidateFileUpload(model.File, 50 * 1024 * 1024))
                 {
                     ModelState.AddModelError(nameof(model.File), "Unsupported or invalid file. Use PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, JPEG, PNG, or GIF up to 50MB.");
+                    await PopulateUploadOptions(model);
                     return View(model);
                 }
 
@@ -468,6 +791,7 @@ namespace student_resource_hub.Controllers
                 if (uploadedByUserId == 0)
                 {
                     ModelState.AddModelError("", "Could not identify current user.");
+                    await PopulateUploadOptions(model);
                     return View(model);
                 }
 
@@ -481,6 +805,8 @@ namespace student_resource_hub.Controllers
                     Department = model.Department,
                     Year = model.Year,
                     Semester = model.Semester,
+                    AcademicDepartmentId = model.AcademicDepartmentId,
+                    AcademicSemesterId = model.AcademicSemesterId,
                     FilePath = filePath,
                     OriginalFileName = Path.GetFileName(model.File.FileName),
                     FileType = _fileService.GetFileExtension(model.File.FileName),
@@ -501,6 +827,7 @@ namespace student_resource_hub.Controllers
             {
                 _logger.LogError($"Error uploading note: {ex.Message}");
                 ModelState.AddModelError("", "Error uploading file. Please try again.");
+                await PopulateUploadOptions(model);
                 return View(model);
             }
         }
@@ -508,19 +835,31 @@ namespace student_resource_hub.Controllers
         // GET: Resource/UploadLecture
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public IActionResult UploadLecture()
+        public async Task<IActionResult> UploadLecture()
         {
-            return View(new UploadLectureViewModel());
+            var model = new UploadLectureViewModel();
+            await PopulateUploadOptions(model);
+            return View(model);
         }
 
         // POST: Resource/UploadLecture
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(long.MaxValue)]
+        [RequestFormLimits(MultipartBodyLengthLimit = long.MaxValue)]
         public async Task<IActionResult> UploadLecture(UploadLectureViewModel model)
         {
             if (!ModelState.IsValid)
             {
+                await PopulateUploadOptions(model);
+                return View(model);
+            }
+
+            if (!await HasValidAcademicPlacement(model.AcademicDepartmentId, model.AcademicSemesterId))
+            {
+                ModelState.AddModelError(nameof(model.AcademicSemesterId), "The selected semester does not belong to the selected department.");
+                await PopulateUploadOptions(model);
                 return View(model);
             }
 
@@ -529,16 +868,18 @@ namespace student_resource_hub.Controllers
                 if (model.File == null || model.File.Length == 0)
                 {
                     ModelState.AddModelError(nameof(model.File), "Please select a file to upload.");
+                    await PopulateUploadOptions(model);
                     return View(model);
                 }
 
-                if (!_fileService.ValidateFileUpload(model.File, 50 * 1024 * 1024))
+                if (!_fileService.ValidateFileUpload(model.File, long.MaxValue))
                 {
-                    ModelState.AddModelError(nameof(model.File), "Unsupported or invalid file. Use PDF, DOC, DOCX, PPT, PPTX, TXT, JPG, JPEG, PNG, or GIF up to 50MB.");
+                    ModelState.AddModelError(nameof(model.File), "Unsupported or invalid lecture file. Please use a recognized video format.");
+                    await PopulateUploadOptions(model);
                     return View(model);
                 }
 
-                string filePath = await _fileService.UploadFileAsync(model.File, "uploads/lectures");
+                string filePath = await _fileService.UploadFileAsync(model.File, "uploads/lectures", long.MaxValue);
 
                 var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 int uploadedByUserId = 0;
@@ -556,6 +897,7 @@ namespace student_resource_hub.Controllers
                 if (uploadedByUserId == 0)
                 {
                     ModelState.AddModelError("", "Could not identify current user.");
+                    await PopulateUploadOptions(model);
                     return View(model);
                 }
 
@@ -570,6 +912,8 @@ namespace student_resource_hub.Controllers
                     Department = model.Department,
                     Year = model.Year,
                     Semester = model.Semester,
+                    AcademicDepartmentId = model.AcademicDepartmentId,
+                    AcademicSemesterId = model.AcademicSemesterId,
                     FilePath = filePath,
                     OriginalFileName = Path.GetFileName(model.File.FileName),
                     FileType = _fileService.GetFileExtension(model.File.FileName),
@@ -590,6 +934,7 @@ namespace student_resource_hub.Controllers
             {
                 _logger.LogError($"Error uploading lecture: {ex.Message}");
                 ModelState.AddModelError("", "Error uploading file. Please try again.");
+                await PopulateUploadOptions(model);
                 return View(model);
             }
         }
@@ -648,9 +993,45 @@ namespace student_resource_hub.Controllers
             return fullPath.StartsWith(pastPaperRoot, StringComparison.OrdinalIgnoreCase);
         }
 
+        private bool IsLecturePath(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath) || Path.IsPathRooted(filePath))
+            {
+                return false;
+            }
+
+            var webRoot = Path.GetFullPath(_fileServiceRootPath());
+            var fullPath = Path.GetFullPath(Path.Combine(webRoot, filePath.Replace('/', Path.DirectorySeparatorChar)));
+            var lectureRoot = Path.GetFullPath(Path.Combine(webRoot, "uploads", "lectures")) + Path.DirectorySeparatorChar;
+            return fullPath.StartsWith(lectureRoot, StringComparison.OrdinalIgnoreCase);
+        }
+
         private string _fileServiceRootPath()
         {
             return HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath;
+        }
+
+        private async Task PopulateUploadOptions(UploadResourceViewModel model)
+        {
+            model.Departments = await _context.AcademicDepartments.Where(department => department.IsActive).OrderBy(department => department.Name).Select(department => new AcademicDepartmentOptionViewModel { Id = department.Id, UniversityId = department.UniversityId, Name = department.Name }).ToListAsync();
+            model.Semesters = await _context.AcademicSemesters.Where(semester => semester.IsActive).OrderBy(semester => semester.SortOrder).Select(semester => new AcademicSemesterOptionViewModel { Id = semester.Id, DepartmentId = semester.DepartmentId, Name = semester.Name }).ToListAsync();
+        }
+
+        private async Task PopulateUploadOptions(UploadNoteViewModel model)
+        {
+            model.Departments = await _context.AcademicDepartments.Where(department => department.IsActive).OrderBy(department => department.Name).Select(department => new AcademicDepartmentOptionViewModel { Id = department.Id, UniversityId = department.UniversityId, Name = department.Name }).ToListAsync();
+            model.Semesters = await _context.AcademicSemesters.Where(semester => semester.IsActive).OrderBy(semester => semester.SortOrder).Select(semester => new AcademicSemesterOptionViewModel { Id = semester.Id, DepartmentId = semester.DepartmentId, Name = semester.Name }).ToListAsync();
+        }
+
+        private async Task PopulateUploadOptions(UploadLectureViewModel model)
+        {
+            model.Departments = await _context.AcademicDepartments.Where(department => department.IsActive).OrderBy(department => department.Name).Select(department => new AcademicDepartmentOptionViewModel { Id = department.Id, UniversityId = department.UniversityId, Name = department.Name }).ToListAsync();
+            model.Semesters = await _context.AcademicSemesters.Where(semester => semester.IsActive).OrderBy(semester => semester.SortOrder).Select(semester => new AcademicSemesterOptionViewModel { Id = semester.Id, DepartmentId = semester.DepartmentId, Name = semester.Name }).ToListAsync();
+        }
+
+        private Task<bool> HasValidAcademicPlacement(int? departmentId, int? semesterId)
+        {
+            return _context.AcademicSemesters.AnyAsync(semester => semester.Id == semesterId && semester.DepartmentId == departmentId && semester.IsActive);
         }
 
         // GET: Resource/Download/5?type=paper

@@ -28,6 +28,15 @@ namespace student_resource_hub.ViewModels
         [Required(ErrorMessage = "Please select a department.")]
         public Department Department { get; set; }
 
+        [Required(ErrorMessage = "Please select a department.")]
+        public int? AcademicDepartmentId { get; set; }
+
+        [Required(ErrorMessage = "Please select a semester.")]
+        public int? AcademicSemesterId { get; set; }
+
+        public List<AcademicDepartmentOptionViewModel> Departments { get; set; } = new();
+        public List<AcademicSemesterOptionViewModel> Semesters { get; set; } = new();
+
         [Required(ErrorMessage = "Please select a year.")]
         public Year Year { get; set; }
 
@@ -61,6 +70,15 @@ namespace student_resource_hub.ViewModels
 
         [Required(ErrorMessage = "Please select a department.")]
         public Department Department { get; set; }
+
+        [Required(ErrorMessage = "Please select a department.")]
+        public int? AcademicDepartmentId { get; set; }
+
+        [Required(ErrorMessage = "Please select a semester.")]
+        public int? AcademicSemesterId { get; set; }
+
+        public List<AcademicDepartmentOptionViewModel> Departments { get; set; } = new();
+        public List<AcademicSemesterOptionViewModel> Semesters { get; set; } = new();
 
         [Required(ErrorMessage = "Please select a year.")]
         public Year Year { get; set; }
@@ -99,6 +117,15 @@ namespace student_resource_hub.ViewModels
         [Required(ErrorMessage = "Please select a department.")]
         public Department Department { get; set; }
 
+        [Required(ErrorMessage = "Please select a department.")]
+        public int? AcademicDepartmentId { get; set; }
+
+        [Required(ErrorMessage = "Please select a semester.")]
+        public int? AcademicSemesterId { get; set; }
+
+        public List<AcademicDepartmentOptionViewModel> Departments { get; set; } = new();
+        public List<AcademicSemesterOptionViewModel> Semesters { get; set; } = new();
+
         [Required(ErrorMessage = "Please select a year.")]
         public Year Year { get; set; }
 
@@ -113,6 +140,11 @@ namespace student_resource_hub.ViewModels
     public class ResourceListViewModel<T> where T : class
     {
         public List<T> Resources { get; set; } = new();
+        public List<ResourceCourseGroup<T>> CourseGroups { get; set; } = new();
+        public List<ResourceBrowseGroup> DepartmentGroups { get; set; } = new();
+        public List<ResourceBrowseGroup> SemesterGroups { get; set; } = new();
+        public int? SelectedAcademicDepartmentId { get; set; }
+        public int? SelectedAcademicSemesterId { get; set; }
         public string? SelectedDepartment { get; set; }
         public int? SelectedYear { get; set; }
         public string? SelectedSemester { get; set; }
@@ -142,6 +174,25 @@ namespace student_resource_hub.ViewModels
         {
             return Enum.GetNames(typeof(Semester)).ToList();
         }
+    }
+
+    public class ResourceBrowseGroup
+    {
+        public int AcademicDepartmentId { get; set; }
+        public int? AcademicSemesterId { get; set; }
+        public Department Department { get; set; }
+        public Semester? Semester { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
+        public string? UniversityName { get; set; }
+        public int Count { get; set; }
+    }
+
+    public class ResourceCourseGroup<T> where T : class
+    {
+        public string CourseCode { get; set; } = string.Empty;
+        public string SubjectName { get; set; } = string.Empty;
+        public List<T> Resources { get; set; } = new();
     }
 
     // Filter ViewModel for easy filtering

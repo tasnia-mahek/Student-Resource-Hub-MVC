@@ -8,6 +8,9 @@ namespace student_resource_hub.Models
         [Key]
         public int Id { get; set; }
 
+        public int? AcademicDepartmentId { get; set; }
+        public int? AcademicSemesterId { get; set; }
+
         [Required(ErrorMessage = "Lecture title is required.")]
         [StringLength(200)]
         public string Title { get; set; } = string.Empty;
@@ -56,6 +59,8 @@ namespace student_resource_hub.Models
         public int UploadedByUserId { get; set; }
 
         public virtual User? UploadedByUser { get; set; }
+        public AcademicDepartment? AcademicDepartment { get; set; }
+        public AcademicSemester? AcademicSemester { get; set; }
 
         [Required]
         public ResourceStatus Status { get; set; } = ResourceStatus.Pending;

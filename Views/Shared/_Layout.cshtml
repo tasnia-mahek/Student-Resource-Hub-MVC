@@ -71,19 +71,19 @@
                             </span>
                             <span>Attendance</span>
                         </a>
-                        <a class="@(currentAction == "PastPapers" || currentAction == "PastPaperDetails" || currentAction == "UploadPastPaper" || currentAction == "ViewPastPaper" ? "study-nav-active" : "")" asp-controller="Home" asp-action="PastPapers">
+                        <a class="@(currentAction == "PastPapers" || currentAction == "PastPaperDetails" || currentAction == "UploadPastPaper" || currentAction == "ViewPastPaper" ? "study-nav-active" : "")" asp-controller="Resource" asp-action="PastPapers">
                             <span class="nav-glyph">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                             </span>
                             <span>Past Papers</span>
                         </a>
-                        <a class="@(currentAction == "Lectures" || currentAction == "LectureDetails" || currentAction == "UploadLecture" ? "study-nav-active" : "")" asp-controller="Home" asp-action="Lectures">
+                        <a class="@(currentAction == "Lectures" || currentAction == "LectureDetails" || currentAction == "UploadLecture" ? "study-nav-active" : "")" asp-controller="Resource" asp-action="Lectures">
                             <span class="nav-glyph">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                             </span>
                             <span>Video Lectures</span>
                         </a>
-                        <a class="@(currentAction == "Notes" || currentAction == "NoteDetails" || currentAction == "UploadNote" ? "study-nav-active" : "")" asp-controller="Home" asp-action="Notes">
+                        <a class="@(currentAction == "Notes" || currentAction == "NoteDetails" || currentAction == "UploadNote" ? "study-nav-active" : "")" asp-controller="Resource" asp-action="Notes">
                             <span class="nav-glyph">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                             </span>
@@ -95,6 +95,13 @@
                             </span>
                             <span>Favorites</span>
                         </a>
+                        @if (User.IsInRole("Student") || User.IsInRole("CR"))
+                        {
+                            <a class="@(currentController == "Study" ? "study-nav-active" : "")" asp-controller="Study" asp-action="Sessions">
+                                <span class="nav-glyph">📁</span>
+                                <span>Study Sessions</span>
+                            </a>
+                        }
                         <a class="@(currentController == "AiAssistant" ? "study-nav-active" : "")" asp-controller="AiAssistant" asp-action="Index">
                             <span class="nav-glyph">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -106,13 +113,11 @@
                         </a>
 
                         <span class="study-nav-label study-nav-space">RESOURCES &amp; TOOLS</span>
-                        @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("CR")))
+                        @if (User.IsInRole("Admin"))
                         {
-                            <a class="@(currentAction == "UploadPastPaper" || currentAction == "UploadNote" || currentAction == "UploadLecture" ? "study-nav-active" : "")" asp-controller="Resource" asp-action="@(User.IsInRole("Admin") ? "UploadPastPaper" : "UploadNote")">
-                                <span class="nav-glyph">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                </span>
-                                <span>Upload Material</span>
+                            <a class="@(currentController == "Admin" ? "study-nav-active" : "")" asp-controller="Admin" asp-action="AcademicCatalog">
+                                <span class="nav-glyph">⚙</span>
+                                <span>Academic Catalog</span>
                             </a>
                         }
                         <a class="@(currentAction == "Privacy" ? "study-nav-active" : "")" asp-controller="Home" asp-action="Privacy">
@@ -238,12 +243,6 @@
                                     <span class="profile-avatar profile-avatar-small" aria-hidden="true">@string.Concat((User.Identity?.Name ?? "Student").Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(name => name[0]))</span>
                                     <span class="auth-user-name">@(User.Identity?.Name ?? "Student")</span>
                                 </a>
-                                @if (User.IsInRole("Admin") || User.IsInRole("CR"))
-                                {
-                                    <a class="outpayz-btn-primary header-upload-btn" asp-controller="Resource" asp-action="@(User.IsInRole("Admin") ? "UploadPastPaper" : "UploadNote")">
-                                        <span>+ Upload</span>
-                                    </a>
-                                }
                                 <div class="auth-user-pill auth-user-actions">
                                     <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;margin:0;">
                                         <button class="auth-logout-btn" type="submit" title="Sign out">Logout</button>
@@ -289,9 +288,9 @@
                             <div class="footer-col">
                                 <h5>Resource Library</h5>
                                 <ul>
-                                    <li><a asp-controller="Home" asp-action="PastPapers">Past Examinations</a></li>
-                                    <li><a asp-controller="Home" asp-action="Lectures">Video Lectures</a></li>
-                                    <li><a asp-controller="Home" asp-action="Notes">Student Notes</a></li>
+                                    <li><a asp-controller="Resource" asp-action="PastPapers">Past Examinations</a></li>
+                                    <li><a asp-controller="Resource" asp-action="Lectures">Video Lectures</a></li>
+                                    <li><a asp-controller="Resource" asp-action="Notes">Student Notes</a></li>
                                     <li><a asp-controller="Home" asp-action="Favorites">Saved Collection</a></li>
                                 </ul>
                             </div>

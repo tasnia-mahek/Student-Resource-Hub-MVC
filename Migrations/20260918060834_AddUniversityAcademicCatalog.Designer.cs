@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using student_resource_hub.Data;
 
@@ -11,9 +12,11 @@ using student_resource_hub.Data;
 namespace student_resource_hub.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260918060834_AddUniversityAcademicCatalog")]
+    partial class AddUniversityAcademicCatalog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1101,105 +1104,6 @@ namespace student_resource_hub.Migrations
                     b.ToTable("PastPapers");
                 });
 
-            modelBuilder.Entity("student_resource_hub.Models.StudyFolder", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<int>("StudySessionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudySessionId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("StudyFolders");
-                });
-
-            modelBuilder.Entity("student_resource_hub.Models.StudyResource", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AddedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CourseCode")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("ResourceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ResourceTitle")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ResourceType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int?>("StudyFolderId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudySessionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudyFolderId");
-
-                    b.HasIndex("StudySessionId", "ResourceType", "ResourceId")
-                        .IsUnique();
-
-                    b.ToTable("StudyResources");
-                });
-
-            modelBuilder.Entity("student_resource_hub.Models.StudySession", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("StudySessions");
-                });
-
             modelBuilder.Entity("student_resource_hub.Models.University", b =>
                 {
                     b.Property<int>("Id")
@@ -1436,46 +1340,6 @@ namespace student_resource_hub.Migrations
                     b.Navigation("UploadedByUser");
                 });
 
-            modelBuilder.Entity("student_resource_hub.Models.StudyFolder", b =>
-                {
-                    b.HasOne("student_resource_hub.Models.StudySession", "StudySession")
-                        .WithMany("Folders")
-                        .HasForeignKey("StudySessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("StudySession");
-                });
-
-            modelBuilder.Entity("student_resource_hub.Models.StudyResource", b =>
-                {
-                    b.HasOne("student_resource_hub.Models.StudyFolder", "StudyFolder")
-                        .WithMany("Resources")
-                        .HasForeignKey("StudyFolderId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("student_resource_hub.Models.StudySession", "StudySession")
-                        .WithMany("Resources")
-                        .HasForeignKey("StudySessionId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("StudyFolder");
-
-                    b.Navigation("StudySession");
-                });
-
-            modelBuilder.Entity("student_resource_hub.Models.StudySession", b =>
-                {
-                    b.HasOne("student_resource_hub.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("student_resource_hub.Models.User", b =>
                 {
                     b.HasOne("student_resource_hub.Models.AcademicDepartment", "AcademicDepartment")
@@ -1508,18 +1372,6 @@ namespace student_resource_hub.Migrations
             modelBuilder.Entity("student_resource_hub.Models.AttendanceSession", b =>
                 {
                     b.Navigation("AttendanceRecords");
-                });
-
-            modelBuilder.Entity("student_resource_hub.Models.StudyFolder", b =>
-                {
-                    b.Navigation("Resources");
-                });
-
-            modelBuilder.Entity("student_resource_hub.Models.StudySession", b =>
-                {
-                    b.Navigation("Folders");
-
-                    b.Navigation("Resources");
                 });
 
             modelBuilder.Entity("student_resource_hub.Models.University", b =>

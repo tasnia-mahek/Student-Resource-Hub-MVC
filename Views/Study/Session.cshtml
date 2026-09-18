@@ -1,0 +1,32 @@
+@model student_resource_hub.ViewModels.StudySessionDetailsViewModel
+@{
+    ViewData["Title"] = Model.Session.Name;
+}
+
+<div class="catalog-content" style="max-width:1100px;margin:0 auto;padding:32px 24px;">
+    <a asp-action="Sessions" class="clear-filters">← All study sessions</a>
+    <span class="eyebrow">PERSONAL STUDY SESSION</span>
+    <h1>@Model.Session.Name</h1>
+    <p>@Model.Session.Description</p>
+
+    <form asp-action="AddFolder" method="post" class="filter-panel" style="max-width:600px;margin:24px 0;">
+        @Html.AntiForgeryToken()<input type="hidden" asp-for="NewFolder.StudySessionId" value="@Model.Session.Id" />
+        <h2>Create a folder</h2><input asp-for="NewFolder.Name" class="form-control" placeholder="e.g. Theory courses or Lab courses" /><button class="filter-button" type="submit">Create folder</button>
+    </form>
+
+    @if (Model.ResourceTitle != null)
+    {
+        <form asp-action="AddResource" method="post" class="filter-panel" style="max-width:700px;margin:24px 0;">
+            @Html.AntiForgeryToken()<input type="hidden" name="sessionId" value="@Model.Session.Id" /><input type="hidden" name="resourceType" value="@Model.ResourceType" /><input type="hidden" name="resourceId" value="@Model.ResourceId" /><input type="hidden" name="resourceTitle" value="@Model.ResourceTitle" />
+            <h2>Add @Model.ResourceTitle</h2><select name="folderId" class="form-control"><option value="">Session root</option>@foreach (var folder in Model.Session.Folders) { <option value="@folder.Id">@folder.Name</option> }</select><button class="filter-button" type="submit">Save resource</button>
+        </form>
+    }
+
+    <div class="document-list">
+        @foreach (var folder in Model.Session.Folders)
+        {
+            <section class="course-resource-group"><div class="catalog-heading"><div><span class="eyebrow">FOLDER</span><h2>@folder.Name</h2></div><span class="subject-tag">@folder.Resources.Count item(s)</span></div>@foreach (var resource in Model.Session.Resources.Where(item => item.StudyFolderId == folder.Id)) { <article class="document-card"><span class="document-icon blue">📄</span><div class="document-main"><h2>@resource.ResourceTitle</h2><p>@resource.CourseCode · @resource.ResourceType</p></div><form asp-action="RemoveResource" method="post" class="document-actions">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@resource.Id" /><button class="primary-button" type="submit">Remove</button></form></article> }</section>
+        }
+        <section class="course-resource-group"><div class="catalog-heading"><div><span class="eyebrow">SESSION ROOT</span><h2>Unfiled resources</h2></div></div>@foreach (var resource in Model.Session.Resources.Where(item => item.StudyFolderId == null)) { <article class="document-card"><span class="document-icon teal">📚</span><div class="document-main"><h2>@resource.ResourceTitle</h2><p>@resource.CourseCode · @resource.ResourceType</p></div><form asp-action="RemoveResource" method="post" class="document-actions">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@resource.Id" /><button class="primary-button" type="submit">Remove</button></form></article> }</section>
+    </div>
+</div>

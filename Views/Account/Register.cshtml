@@ -81,6 +81,44 @@
                     <span asp-validation-for="Role"></span>
                 </fieldset>
 
+                <div id="academic-fields">
+                    <div class="auth-field">
+                        <label asp-for="UniversityId">University</label>
+                        <select asp-for="UniversityId" class="form-control" id="UniversityId">
+                            <option value="">Select your university</option>
+                            @foreach (var university in Model.Universities)
+                            {
+                                <option value="@university.Id">@university.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="UniversityId"></span>
+                    </div>
+                    <div class="auth-field-row">
+                        <div class="auth-field">
+                            <label asp-for="AcademicDepartmentId">Department</label>
+                            <select asp-for="AcademicDepartmentId" class="form-control" id="AcademicDepartmentId">
+                                <option value="">Select your department</option>
+                                @foreach (var department in Model.Departments)
+                                {
+                                    <option value="@department.Id" data-university="@department.UniversityId">@department.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="AcademicDepartmentId"></span>
+                        </div>
+                        <div class="auth-field">
+                            <label asp-for="AcademicSemesterId">Semester</label>
+                            <select asp-for="AcademicSemesterId" class="form-control" id="AcademicSemesterId">
+                                <option value="">Select your semester</option>
+                                @foreach (var semester in Model.Semesters)
+                                {
+                                    <option value="@semester.Id" data-department="@semester.DepartmentId">@semester.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="AcademicSemesterId"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <button class="auth-submit" type="submit">
                     <span>Complete Registration</span>
                     <span aria-hidden="true">&rarr;</span>
@@ -96,4 +134,35 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        const university = document.getElementById('UniversityId');
+        const department = document.getElementById('AcademicDepartmentId');
+        const semester = document.getElementById('AcademicSemesterId');
+        const academicFields = document.getElementById('academic-fields');
+        const allDepartments = Array.from(department.options).slice(1).map(option => ({ value: option.value, text: option.text, university: option.dataset.university }));
+        const allSemesters = Array.from(semester.options).slice(1).map(option => ({ value: option.value, text: option.text, department: option.dataset.department }));
+
+        function refreshDepartments() {
+            const selected = department.value;
+            department.innerHTML = '<option value="">Select your department</option>';
+            allDepartments.filter(item => !university.value || item.university === university.value).forEach(item => department.add(new Option(item.text, item.value)));
+            department.value = Array.from(department.options).some(option => option.value === selected) ? selected : '';
+            refreshSemesters();
+        }
+
+        function refreshSemesters() {
+            const selected = semester.value;
+            semester.innerHTML = '<option value="">Select your semester</option>';
+            allSemesters.filter(item => !department.value || item.department === department.value).forEach(item => semester.add(new Option(item.text, item.value)));
+            semester.value = Array.from(semester.options).some(option => option.value === selected) ? selected : '';
+        }
+
+        university.addEventListener('change', refreshDepartments);
+        department.addEventListener('change', refreshSemesters);
+        document.querySelectorAll('input[name="Role"]').forEach(input => input.addEventListener('change', event => {
+            academicFields.hidden = event.target.value === 'Admin';
+        }));
+        academicFields.hidden = document.querySelector('input[name="Role"]:checked')?.value === 'Admin';
+        refreshDepartments();
+    </script>
 }

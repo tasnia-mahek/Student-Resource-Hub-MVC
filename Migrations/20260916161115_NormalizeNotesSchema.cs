@@ -12,19 +12,19 @@ namespace student_resource_hub.Migrations
         {
             migrationBuilder.Sql("""
                 IF COL_LENGTH(N'dbo.Notes', N'Course') IS NOT NULL
-                    UPDATE dbo.Notes
-                    SET CourseCode = LEFT(Course, 50)
-                    WHERE NULLIF(CourseCode, N'') IS NULL AND NULLIF(Course, N'') IS NOT NULL;
+                    EXEC(N'UPDATE dbo.Notes
+                        SET CourseCode = LEFT(Course, 50)
+                        WHERE NULLIF(CourseCode, N'''') IS NULL AND NULLIF(Course, N'''') IS NOT NULL');
 
                 IF COL_LENGTH(N'dbo.Notes', N'FileName') IS NOT NULL
-                    UPDATE dbo.Notes
-                    SET OriginalFileName = LEFT(FileName, 255)
-                    WHERE NULLIF(OriginalFileName, N'') IS NULL AND NULLIF(FileName, N'') IS NOT NULL;
+                    EXEC(N'UPDATE dbo.Notes
+                        SET OriginalFileName = LEFT(FileName, 255)
+                        WHERE NULLIF(OriginalFileName, N'''') IS NULL AND NULLIF(FileName, N'''') IS NOT NULL');
 
                 IF COL_LENGTH(N'dbo.Notes', N'UploadedAt') IS NOT NULL
-                    UPDATE dbo.Notes
-                    SET CreatedDate = UploadedAt
-                    WHERE CreatedDate IS NULL AND UploadedAt IS NOT NULL;
+                    EXEC(N'UPDATE dbo.Notes
+                        SET CreatedDate = UploadedAt
+                        WHERE CreatedDate IS NULL AND UploadedAt IS NOT NULL');
 
                 IF COL_LENGTH(N'dbo.Notes', N'Course') IS NOT NULL
                     ALTER TABLE dbo.Notes DROP COLUMN Course;

@@ -160,9 +160,11 @@ namespace student_resource_hub.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
-            return View(new RegisterViewModel());
+            var model = new RegisterViewModel();
+            await PopulateAcademicOptions(model);
+            return View(model);
         }
 
         [AllowAnonymous]
@@ -170,8 +172,23 @@ namespace student_resource_hub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
+            if (model.Role == "Admin")
+            {
+                ModelState.Remove(nameof(model.UniversityId));
+                ModelState.Remove(nameof(model.AcademicDepartmentId));
+                ModelState.Remove(nameof(model.AcademicSemesterId));
+            }
+
             if (!ModelState.IsValid)
             {
+                await PopulateAcademicOptions(model);
+                return View(model);
+            }
+
+            if (model.Role != "Admin" && !await HasValidAcademicPlacement(model.UniversityId, model.AcademicDepartmentId, model.AcademicSemesterId))
+            {
+                ModelState.AddModelError(nameof(model.AcademicSemesterId), "Please select a department and semester belonging to the selected university.");
+                await PopulateAcademicOptions(model);
                 return View(model);
             }
 
@@ -186,7 +203,10 @@ namespace student_resource_hub.Controllers
             {
                 FullName = model.FullName.Trim(),
                 Email = email,
-                Role = model.Role
+                Role = model.Role,
+                UniversityId = model.Role == "Admin" ? null : model.UniversityId,
+                AcademicDepartmentId = model.Role == "Admin" ? null : model.AcademicDepartmentId,
+                AcademicSemesterId = model.Role == "Admin" ? null : model.AcademicSemesterId
             };
             user.PasswordHash = passwordHasher.HashPassword(user, model.Password);
 
@@ -198,6 +218,7 @@ namespace student_resource_hub.Controllers
             catch (DbUpdateException)
             {
                 ModelState.AddModelError(nameof(model.Email), "An account with this email already exists.");
+                await PopulateAcademicOptions(model);
                 return View(model);
             }
 
@@ -267,5 +288,35 @@ namespace student_resource_hub.Controllers
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
         }
+
+        private async Task PopulateAcademicOptions(RegisterViewModel model)
+        {
+            model.Universities = await context.Universities
+                .Where(university => university.IsActive)
+                .OrderBy(university => university.Name)
+                .Select(university => new UniversityOptionViewModel { Id = university.Id, Name = university.Name })
+                .ToListAsync();
+            model.Departments = await context.AcademicDepartments
+                .Where(department => department.IsActive && (!model.UniversityId.HasValue || department.UniversityId == model.UniversityId))
+                .OrderBy(department => department.Name)
+                .Select(department => new AcademicDepartmentOptionViewModel { Id = department.Id, UniversityId = department.UniversityId, Name = department.Name })
+                .ToListAsync();
+            model.Semesters = await context.AcademicSemesters
+                .Where(semester => semester.IsActive && (!model.AcademicDepartmentId.HasValue || semester.DepartmentId == model.AcademicDepartmentId))
+                .OrderBy(semester => semester.SortOrder)
+                .Select(semester => new AcademicSemesterOptionViewModel { Id = semester.Id, DepartmentId = semester.DepartmentId, Name = semester.Name })
+                .ToListAsync();
+        }
+
+            private Task<bool> HasValidAcademicPlacement(int? universityId, int? departmentId, int? semesterId)
+            {
+                return context.AcademicSemesters.AnyAsync(semester =>
+                semester.Id == semesterId &&
+                semester.DepartmentId == departmentId &&
+                semester.Department!.UniversityId == universityId &&
+                semester.IsActive &&
+                semester.Department.IsActive &&
+                semester.Department.University!.IsActive);
+            }
     }
 }

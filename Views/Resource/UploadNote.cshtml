@@ -58,15 +58,15 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label asp-for="Department">Department *</label>
-                        <select asp-for="Department" class="form-control">
+                        <label asp-for="AcademicDepartmentId">Department *</label>
+                        <select asp-for="AcademicDepartmentId" class="form-control">
                             <option value="">-- Select Department --</option>
-                            @foreach (var dept in Enum.GetNames(typeof(Department)))
+                            @foreach (var dept in Model.Departments)
                             {
-                                <option value="@dept">@dept.Replace("ComputerScience", "Computer Science")</option>
+                                <option value="@dept.Id">@dept.Name</option>
                             }
                         </select>
-                        <span asp-validation-for="Department" class="text-danger"></span>
+                        <span asp-validation-for="AcademicDepartmentId" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
@@ -82,15 +82,15 @@
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="Semester">Semester *</label>
-                        <select asp-for="Semester" class="form-control">
+                        <label asp-for="AcademicSemesterId">Semester *</label>
+                        <select asp-for="AcademicSemesterId" class="form-control">
                             <option value="">-- Select Semester --</option>
-                            @foreach (var sem in Enum.GetNames(typeof(Semester)))
+                            @foreach (var sem in Model.Semesters)
                             {
-                                <option value="@sem">@sem</option>
+                                <option value="@sem.Id" data-department="@sem.DepartmentId">@sem.Name</option>
                             }
                         </select>
-                        <span asp-validation-for="Semester" class="text-danger"></span>
+                        <span asp-validation-for="AcademicSemesterId" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -174,6 +174,18 @@
         fileUploadArea.style.display = 'none';
         fileSelected.style.display = 'block';
     }
+</script>
+
+<script>
+    const noteDepartment = document.getElementById('AcademicDepartmentId');
+    const noteSemester = document.getElementById('AcademicSemesterId');
+    const noteSemesters = Array.from(noteSemester.options).slice(1).map(option => ({ value: option.value, text: option.text, department: option.dataset.department }));
+    function refreshNoteSemesters() {
+        noteSemester.innerHTML = '<option value="">-- Select Semester --</option>';
+        noteSemesters.filter(item => item.department === noteDepartment.value).forEach(item => noteSemester.add(new Option(item.text, item.value)));
+    }
+    noteDepartment.addEventListener('change', refreshNoteSemesters);
+    refreshNoteSemesters();
 </script>
 
 @section Scripts {

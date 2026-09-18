@@ -1,0 +1,39 @@
+@model student_resource_hub.Models.Lecture
+@{
+    ViewData["Title"] = Model.Title;
+    var extension = Model.FileType?.TrimStart('.').ToLowerInvariant();
+    var browserPlayable = extension is "mp4" or "m4v" or "mov" or "webm" or "ogv" or "3gp";
+}
+
+<link rel="stylesheet" href="~/css/resource-list.css" />
+
+<div class="catalog-content" style="max-width:1100px;margin:0 auto;padding:32px 24px;">
+    <a href="@Url.Action("Lectures", "Resource")" class="clear-filters">← Back to Video Lectures</a>
+    <div class="catalog-heading" style="margin-top:24px;">
+        <div>
+            <span class="eyebrow">VIDEO LECTURE</span>
+            <h1>@Model.Title</h1>
+            <p>@Model.SubjectName · @Model.CourseCode</p>
+        </div>
+        <a href="@Url.Action("Download", "Resource", new { id = Model.Id, type = "lecture" })" class="upload-button">Download lecture</a>
+    </div>
+
+    @if (browserPlayable)
+    {
+        <video controls preload="metadata" style="width:100%;max-height:650px;background:#05080d;border-radius:8px;" src="@Url.Action("StreamLecture", "Resource", new { id = Model.Id })">
+            Your browser cannot play this video. Use the download button instead.
+        </video>
+    }
+    else
+    {
+        <div class="no-results"><p>This video format may not play in the browser. Use Download lecture to open it with a compatible player.</p></div>
+    }
+
+    <div class="document-card" style="margin-top:24px;">
+        <div class="document-main">
+            <span class="subject-tag">Lecture information</span>
+            <p>@Model.Description</p>
+            <div class="document-meta"><span>Format: @Model.FileType</span><span>Views: @Model.ViewCount</span><span>Downloads: @Model.DownloadCount</span><span>Professor: @Model.ProfessorName</span></div>
+        </div>
+    </div>
+</div>

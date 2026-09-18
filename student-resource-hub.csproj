@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>student_resource_hub</RootNamespace>
+    <UserSecretsId>student-resource-hub-local</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

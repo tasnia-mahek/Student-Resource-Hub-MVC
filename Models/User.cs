@@ -6,6 +6,10 @@ namespace student_resource_hub.Models
     {
         public int Id { get; set; }
 
+        public int? UniversityId { get; set; }
+        public int? AcademicDepartmentId { get; set; }
+        public int? AcademicSemesterId { get; set; }
+
         [Required, StringLength(120)]
         public string FullName { get; set; } = string.Empty;
 
@@ -31,5 +35,9 @@ namespace student_resource_hub.Models
         public string? ProfilePhotoPath { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public University? University { get; set; }
+        public AcademicDepartment? AcademicDepartment { get; set; }
+        public AcademicSemester? AcademicSemester { get; set; }
     }
 }

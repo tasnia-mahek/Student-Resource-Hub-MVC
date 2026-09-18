@@ -4,7 +4,7 @@ namespace student_resource_hub.Services
 {
     public interface IFileService
     {
-        Task<string> UploadFileAsync(IFormFile file, string uploadFolder);
+        Task<string> UploadFileAsync(IFormFile file, string uploadFolder, long maxFileSize = 50 * 1024 * 1024);
         Task<bool> DeleteFileAsync(string filePath);
         Task<FileStream> GetFileStreamAsync(string filePath);
         bool ValidateFileUpload(IFormFile file, long maxFileSize = 50 * 1024 * 1024);
@@ -17,7 +17,13 @@ namespace student_resource_hub.Services
     {
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<FileService> _logger;
-        private readonly string[] _allowedExtensions = { ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt", ".txt", ".jpg", ".jpeg", ".png", ".gif" };
+        private readonly string[] _allowedExtensions =
+        {
+            ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt", ".txt",
+            ".jpg", ".jpeg", ".png", ".gif", ".mp4", ".m4v", ".mov", ".avi",
+            ".wmv", ".mkv", ".webm", ".flv", ".f4v", ".3gp", ".3g2", ".ogv",
+            ".ts", ".mts", ".m2ts", ".vob", ".asf"
+        };
 
         public FileService(IWebHostEnvironment env, ILogger<FileService> logger)
         {
@@ -49,11 +55,11 @@ namespace student_resource_hub.Services
             return true;
         }
 
-        public async Task<string> UploadFileAsync(IFormFile file, string uploadFolder)
+        public async Task<string> UploadFileAsync(IFormFile file, string uploadFolder, long maxFileSize = 50 * 1024 * 1024)
         {
             try
             {
-                if (!ValidateFileUpload(file))
+                if (!ValidateFileUpload(file, maxFileSize))
                 {
                     throw new InvalidOperationException("File validation failed.");
                 }
@@ -155,6 +161,23 @@ namespace student_resource_hub.Services
                 ".jpeg" => "image/jpeg",
                 ".png" => "image/png",
                 ".gif" => "image/gif",
+                ".mp4" => "video/mp4",
+                ".m4v" => "video/x-m4v",
+                ".mov" => "video/quicktime",
+                ".avi" => "video/x-msvideo",
+                ".wmv" => "video/x-ms-wmv",
+                ".mkv" => "video/x-matroska",
+                ".webm" => "video/webm",
+                ".flv" => "video/x-flv",
+                ".f4v" => "video/x-f4v",
+                ".3gp" => "video/3gpp",
+                ".3g2" => "video/3gpp2",
+                ".ogv" => "video/ogg",
+                ".ts" => "video/mp2t",
+                ".mts" => "video/mp2t",
+                ".m2ts" => "video/mp2t",
+                ".vob" => "video/dvd",
+                ".asf" => "video/x-ms-asf",
                 _ => "application/octet-stream"
             };
         }

@@ -24,5 +24,38 @@ namespace student_resource_hub.ViewModels
         [Required(ErrorMessage = "Please select a role.")]
         [RegularExpression("^(Student|Admin|CR)$", ErrorMessage = "Please select a valid role.")]
         public string Role { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Please select a university.")]
+        public int? UniversityId { get; set; }
+
+        [Required(ErrorMessage = "Please select a department.")]
+        public int? AcademicDepartmentId { get; set; }
+
+        [Required(ErrorMessage = "Please select a semester.")]
+        public int? AcademicSemesterId { get; set; }
+
+        public List<UniversityOptionViewModel> Universities { get; set; } = new();
+        public List<AcademicDepartmentOptionViewModel> Departments { get; set; } = new();
+        public List<AcademicSemesterOptionViewModel> Semesters { get; set; } = new();
+    }
+
+    public class UniversityOptionViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class AcademicDepartmentOptionViewModel
+    {
+        public int Id { get; set; }
+        public int UniversityId { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class AcademicSemesterOptionViewModel
+    {
+        public int Id { get; set; }
+        public int DepartmentId { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }

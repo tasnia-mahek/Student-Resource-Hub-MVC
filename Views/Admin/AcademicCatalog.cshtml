@@ -1,0 +1,63 @@
+@model student_resource_hub.ViewModels.AcademicAdminViewModel
+@{
+    ViewData["Title"] = "Academic Catalog";
+}
+
+<div class="catalog-content" style="max-width:1100px;margin:0 auto;padding:32px 24px;">
+    <span class="eyebrow">ADMINISTRATION</span>
+    <h1>Universities and Academic Structure</h1>
+    <p>Add universities, departments, semesters, and department card images used by the resource browser.</p>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin:24px 0;">
+        <form asp-action="AddUniversity" method="post" class="filter-panel">
+            @Html.AntiForgeryToken()
+            <h2>Add university</h2>
+            <input asp-for="NewUniversity.Name" class="form-control" placeholder="University name" />
+            <span asp-validation-for="NewUniversity.Name" class="text-danger"></span>
+            <button class="filter-button" type="submit">Add university</button>
+        </form>
+        <form asp-action="AddDepartment" method="post" class="filter-panel">
+            @Html.AntiForgeryToken()
+            <h2>Add department</h2>
+            <select asp-for="NewDepartment.UniversityId" class="form-control">
+                <option value="">Select university</option>
+                @foreach (var university in Model.Universities) { <option value="@university.Id">@university.Name</option> }
+            </select>
+            <input asp-for="NewDepartment.Name" class="form-control" placeholder="Department name" />
+            <input asp-for="NewDepartment.ImageUrl" class="form-control" placeholder="Background image URL (optional)" />
+            <button class="filter-button" type="submit">Add department</button>
+        </form>
+        <form asp-action="AddSemester" method="post" class="filter-panel">
+            @Html.AntiForgeryToken()
+            <h2>Add semester</h2>
+            <select asp-for="NewSemester.DepartmentId" class="form-control">
+                <option value="">Select department</option>
+                @foreach (var university in Model.Universities) { foreach (var department in university.Departments) { <option value="@department.Id">@university.Name / @department.Name</option> } }
+            </select>
+            <input asp-for="NewSemester.Name" class="form-control" placeholder="Semester name" />
+            <input asp-for="NewSemester.SortOrder" class="form-control" type="number" min="0" placeholder="Display order" />
+            <button class="filter-button" type="submit">Add semester</button>
+        </form>
+    </div>
+
+    @foreach (var university in Model.Universities)
+    {
+        <section class="filter-panel" style="margin-bottom:18px;">
+            <h2>@university.Name</h2>
+            <div class="document-list">
+                @foreach (var department in university.Departments)
+                {
+                    <article class="document-card" style="background-image:linear-gradient(90deg,rgba(7,12,20,.95),rgba(7,12,20,.45)),url('@department.ImageUrl');background-size:cover;">
+                        <div class="document-main"><span class="subject-tag">Department</span><h2>@department.Name</h2><p>@department.Semesters.Count semester(s)</p></div>
+                        <div>@string.Join(", ", department.Semesters.Select(semester => semester.Name))</div>
+                    </article>
+                }
+            </div>
+        </section>
+    }
+</div>
