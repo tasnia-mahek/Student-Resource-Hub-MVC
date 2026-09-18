@@ -24,6 +24,9 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 // Register FileService
 builder.Services.AddScoped<IFileService, FileService>();
 
+// Register GeminiService
+builder.Services.AddHttpClient<IGeminiService, GeminiService>();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
