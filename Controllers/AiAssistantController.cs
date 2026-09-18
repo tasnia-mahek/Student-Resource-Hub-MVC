@@ -40,6 +40,7 @@ namespace student_resource_hub.Controllers
         }
 
         // POST: /AiAssistant/Query or /AiAssistant/Ask
+        [AllowAnonymous]
         [HttpPost]
         [Route("AiAssistant/Query")]
         [Route("AiAssistant/Ask")]
