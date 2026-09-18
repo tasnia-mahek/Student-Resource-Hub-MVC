@@ -39,6 +39,23 @@ namespace student_resource_hub.Services
             return key?.Trim();
         }
 
+        private string GetNormalizedModelName()
+        {
+            var model = _configuration["Gemini:Model"]?.Trim();
+            if (string.IsNullOrWhiteSpace(model))
+            {
+                return DefaultModel;
+            }
+
+            model = model.ToLowerInvariant();
+            if (model.Contains("3.8") || model.Contains("gemini-3"))
+            {
+                return "gemini-2.0-flash";
+            }
+
+            return model;
+        }
+
         public bool IsConfigured
         {
             get
@@ -89,12 +106,18 @@ namespace student_resource_hub.Services
             }
 
             var apiKey = GetApiKey();
-            var model = _configuration["Gemini:Model"];
-            if (string.IsNullOrWhiteSpace(model))
+            if (apiKey != null && !apiKey.StartsWith("AIza", StringComparison.OrdinalIgnoreCase))
             {
-                model = DefaultModel;
+                return @"<div style=""background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.4); border-radius: 10px; padding: 0.85rem 1rem; margin: 0.5rem 0;"">
+    <strong style=""color: #f43f5e;"">Gemini AI Configuration Notice:</strong>
+    <p style=""margin: 0.4rem 0 0; font-size: 0.86rem; color: #d1d5db; line-height: 1.5;"">
+        The configured key does not appear to be a Google AI Studio key (which begins with <code>AIzaSy...</code>).<br/>
+        Please obtain a free API key at <a href=""https://aistudio.google.com/"" target=""_blank"" style=""color: #00ff66; text-decoration: underline;"">Google AI Studio</a> and set it in <code>appsettings.json</code> under <code>""Gemini"": { ""ApiKey"": ""AIza..."" }</code>.
+    </p>
+</div>";
             }
 
+            var model = GetNormalizedModelName();
             var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
 
             var systemInstructionText = "You are StudyHub AI Copilot, an expert university academic assistant. " +
