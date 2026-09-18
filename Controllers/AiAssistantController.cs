@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using student_resource_hub.Data;
 using student_resource_hub.Models;
+using student_resource_hub.Services;
 using student_resource_hub.ViewModels;
 
 namespace student_resource_hub.Controllers
@@ -13,6 +14,7 @@ namespace student_resource_hub.Controllers
     public class AiAssistantController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IGeminiService _geminiService;
         private readonly ILogger<AiAssistantController> _logger;
 
         private static readonly HashSet<string> FillerWords = new(StringComparer.OrdinalIgnoreCase)
@@ -43,9 +45,11 @@ namespace student_resource_hub.Controllers
 
         public AiAssistantController(
             ApplicationDbContext context,
+            IGeminiService geminiService,
             ILogger<AiAssistantController> logger)
         {
             _context = context;
+            _geminiService = geminiService;
             _logger = logger;
         }
 
@@ -81,7 +85,7 @@ namespace student_resource_hub.Controllers
                 {
                     Success = true,
                     Query = string.Empty,
-                    Reply = "<p>Please enter a question, topic, course code, or resource request so I can search our database for you.</p>",
+                    Reply = "<p>Please enter a question, topic, course code, or resource request so I can assist you.</p>",
                     TotalMatches = 0
                 });
             }
@@ -98,7 +102,7 @@ namespace student_resource_hub.Controllers
                 {
                     Success = false,
                     Query = rawQuery,
-                    Reply = "<p>An unexpected error occurred while searching the database. Please try again shortly.</p>",
+                    Reply = "<p>An unexpected error occurred while processing your request. Please try again shortly.</p>",
                     TotalMatches = 0
                 });
             }
@@ -129,7 +133,64 @@ namespace student_resource_hub.Controllers
             // 3. Parse user intent and extract all entities
             var intent = ParseQueryIntent(query);
 
-            // 4. Route search based on extracted intent
+            // 4. Determine request nature: Resource-only, General-only, or Hybrid
+            // General/explanation intent keywords
+            bool hasGeneralIntent = IsGeneralOrExplanationQuery(query);
+
+            // Resource search intent keywords or presence of explicit resource preferences / course code
+            bool hasResourceIntent = intent.HasExplicitResourceIntent();
+
+            // Hybrid: Needs both Gemini explanation and SQL Server database search
+            if (hasGeneralIntent && hasResourceIntent)
+            {
+                // A. Generate conceptual answer from Gemini
+                var geminiReply = await _geminiService.GenerateAnswerAsync(query);
+
+                // B. Perform SQL Server database search for relevant course materials
+                var dbResponse = new AiQueryResponse
+                {
+                    Success = true,
+                    Query = query
+                };
+                await RouteDatabaseSearchAsync(dbResponse, intent);
+
+                // C. Combine both into unified response
+                response.TotalMatches = dbResponse.TotalMatches;
+                response.Resources = dbResponse.Resources;
+
+                var combinedSb = new StringBuilder();
+                combinedSb.Append(geminiReply);
+
+                if (dbResponse.TotalMatches > 0 || !string.IsNullOrWhiteSpace(dbResponse.Reply))
+                {
+                    combinedSb.Append("<div style=\"margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);\">");
+                    combinedSb.Append("<h4 style=\"color: #38bdf8; margin: 0 0 0.6rem 0; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;\">");
+                    combinedSb.Append("<span>📚</span> <span>Related Course Materials from Database</span>");
+                    combinedSb.Append("</h4>");
+                    combinedSb.Append(dbResponse.Reply);
+                    combinedSb.Append("</div>");
+                }
+
+                response.Reply = combinedSb.ToString();
+                return response;
+            }
+
+            // Resource-only: Search existing SQL Server database
+            if (hasResourceIntent && !hasGeneralIntent)
+            {
+                await RouteDatabaseSearchAsync(response, intent);
+                return response;
+            }
+
+            // General questions / conversation / explanation: Route to Gemini
+            var aiReply = await _geminiService.GenerateAnswerAsync(query);
+            response.Reply = aiReply;
+            response.TotalMatches = 0;
+            return response;
+        }
+
+        private async Task RouteDatabaseSearchAsync(AiQueryResponse response, QueryIntent intent)
+        {
             if (intent.WantsPastPapers && !intent.WantsNotes && !intent.WantsLectures && !intent.IsGeneralStudyMaterial)
             {
                 await SearchPastPapersAsync(response, intent);
@@ -147,8 +208,37 @@ namespace student_resource_hub.Controllers
                 // Unspecified resource type, general materials, or multi-resource query: search across all resources!
                 await SearchAllResourcesAsync(response, intent);
             }
+        }
 
-            return response;
+        private static bool IsGeneralOrExplanationQuery(string query)
+        {
+            var q = query.Trim().ToLowerInvariant();
+
+            // Conversational triggers
+            if (ContainsAny(q, "who are you", "what can you do", "introduce yourself", "how are you"))
+            {
+                return true;
+            }
+
+            // Explanation / definition / code triggers
+            if (ContainsAny(q,
+                "explain", "what is", "what are", "what does", "how does", "how do",
+                "why does", "why is", "why do", "tell me about", "describe", "definition of",
+                "difference between", "compare", "write code", "write a program", "write a script",
+                "write a function", "how can i", "how to solve", "can you explain", "could you explain",
+                "solve this", "help me understand", "give me code", "sample code", "implementation of"))
+            {
+                return true;
+            }
+
+            // Questions starting with question words without file action words
+            if ((q.StartsWith("what ") || q.StartsWith("how ") || q.StartsWith("why ") || q.StartsWith("when ") || q.StartsWith("can you "))
+                && !ContainsAny(q, "do you have", "give me", "find", "show me", "download", "past paper", "papers"))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         #region Natural Language Intent & Entity Parser
@@ -170,6 +260,41 @@ namespace student_resource_hub.Controllers
             public string? TopicOrSubject { get; set; }
             public string? TopicStem { get; set; }
             public List<string> TopicWords { get; set; } = new();
+
+            public bool HasExplicitResourceIntent()
+            {
+                if (WantsPastPapers || WantsNotes || WantsLectures || IsGeneralStudyMaterial)
+                {
+                    return true;
+                }
+
+                if (!string.IsNullOrEmpty(CanonicalCourseCode))
+                {
+                    return true;
+                }
+
+                if (Year.HasValue || Semester.HasValue || !string.IsNullOrEmpty(ExamType))
+                {
+                    return true;
+                }
+
+                // Explicit retrieval requests
+                if (ContainsAny(RawQuery,
+                    "give me", "find the", "find me", "show me", "need", "want",
+                    "do you have", "download", "search for", "look for", "looking for",
+                    "past paper", "notes", "lectures", "slides", "study material", "materials"))
+                {
+                    return true;
+                }
+
+                // If user entered just a subject name without conversational/explanation triggers
+                if (!string.IsNullOrEmpty(TopicOrSubject) && !IsGeneralOrExplanationQuery(RawQuery))
+                {
+                    return true;
+                }
+
+                return false;
+            }
 
             public string GetDisplayTarget()
             {
