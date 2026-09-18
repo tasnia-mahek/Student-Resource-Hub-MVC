@@ -4,6 +4,7 @@
     var resourceType = ViewBag.ResourceType as string;
     int? resourceId = ViewBag.ResourceId as int?;
     var resourceTitle = ViewBag.ResourceTitle as string;
+    var courseCode = ViewBag.CourseCode as string;
 }
 
 <div class="catalog-content" style="max-width:1100px;margin:0 auto;padding:32px 24px;">
@@ -21,7 +22,7 @@
         <h2>Create a study session</h2>
         <input asp-for="NewSession.Name" class="form-control" placeholder="e.g. CSE Semester 1 Finals" />
         <textarea asp-for="NewSession.Description" class="form-control" placeholder="What are you preparing for?" rows="2"></textarea>
-        <input type="hidden" name="resourceType" value="@resourceType" /><input type="hidden" name="resourceId" value="@resourceId" />
+        <input type="hidden" name="resourceType" value="@resourceType" /><input type="hidden" name="resourceId" value="@resourceId" /><input type="hidden" name="courseCode" value="@courseCode" />
         <button class="filter-button" type="submit">Create session</button>
     </form>
 
@@ -31,7 +32,7 @@
             <article class="document-card">
                 <span class="document-icon teal">📁</span>
                 <div class="document-main"><span class="subject-tag">Study session</span><h2>@session.Name</h2><p>@session.Description</p><div class="document-meta"><span>@session.FolderCount folders</span><span>@session.ResourceCount resources</span></div></div>
-                <div class="document-actions"><a class="primary-button" asp-action="Session" asp-route-id="@session.Id" asp-route-resourceType="@resourceType" asp-route-resourceId="@resourceId">Open</a></div>
+                <div class="document-actions"><a class="primary-button" asp-action="Session" asp-route-id="@session.Id" asp-route-resourceType="@resourceType" asp-route-resourceId="@resourceId" asp-route-courseCode="@courseCode">Open</a></div>
             </article>
         }
         @if (Model.Sessions.Count == 0) { <div class="no-results"><p>You have not created a study session yet.</p></div> }

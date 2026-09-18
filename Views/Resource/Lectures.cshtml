@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="~/css/resource-list.css" />
 
 <div class="catalog-layout document-catalog">
-    @if (Model.SelectedAcademicSemesterId != null)
+    @if (Model.SelectedAcademicSemesterId != null && Model.SelectedCourseCode != null)
     {
     <!-- Filter Panel -->
     <aside class="filter-panel">
@@ -62,7 +62,7 @@
     }
 
     <!-- Content Section -->
-    @if (Model.SelectedAcademicSemesterId != null)
+    @if (Model.SelectedAcademicSemesterId != null && Model.SelectedCourseCode != null)
     {
     <section class="catalog-content">
         <div class="catalog-heading">
@@ -72,6 +72,7 @@
                 <p>Access recorded lectures and materials from your courses.</p>
             </div>
             <div class="sort-upload">
+                <form method="get" class="filter-form" style="display:inline-flex;align-items:center;gap:8px;"><input type="hidden" name="academicDepartmentId" value="@Model.SelectedAcademicDepartmentId" /><input type="hidden" name="academicSemesterId" value="@Model.SelectedAcademicSemesterId" /><input type="hidden" name="courseCode" value="@Model.SelectedCourseCode" /><label for="academicTermId">Exam term</label><select id="academicTermId" name="academicTermId" onchange="this.form.submit()">@foreach (var term in Model.ResourceTerms) { <option value="@(term.Id ?? 0)" selected="@(term.Id == Model.SelectedAcademicTermId ? "selected" : null)">@term.Name</option> }</select></form>
                 <select id="sortSelect" onchange="updateSort(this.value)">
                     @{
                         var sorts = new[] { ("newest", "Newest first"), ("oldest", "Oldest first"), ("mostDownloaded", "Most downloaded") };
@@ -90,7 +91,7 @@
                 </select>
                 @if (User.IsInRole("Admin"))
                 {
-                    <a href="@Url.Action("UploadLecture", "Resource")" class="upload-button">+ Upload Lecture</a>
+                    <a href="@Url.Action("UploadLecture", "Resource", new { academicCatalogSemesterId = Model.SelectedAcademicSemesterId, courseCode = Model.SelectedCourseCode })" class="upload-button">+ Upload Lecture</a>
                 }
             </div>
         </div>
@@ -126,7 +127,7 @@
                                     { <p class="meta-description">@lecture.Description</p> }
                                     <small class="upload-meta">By: @lecture.UploadedByUser?.FullName · Prof: @lecture.ProfessorName</small>
                                 </div>
-                                <div class="document-actions"><a href="@Url.Action("LectureDetails", "Resource", new { id = lecture.Id })" class="primary-button">👁 View</a><a href="@Url.Action("Sessions", "Study", new { resourceType = "lecture", resourceId = lecture.Id })" class="primary-button">📁 Organize</a><a href="@Url.Action("Download", "Resource", new { id = lecture.Id, type = "lecture" })" class="primary-button" title="Download">⬇ Download</a></div>
+                                <div class="document-actions"><a href="@Url.Action("LectureDetails", "Resource", new { id = lecture.Id })" class="primary-button">👁 View</a><a href="@Url.Action("Sessions", "Study", new { resourceType = "lecture", resourceId = lecture.Id, courseCode = lecture.CourseCode })" class="primary-button">📁 Organize</a><a href="@Url.Action("Download", "Resource", new { id = lecture.Id, type = "lecture" })" class="primary-button" title="Download">⬇ Download</a></div>
                             </article>
                         }
                     </section>
@@ -144,9 +145,14 @@
     else
     {
         <section class="catalog-content">
-            <div class="catalog-heading"><div><span class="eyebrow">RESOURCE LIBRARY</span><h1>@(Model.SelectedAcademicDepartmentId == null ? "Video Lectures by Department" : "Choose a Semester")</h1><p>@(Model.SelectedAcademicDepartmentId == null ? "Choose a department to browse its video lectures." : "Choose a semester to see every lecture for this department.")</p></div></div>
+            <div class="catalog-heading"><div><span class="eyebrow">RESOURCE LIBRARY</span><h1>@(Model.SelectedAcademicSemesterId != null ? "Choose a Course" : Model.SelectedAcademicDepartmentId == null ? "Video Lectures by Department" : "Choose a Semester")</h1><p>@(Model.SelectedAcademicSemesterId != null ? "Choose a course to view its lectures." : Model.SelectedAcademicDepartmentId == null ? "Choose a department to browse its video lectures." : "Choose a semester to see its courses.")</p></div></div>
             <div class="document-list">
-                @if (Model.SelectedAcademicDepartmentId == null)
+                @if (Model.SelectedAcademicSemesterId != null)
+                {
+                    <div class="catalog-heading"><div><span class="eyebrow">COURSES</span><h2>Courses in this semester</h2></div></div>
+                    @foreach (var course in Model.CourseCatalogGroups) { <a class="document-card" href="@Url.Action("Lectures", "Resource", new { academicDepartmentId = Model.SelectedAcademicDepartmentId, academicSemesterId = Model.SelectedAcademicSemesterId, courseCode = course.CourseCode })"><span class="document-icon teal">🎓</span><div class="document-main"><span class="subject-tag">@(course.IsLab ? "Lab course" : "Theory course")</span><h2>@course.CourseCode</h2><p>@course.Name</p><small class="upload-meta">@(course.ResourceCount == 0 ? "Uploading soon..." : $"{course.ResourceCount} lecture(s) available")</small></div><span class="primary-button">View lectures →</span></a> }
+                }
+                else if (Model.SelectedAcademicDepartmentId == null)
                 {
                     @foreach (var group in Model.DepartmentGroups)
                     {

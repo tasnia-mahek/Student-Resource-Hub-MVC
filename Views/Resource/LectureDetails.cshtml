@@ -16,6 +16,14 @@
             <p>@Model.SubjectName · @Model.CourseCode</p>
         </div>
         <a href="@Url.Action("Download", "Resource", new { id = Model.Id, type = "lecture" })" class="upload-button">Download lecture</a>
+        @if (User.IsInRole("Admin"))
+        {
+            <form asp-action="DeleteResource" asp-controller="Resource" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Delete this lecture permanently?');">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="type" value="lecture" />
+                <button type="submit" class="btn btn-danger">Delete resource</button>
+            </form>
+        }
     </div>
 
     @if (browserPlayable)

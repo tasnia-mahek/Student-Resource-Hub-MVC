@@ -16,6 +16,11 @@
     <div class="upload-content">
         <form asp-action="UploadNote" asp-controller="Resource" method="post" enctype="multipart/form-data" class="upload-form">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input asp-for="AcademicDepartmentId" type="hidden" />
+            <input asp-for="AcademicSemesterId" type="hidden" />
+            <input asp-for="AcademicCourseId" type="hidden" />
+            <input asp-for="AcademicCatalogSemesterId" type="hidden" />
+            <input asp-for="CourseCode" type="hidden" />
 
             <div class="form-section">
                 <h3>Note Details</h3>
@@ -34,12 +39,6 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label asp-for="CourseCode">Course Code *</label>
-                        <input asp-for="CourseCode" class="form-control" placeholder="e.g., CS-201" />
-                        <span asp-validation-for="CourseCode" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
                         <label asp-for="ProfessorName">Professor/Lecturer Name</label>
                         <input asp-for="ProfessorName" class="form-control" placeholder="e.g., Dr. Sarah Johnson" />
                         <span asp-validation-for="ProfessorName" class="text-danger"></span>
@@ -53,44 +52,7 @@
                 </div>
             </div>
 
-            <div class="form-section">
-                <h3>Course Details</h3>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label asp-for="AcademicDepartmentId">Department *</label>
-                        <select asp-for="AcademicDepartmentId" class="form-control">
-                            <option value="">-- Select Department --</option>
-                            @foreach (var dept in Model.Departments)
-                            {
-                                <option value="@dept.Id">@dept.Name</option>
-                            }
-                        </select>
-                        <span asp-validation-for="AcademicDepartmentId" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="Year">Year *</label>
-                        <select asp-for="Year" class="form-control">
-                            <option value="">-- Select Year --</option>
-                            @foreach (var year in Enum.GetValues(typeof(Year)).Cast<Year>().OrderByDescending(y => y))
-                            {
-                                <option value="@year">@((int)year)</option>
-                            }
-                        </select>
-                        <span asp-validation-for="Year" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="AcademicSemesterId">Semester *</label>
-                        <select asp-for="AcademicSemesterId" class="form-control">
-                            <option value="">-- Select Semester --</option>
-                        </select>
-                        <template id="semesterOptions">@foreach (var sem in Model.Semesters) { <option value="@sem.Id" data-department="@sem.DepartmentId">@sem.Name</option> }</template>
-                        <span asp-validation-for="AcademicSemesterId" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+            <div class="form-section"><h3>Course Details</h3><p class="meta-description">Course placement: @Model.CourseCode</p></div>
 
             <div class="form-section">
                 <h3>File Upload</h3>
@@ -176,18 +138,6 @@
         fileUploadArea.style.display = 'none';
         fileSelected.style.display = 'block';
     }
-</script>
-
-<script>
-    const noteDepartment = document.getElementById('AcademicDepartmentId');
-    const noteSemester = document.getElementById('AcademicSemesterId');
-    const noteSemesters = Array.from(document.getElementById('semesterOptions').content.querySelectorAll('option')).map(option => ({ value: option.value, text: option.text, department: option.dataset.department }));
-    function refreshNoteSemesters() {
-        noteSemester.innerHTML = '<option value="">-- Select Semester --</option>';
-        noteSemesters.filter(item => item.department === noteDepartment.value).forEach(item => noteSemester.add(new Option(item.text, item.value)));
-    }
-    noteDepartment.addEventListener('change', refreshNoteSemesters);
-    refreshNoteSemesters();
 </script>
 
 @section Scripts {

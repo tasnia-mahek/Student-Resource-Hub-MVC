@@ -29,6 +29,12 @@
                 </div>
             }
 
+            <input asp-for="AcademicDepartmentId" type="hidden" />
+            <input asp-for="AcademicSemesterId" type="hidden" />
+            <input asp-for="AcademicCourseId" type="hidden" />
+            <input asp-for="AcademicCatalogSemesterId" type="hidden" />
+            <input asp-for="CourseCode" type="hidden" />
+
             <!-- Subject Information Section -->
             <div class="form-section">
                 <h3>Subject Information</h3>
@@ -50,14 +56,6 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="CourseCode">Course Code *</label>
-                        <input type="text" id="CourseCode" name="CourseCode" 
-                               asp-for="CourseCode" placeholder="e.g., CS-201"
-                               class="form-control" required />
-                        <span asp-validation-for="CourseCode" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
                         <label for="ProfessorName">Professor/Lecturer Name *</label>
                         <input type="text" id="ProfessorName" name="ProfessorName" 
                                asp-for="ProfessorName" placeholder="e.g., Dr. Sarah Johnson"
@@ -75,45 +73,7 @@
                 </div>
             </div>
 
-            <!-- Course Details Section -->
-            <div class="form-section">
-                <h3>Course Details</h3>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label asp-for="AcademicDepartmentId">Department *</label>
-                        <select id="AcademicDepartmentId" asp-for="AcademicDepartmentId" class="form-control" required>
-                            <option value="">-- Select Department --</option>
-                            @foreach (var dept in Model.Departments)
-                            {
-                                <option value="@dept.Id">@dept.Name</option>
-                            }
-                        </select>
-                        <span asp-validation-for="AcademicDepartmentId" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="Year">Year *</label>
-                        <select id="Year" name="Year" asp-for="Year" class="form-control" required>
-                            <option value="">-- Select Year --</option>
-                            @foreach (var year in Enum.GetValues(typeof(Year)).Cast<Year>().OrderByDescending(y => y))
-                            {
-                                <option value="@year">@((int)year)</option>
-                            }
-                        </select>
-                        <span asp-validation-for="Year" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="AcademicSemesterId">Semester *</label>
-                        <select id="AcademicSemesterId" asp-for="AcademicSemesterId" class="form-control" required>
-                            <option value="">-- Select Semester --</option>
-                        </select>
-                        <template id="semesterOptions">@foreach (var sem in Model.Semesters) { <option value="@sem.Id" data-department="@sem.DepartmentId">@sem.Name</option> }</template>
-                        <span asp-validation-for="AcademicSemesterId" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
+            <div class="form-section"><h3>Course Details</h3><p class="meta-description">Course placement: @Model.CourseCode</p></div>
 
             <!-- File Upload Section -->
             <div class="form-section">
@@ -170,6 +130,9 @@
     }
     paperDepartment.addEventListener('change', refreshPaperSemesters);
     refreshPaperSemesters();
+    const paperCourse = document.getElementById('AcademicCourseId');
+    const paperCourses = Array.from(document.getElementById('courseOptions').content.querySelectorAll('option'));
+    paperSemester.addEventListener('change', () => { paperCourse.innerHTML = '<option value="">-- Select Course --</option>'; paperCourses.filter(option => option.dataset.semester === paperSemester.value).forEach(option => paperCourse.appendChild(option.cloneNode(true))); });
 
     const fileInput = document.getElementById('File');
     const fileUploadArea = document.getElementById('fileUploadArea');

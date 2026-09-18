@@ -19,7 +19,7 @@ namespace student_resource_hub.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Sessions(string? resourceType = null, int? resourceId = null)
+        public async Task<IActionResult> Sessions(string? resourceType = null, int? resourceId = null, string? courseCode = null)
         {
             var userId = CurrentUserId();
             var model = new StudySessionsViewModel
@@ -39,43 +39,44 @@ namespace student_resource_hub.Controllers
             };
             ViewBag.ResourceType = resourceType;
             ViewBag.ResourceId = resourceId;
+            ViewBag.CourseCode = courseCode;
             ViewBag.ResourceTitle = await GetResourceTitle(resourceType, resourceId);
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateSession(StudySessionsViewModel model, string? resourceType, int? resourceId)
+        public async Task<IActionResult> CreateSession(StudySessionsViewModel model, string? resourceType, int? resourceId, string? courseCode)
         {
             if (ModelState.IsValid)
             {
                 context.StudySessions.Add(new StudySession { UserId = CurrentUserId(), Name = model.NewSession.Name.Trim(), Description = model.NewSession.Description?.Trim() });
                 await context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Sessions), new { resourceType, resourceId });
+            return RedirectToAction(nameof(Sessions), new { resourceType, resourceId, courseCode });
         }
 
         [HttpGet]
-        public async Task<IActionResult> Session(int id, string? resourceType = null, int? resourceId = null)
+        public async Task<IActionResult> Session(int id, string? resourceType = null, int? resourceId = null, string? courseCode = null)
         {
             var session = await context.StudySessions
                 .Include(item => item.Folders)
                 .Include(item => item.Resources)
                 .FirstOrDefaultAsync(item => item.Id == id && item.UserId == CurrentUserId());
             if (session == null) return NotFound();
-            return View(new StudySessionDetailsViewModel { Session = session, ResourceType = resourceType, ResourceId = resourceId, ResourceTitle = await GetResourceTitle(resourceType, resourceId) });
+            return View(new StudySessionDetailsViewModel { Session = session, ResourceType = resourceType, ResourceId = resourceId, ResourceTitle = await GetResourceTitle(resourceType, resourceId), CourseCode = courseCode });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddFolder(StudyFolderFormViewModel model)
+        public async Task<IActionResult> AddFolder(StudyFolderFormViewModel model, string? resourceType, int? resourceId, string? courseCode)
         {
             if (ModelState.IsValid && await context.StudySessions.AnyAsync(session => session.Id == model.StudySessionId && session.UserId == CurrentUserId()))
             {
                 context.StudyFolders.Add(new StudyFolder { StudySessionId = model.StudySessionId, Name = model.Name.Trim() });
                 await context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Session), new { id = model.StudySessionId });
+            return RedirectToAction(nameof(Session), new { id = model.StudySessionId, resourceType, resourceId, courseCode });
         }
 
         [HttpPost]
@@ -90,7 +91,7 @@ namespace student_resource_hub.Controllers
                 context.StudyResources.Add(new StudyResource { StudySessionId = sessionId, StudyFolderId = folderId, ResourceType = resourceType, ResourceId = resourceId, ResourceTitle = resourceTitle ?? "Saved resource", CourseCode = courseCode });
                 await context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Session), new { id = sessionId });
+            return RedirectToAction(nameof(Session), new { id = sessionId, resourceType, resourceId, resourceTitle, courseCode });
         }
 
         [HttpPost]

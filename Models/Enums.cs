@@ -24,7 +24,8 @@ namespace student_resource_hub.Models
     {
         Fall,
         Spring,
-        Summer
+        Summer,
+        Winter
     }
 
     public enum ResourceStatus

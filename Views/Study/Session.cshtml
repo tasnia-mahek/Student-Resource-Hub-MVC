@@ -10,7 +10,7 @@
     <p>@Model.Session.Description</p>
 
     <form asp-action="AddFolder" method="post" class="filter-panel" style="max-width:600px;margin:24px 0;">
-        @Html.AntiForgeryToken()<input type="hidden" asp-for="NewFolder.StudySessionId" value="@Model.Session.Id" />
+        @Html.AntiForgeryToken()<input type="hidden" asp-for="NewFolder.StudySessionId" value="@Model.Session.Id" /><input type="hidden" name="resourceType" value="@Model.ResourceType" /><input type="hidden" name="resourceId" value="@Model.ResourceId" /><input type="hidden" name="courseCode" value="@Model.CourseCode" />
         <h2>Create a folder</h2><input asp-for="NewFolder.Name" class="form-control" placeholder="e.g. Theory courses or Lab courses" /><button class="filter-button" type="submit">Create folder</button>
     </form>
 
@@ -18,7 +18,7 @@
     {
         <form asp-action="AddResource" method="post" class="filter-panel" style="max-width:700px;margin:24px 0;">
             @Html.AntiForgeryToken()<input type="hidden" name="sessionId" value="@Model.Session.Id" /><input type="hidden" name="resourceType" value="@Model.ResourceType" /><input type="hidden" name="resourceId" value="@Model.ResourceId" /><input type="hidden" name="resourceTitle" value="@Model.ResourceTitle" />
-            <h2>Add @Model.ResourceTitle</h2><select name="folderId" class="form-control"><option value="">Session root</option>@foreach (var folder in Model.Session.Folders) { <option value="@folder.Id">@folder.Name</option> }</select><button class="filter-button" type="submit">Save resource</button>
+            <h2>Add @Model.ResourceTitle</h2><input type="hidden" name="courseCode" value="@Model.CourseCode" /><select name="folderId" class="form-control"><option value="">Session root</option>@foreach (var folder in Model.Session.Folders) { <option value="@folder.Id">@folder.Name</option> }</select><button class="filter-button" type="submit">Save resource</button>
         </form>
     }
 

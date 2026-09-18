@@ -14,7 +14,6 @@ namespace student_resource_hub.ViewModels
         [StringLength(200)]
         public string SubjectName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Course code is required.")]
         [StringLength(50)]
         public string CourseCode { get; set; } = string.Empty;
 
@@ -28,14 +27,16 @@ namespace student_resource_hub.ViewModels
         [Required(ErrorMessage = "Please select a department.")]
         public Department Department { get; set; }
 
-        [Required(ErrorMessage = "Please select a department.")]
         public int? AcademicDepartmentId { get; set; }
 
-        [Required(ErrorMessage = "Please select a semester.")]
         public int? AcademicSemesterId { get; set; }
+
+        public int? AcademicCourseId { get; set; }
+        public int? AcademicCatalogSemesterId { get; set; }
 
         public List<AcademicDepartmentOptionViewModel> Departments { get; set; } = new();
         public List<AcademicSemesterOptionViewModel> Semesters { get; set; } = new();
+        public List<AcademicCourseOptionViewModel> Courses { get; set; } = new();
 
         [Required(ErrorMessage = "Please select a year.")]
         public Year Year { get; set; }
@@ -58,7 +59,6 @@ namespace student_resource_hub.ViewModels
         [StringLength(200)]
         public string SubjectName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Course code is required.")]
         [StringLength(50)]
         public string CourseCode { get; set; } = string.Empty;
 
@@ -71,14 +71,16 @@ namespace student_resource_hub.ViewModels
         [Required(ErrorMessage = "Please select a department.")]
         public Department Department { get; set; }
 
-        [Required(ErrorMessage = "Please select a department.")]
         public int? AcademicDepartmentId { get; set; }
 
-        [Required(ErrorMessage = "Please select a semester.")]
         public int? AcademicSemesterId { get; set; }
+
+        public int? AcademicCourseId { get; set; }
+        public int? AcademicCatalogSemesterId { get; set; }
 
         public List<AcademicDepartmentOptionViewModel> Departments { get; set; } = new();
         public List<AcademicSemesterOptionViewModel> Semesters { get; set; } = new();
+        public List<AcademicCourseOptionViewModel> Courses { get; set; } = new();
 
         [Required(ErrorMessage = "Please select a year.")]
         public Year Year { get; set; }
@@ -101,7 +103,6 @@ namespace student_resource_hub.ViewModels
         [StringLength(200)]
         public string SubjectName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Course code is required.")]
         [StringLength(50)]
         public string CourseCode { get; set; } = string.Empty;
 
@@ -117,14 +118,16 @@ namespace student_resource_hub.ViewModels
         [Required(ErrorMessage = "Please select a department.")]
         public Department Department { get; set; }
 
-        [Required(ErrorMessage = "Please select a department.")]
         public int? AcademicDepartmentId { get; set; }
 
-        [Required(ErrorMessage = "Please select a semester.")]
         public int? AcademicSemesterId { get; set; }
+
+        public int? AcademicCourseId { get; set; }
+        public int? AcademicCatalogSemesterId { get; set; }
 
         public List<AcademicDepartmentOptionViewModel> Departments { get; set; } = new();
         public List<AcademicSemesterOptionViewModel> Semesters { get; set; } = new();
+        public List<AcademicCourseOptionViewModel> Courses { get; set; } = new();
 
         [Required(ErrorMessage = "Please select a year.")]
         public Year Year { get; set; }
@@ -141,10 +144,14 @@ namespace student_resource_hub.ViewModels
     {
         public List<T> Resources { get; set; } = new();
         public List<ResourceCourseGroup<T>> CourseGroups { get; set; } = new();
+        public List<CourseCatalogGroup> CourseCatalogGroups { get; set; } = new();
         public List<ResourceBrowseGroup> DepartmentGroups { get; set; } = new();
         public List<ResourceBrowseGroup> SemesterGroups { get; set; } = new();
+        public List<ResourceTermOption> ResourceTerms { get; set; } = new();
         public int? SelectedAcademicDepartmentId { get; set; }
         public int? SelectedAcademicSemesterId { get; set; }
+        public int? SelectedAcademicTermId { get; set; }
+        public string? SelectedCourseCode { get; set; }
         public string? SelectedDepartment { get; set; }
         public int? SelectedYear { get; set; }
         public string? SelectedSemester { get; set; }
@@ -193,6 +200,23 @@ namespace student_resource_hub.ViewModels
         public string CourseCode { get; set; } = string.Empty;
         public string SubjectName { get; set; } = string.Empty;
         public List<T> Resources { get; set; } = new();
+    }
+
+    public class CourseCatalogGroup
+    {
+        public int Id { get; set; }
+        public string CourseCode { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public bool IsLab { get; set; }
+        public int ResourceCount { get; set; }
+    }
+
+    public class ResourceTermOption
+    {
+        public int? Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int AcademicYear { get; set; }
+        public string TermName { get; set; } = string.Empty;
     }
 
     // Filter ViewModel for easy filtering

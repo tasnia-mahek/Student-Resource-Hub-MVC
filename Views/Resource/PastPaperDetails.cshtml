@@ -131,6 +131,14 @@
                     <button class="btn btn-secondary btn-large" onclick="copyLink()">
                         <span>🔗</span> Share Link
                     </button>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <form asp-action="DeleteResource" asp-controller="Resource" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Delete this past paper permanently?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="type" value="paper" />
+                            <button type="submit" class="btn btn-danger btn-large">Delete resource</button>
+                        </form>
+                    }
                 </div>
             </div>
 

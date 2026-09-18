@@ -58,4 +58,12 @@ namespace student_resource_hub.ViewModels
         public int DepartmentId { get; set; }
         public string Name { get; set; } = string.Empty;
     }
+
+    public class AcademicCourseOptionViewModel
+    {
+        public int Id { get; set; }
+        public int AcademicSemesterId { get; set; }
+        public string CourseCode { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+    }
 }

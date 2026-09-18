@@ -20,6 +20,7 @@ namespace student_resource_hub.Data
         public DbSet<University> Universities => Set<University>();
         public DbSet<AcademicDepartment> AcademicDepartments => Set<AcademicDepartment>();
         public DbSet<AcademicSemester> AcademicSemesters => Set<AcademicSemester>();
+        public DbSet<AcademicCourse> AcademicCourses => Set<AcademicCourse>();
         public DbSet<StudySession> StudySessions => Set<StudySession>();
         public DbSet<StudyFolder> StudyFolders => Set<StudyFolder>();
         public DbSet<StudyResource> StudyResources => Set<StudyResource>();
@@ -64,6 +65,15 @@ namespace student_resource_hub.Data
                 entity.Property(semester => semester.Name).HasMaxLength(80).IsRequired();
                 entity.HasOne(semester => semester.Department).WithMany(department => department.Semesters).HasForeignKey(semester => semester.DepartmentId).OnDelete(DeleteBehavior.Cascade);
                 entity.HasIndex(semester => new { semester.DepartmentId, semester.Name }).IsUnique();
+            });
+
+            modelBuilder.Entity<AcademicCourse>(entity =>
+            {
+                entity.HasKey(course => course.Id);
+                entity.Property(course => course.CourseCode).HasMaxLength(50).IsRequired();
+                entity.Property(course => course.Name).HasMaxLength(200).IsRequired();
+                entity.HasOne(course => course.AcademicSemester).WithMany(semester => semester.Courses).HasForeignKey(course => course.AcademicSemesterId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(course => new { course.AcademicSemesterId, course.CourseCode }).IsUnique();
             });
 
             modelBuilder.Entity<StudySession>(entity =>
@@ -115,6 +125,7 @@ namespace student_resource_hub.Data
                 entity.HasIndex(paper => paper.CreatedDate);
                 entity.HasOne(paper => paper.AcademicDepartment).WithMany().HasForeignKey(paper => paper.AcademicDepartmentId).OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(paper => paper.AcademicSemester).WithMany().HasForeignKey(paper => paper.AcademicSemesterId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(paper => paper.AcademicCourse).WithMany().HasForeignKey(paper => paper.AcademicCourseId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Note>(entity =>
@@ -140,6 +151,7 @@ namespace student_resource_hub.Data
                 entity.HasIndex(note => note.AverageRating);
                 entity.HasOne(note => note.AcademicDepartment).WithMany().HasForeignKey(note => note.AcademicDepartmentId).OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(note => note.AcademicSemester).WithMany().HasForeignKey(note => note.AcademicSemesterId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(note => note.AcademicCourse).WithMany().HasForeignKey(note => note.AcademicCourseId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Lecture>(entity =>
@@ -164,6 +176,7 @@ namespace student_resource_hub.Data
                 entity.HasIndex(lecture => lecture.CreatedDate);
                 entity.HasOne(lecture => lecture.AcademicDepartment).WithMany().HasForeignKey(lecture => lecture.AcademicDepartmentId).OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(lecture => lecture.AcademicSemester).WithMany().HasForeignKey(lecture => lecture.AcademicSemesterId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(lecture => lecture.AcademicCourse).WithMany().HasForeignKey(lecture => lecture.AcademicCourseId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<AttendanceSession>(entity =>
@@ -243,6 +256,88 @@ namespace student_resource_hub.Data
                     new AcademicSemester { Id = departmentId * 10 + 7, DepartmentId = departmentId, Name = "Semester 7", SortOrder = 7, IsActive = true },
                     new AcademicSemester { Id = departmentId * 10 + 8, DepartmentId = departmentId, Name = "Semester 8", SortOrder = 8, IsActive = true }
                 }));
+
+            var terms = new[] { "Fall", "Spring", "Winter" };
+            var courseNames = new[]
+            {
+                ("C101", "Programming Fundamentals", false),
+                ("C102", "Discrete Mathematics", false),
+                ("C103", "Data Structures", false),
+                ("C104", "Digital Logic", false),
+                ("C105", "Communication Skills", false),
+                ("L101", "Programming Lab", true),
+                ("L102", "Digital Systems Lab", true),
+                ("L103", "Engineering Drawing Lab", true),
+                ("L104", "Project and Design Lab", true)
+            };
+            var seededSemesters = new List<AcademicSemester>();
+            var seededCourses = new List<AcademicCourse>();
+            var semesterId = 1000;
+            var courseId = 10000;
+            var fixedSemesterCourses = new[]
+            {
+                new[] { ("MAT101", "Calculus I", false), ("PHY101", "Physics I", false), ("CSE101", "Programming Fundamentals", false), ("EEE101", "Electrical Circuits", false), ("ENG101", "Academic Writing", false), ("CSE111", "Programming Lab", true), ("PHY111", "Physics Lab", true), ("EEE111", "Circuit Lab", true), ("ENG111", "Engineering Graphics Lab", true) },
+                new[] { ("MAT102", "Calculus II", false), ("CSE102", "Object Oriented Programming", false), ("EEE102", "Digital Logic", false), ("STA102", "Probability and Statistics", false), ("HUM102", "Professional Ethics", false), ("CSE112", "OOP Lab", true), ("EEE112", "Digital Logic Lab", true), ("MAT112", "Numerical Methods Lab", true), ("CSE122", "Technical Skills Lab", true) },
+                new[] { ("MAT203", "Linear Algebra", false), ("CSE203", "Data Structures", false), ("CSE213", "Computer Organization", false), ("EEE203", "Signals and Systems", false), ("ECO203", "Engineering Economics", false), ("CSE223", "Data Structures Lab", true), ("CSE233", "Computer Organization Lab", true), ("EEE223", "Signals Lab", true), ("CSE243", "Web Development Lab", true) },
+                new[] { ("CSE204", "Algorithms", false), ("CSE214", "Database Systems", false), ("CSE224", "Operating Systems", false), ("CSE234", "Probability for Computing", false), ("BUS204", "Management Principles", false), ("CSE224L", "Algorithms Lab", true), ("CSE234L", "Database Lab", true), ("CSE244L", "Operating Systems Lab", true), ("CSE254L", "Systems Programming Lab", true) },
+                new[] { ("CSE305", "Computer Networks", false), ("CSE315", "Software Engineering", false), ("CSE325", "Theory of Computation", false), ("CSE335", "Compiler Design", false), ("CSE345", "Human Computer Interaction", false), ("CSE355", "Networks Lab", true), ("CSE365", "Software Engineering Lab", true), ("CSE375", "Compiler Lab", true), ("CSE385", "UI Design Lab", true) },
+                new[] { ("CSE306", "Artificial Intelligence", false), ("CSE316", "Machine Learning", false), ("CSE326", "Distributed Systems", false), ("CSE336", "Information Security", false), ("CSE346", "Data Mining", false), ("CSE356", "AI Lab", true), ("CSE366", "Machine Learning Lab", true), ("CSE376", "Security Lab", true), ("CSE386", "Data Mining Lab", true) },
+                new[] { ("CSE407", "Cloud Computing", false), ("CSE417", "Mobile Application Development", false), ("CSE427", "Computer Graphics", false), ("CSE437", "Big Data Analytics", false), ("CSE447", "Embedded Systems", false), ("CSE457", "Cloud Lab", true), ("CSE467", "Mobile Development Lab", true), ("CSE477", "Graphics Lab", true), ("CSE487", "Embedded Systems Lab", true) },
+                new[] { ("CSE408", "Advanced Algorithms", false), ("CSE418", "Natural Language Processing", false), ("CSE428", "Deep Learning", false), ("CSE438", "Distributed Artificial Intelligence", false), ("CSE448", "Project Management", false), ("CSE458", "NLP Lab", true), ("CSE468", "Deep Learning Lab", true), ("CSE478", "Research Lab", true), ("CSE488", "Capstone Design Lab", true) }
+            };
+            var fixedCourseId = 20000;
+            foreach (var departmentId in Enumerable.Range(1, 8))
+            {
+                for (var semesterNumber = 1; semesterNumber <= 8; semesterNumber++)
+                {
+                    foreach (var (code, name, isLab) in fixedSemesterCourses[semesterNumber - 1])
+                    {
+                        seededCourses.Add(new AcademicCourse
+                        {
+                            Id = fixedCourseId++,
+                            AcademicSemesterId = departmentId * 10 + semesterNumber,
+                            CourseCode = $"{departmentId}{code}",
+                            Name = name,
+                            IsLab = isLab,
+                            IsActive = true
+                        });
+                    }
+                }
+            }
+            foreach (var departmentId in Enumerable.Range(1, 8))
+            {
+                foreach (var academicYear in new[] { 2024, 2025, 2026 })
+                {
+                    foreach (var term in terms)
+                    {
+                        var currentSemesterId = semesterId++;
+                        seededSemesters.Add(new AcademicSemester
+                        {
+                            Id = currentSemesterId,
+                            DepartmentId = departmentId,
+                            AcademicYear = academicYear,
+                            TermName = term,
+                            Name = $"{term} {academicYear}",
+                            SortOrder = (academicYear * 10) + Array.IndexOf(terms, term),
+                            IsActive = true
+                        });
+                        foreach (var (code, name, isLab) in courseNames)
+                        {
+                            seededCourses.Add(new AcademicCourse
+                            {
+                                Id = courseId++,
+                                AcademicSemesterId = currentSemesterId,
+                                CourseCode = $"{departmentId}{code}",
+                                Name = name,
+                                IsLab = isLab,
+                                IsActive = true
+                            });
+                        }
+                    }
+                }
+            }
+            modelBuilder.Entity<AcademicSemester>().HasData(seededSemesters);
+            modelBuilder.Entity<AcademicCourse>().HasData(seededCourses);
         }
     }
 }

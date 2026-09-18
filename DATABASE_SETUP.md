@@ -140,7 +140,7 @@ The value is stored outside the repository. Never commit a real password, and do
 
 ## 4. Apply the EF Core schema
 
-The repository already contains the initial migration. Apply it with:
+The repository contains the initial schema migration and the later academic-catalog migrations. Apply all pending migrations with:
 
 ```powershell
 dotnet ef database update --project .\student-resource-hub.csproj --startup-project .\student-resource-hub.csproj
@@ -164,7 +164,7 @@ Check the applied migrations:
 dotnet ef migrations list --project .\student-resource-hub.csproj --startup-project .\student-resource-hub.csproj
 ```
 
-You should see `20260918090705_InitialMySqlSchema` as the project migration. The database should also contain an `__EFMigrationsHistory` table.
+You should see `20260918090705_InitialMySqlSchema`, `20260918133713_AddAcademicTermsAndCourses`, and `20260918145307_SeedDistinctSemesterCourses` in the project migration list. The database should also contain an `__EFMigrationsHistory` table. The last migration adds nine distinct courses to each fixed semester for every department.
 
 ## 5. Verify the database connection
 
