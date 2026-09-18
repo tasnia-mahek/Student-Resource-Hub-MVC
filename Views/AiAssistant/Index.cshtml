@@ -64,32 +64,6 @@
                     <span class="ai-msg-time">Just now</span>
                 </div>
             </div>
-
-            <!-- Demo User Inquiry -->
-            <div class="ai-message ai-message-user">
-                <div class="ai-msg-avatar">👤</div>
-                <div class="ai-msg-bubble">
-                    <div class="ai-msg-sender">YOU</div>
-                    <p>What resources are available for first-year Computer Science students?</p>
-                    <span class="ai-msg-time">Just now</span>
-                </div>
-            </div>
-
-            <!-- Demo Bot Reply -->
-            <div class="ai-message ai-message-bot">
-                <div class="ai-msg-avatar">✨</div>
-                <div class="ai-msg-bubble">
-                    <div class="ai-msg-sender">STUDYHUB AI</div>
-                    <p>For first-year Computer Science students, you have access to verified course materials in the hub:</p>
-                    <ul>
-                        <li><strong>Structured Programming (CSE 110):</strong> Approved past papers from 2021–2025 and curated lecture slide sets.</li>
-                        <li><strong>Calculus &amp; Analytical Geometry (MAT 101):</strong> Comprehensive problem sets and student notes.</li>
-                        <li><strong>English &amp; Communication (ENG 101):</strong> Writing guides and presentation templates.</li>
-                    </ul>
-                    <p>Tip: You can also explore the <strong>First-Year Starter Kit</strong> from the left sidebar to see all subjects organized by your intake semester!</p>
-                    <span class="ai-msg-time">Just now</span>
-                </div>
-            </div>
         </div>
 
         <!-- Suggested Prompt Chips -->
@@ -138,13 +112,13 @@
         const clearBtn = document.getElementById("clearChatBtn");
         const chips = document.querySelectorAll(".ai-prompt-chip");
 
-        // Click on suggested prompt chip
+        // Click on suggested prompt chip immediately triggers search
         chips.forEach(chip => {
             chip.addEventListener("click", function () {
                 const promptText = this.getAttribute("data-prompt");
                 if (promptText) {
                     input.value = promptText;
-                    input.focus();
+                    handleSend();
                 }
             });
         });
@@ -164,14 +138,14 @@
             chatArea.scrollTop = chatArea.scrollHeight;
         }
 
-        function appendBotMessage(text) {
+        function appendBotMessage(contentHtml) {
             const msgDiv = document.createElement("div");
             msgDiv.className = "ai-message ai-message-bot";
             msgDiv.innerHTML = `
                 <div class="ai-msg-avatar">✨</div>
                 <div class="ai-msg-bubble">
                     <div class="ai-msg-sender">STUDYHUB AI</div>
-                    <p>${text}</p>
+                    <div>${contentHtml}</div>
                     <span class="ai-msg-time">Just now</span>
                 </div>
             `;
@@ -179,17 +153,70 @@
             chatArea.scrollTop = chatArea.scrollHeight;
         }
 
-        function handleSend() {
+        function showTypingIndicator() {
+            const typingDiv = document.createElement("div");
+            typingDiv.className = "ai-message ai-message-bot";
+            typingDiv.id = "aiTypingIndicator";
+            typingDiv.innerHTML = `
+                <div class="ai-msg-avatar">✨</div>
+                <div class="ai-msg-bubble">
+                    <div class="ai-msg-sender">STUDYHUB AI</div>
+                    <div style="display: flex; align-items: center; gap: 8px; color: #9ca3af; font-size: 0.88rem; padding: 2px 0;">
+                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00ff66; box-shadow: 0 0 8px #00ff66;"></span>
+                        Searching database through ApplicationDbContext...
+                    </div>
+                </div>
+            `;
+            chatArea.appendChild(typingDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById("aiTypingIndicator");
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        async function handleSend() {
             const text = input.value.trim();
             if (!text) return;
 
             appendUserMessage(text);
             input.value = "";
+            input.disabled = true;
+            sendBtn.disabled = true;
 
-            // Static placeholder response for Step 1
-            setTimeout(() => {
-                appendBotMessage("Thanks for your question! The AI assistant backend is currently in preview mode. Full database-driven resource answering and course search capabilities will be enabled in the next update.");
-            }, 600);
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('/AiAssistant/Query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ query: text })
+                });
+
+                removeTypingIndicator();
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const replyHtml = data.reply || data.Reply || "<p>I searched the database, but received an empty response.</p>";
+                    appendBotMessage(replyHtml);
+                } else {
+                    appendBotMessage("<p style=\"color: #f43f5e;\">Sorry, I encountered an issue querying the course database. Please try again.</p>");
+                }
+            } catch (err) {
+                removeTypingIndicator();
+                console.error("AI assistant search error:", err);
+                appendBotMessage("<p style=\"color: #f43f5e;\">A network error occurred while connecting to the database search service. Please check your connection and try again.</p>");
+            } finally {
+                input.disabled = false;
+                sendBtn.disabled = false;
+                input.focus();
+            }
         }
 
         sendBtn.addEventListener("click", handleSend);
