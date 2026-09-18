@@ -35,6 +35,7 @@ namespace student_resource_hub.Controllers
         private static readonly HashSet<string> ResourceIndicatorWords = new(StringComparer.OrdinalIgnoreCase)
         {
             "paper", "papers", "pastpaper", "pastpapers", "question", "questions",
+            "past", "previous", "prior", "old", "solution", "solutions", "solve", "solved",
             "note", "notes", "handout", "handouts",
             "lecture", "lectures", "slide", "slides", "recording", "recordings",
             "video", "videos", "presentation", "presentations", "deck", "decks"
@@ -231,15 +232,22 @@ namespace student_resource_hub.Controllers
             }
 
             // D. Extract Course Code (e.g. CSE 110, CSE-110, CSE110, MAT 101, EEE 201)
-            var courseCodeMatch = Regex.Match(query, @"\b([A-Za-z]{2,5})\s*[-_]?\s*(\d{3,4}[A-Za-z]?)\b");
-            if (courseCodeMatch.Success)
+            var courseMatches = Regex.Matches(query, @"\b([A-Za-z]{2,5})\s*[-_]?\s*(\d{3,4}[A-Za-z]?)\b");
+            foreach (Match cm in courseMatches)
             {
-                intent.DeptLetters = courseCodeMatch.Groups[1].Value.ToUpperInvariant();
-                intent.CourseNumber = courseCodeMatch.Groups[2].Value.ToUpperInvariant();
-                intent.CanonicalCourseCode = $"{intent.DeptLetters} {intent.CourseNumber}";
-                intent.CompactCourseCode = $"{intent.DeptLetters}{intent.CourseNumber}";
+                var dept = cm.Groups[1].Value.ToUpperInvariant();
+                var num = cm.Groups[2].Value.ToUpperInvariant();
+                if (!FillerWords.Contains(dept) && !ResourceIndicatorWords.Contains(dept))
+                {
+                    intent.DeptLetters = dept;
+                    intent.CourseNumber = num;
+                    intent.CanonicalCourseCode = $"{dept} {num}";
+                    intent.CompactCourseCode = $"{dept}{num}";
+                    break;
+                }
             }
-            else
+
+            if (string.IsNullOrEmpty(intent.CanonicalCourseCode))
             {
                 // Fallback: standalone 3-digit course number (avoiding 4-digit years)
                 var numOnlyMatch = Regex.Match(query, @"\b(\d{3})\b");
