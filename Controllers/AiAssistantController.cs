@@ -130,18 +130,24 @@ namespace student_resource_hub.Controllers
                 return response;
             }
 
-            // 3. Parse user intent and extract all entities
+            // 3. Classify intent: Explicit resource request vs General/Open-ended vs Hybrid
+            bool isResource = IsExplicitResourceRequest(query);
+            bool isGeneral = IsExplanationOrGeneralQuery(query);
+
+            // Case 1: Open-ended questions and general conversation MUST go directly to Gemini WITHOUT searching ApplicationDbContext first!
+            if (isGeneral && !isResource)
+            {
+                var aiReply = await _geminiService.GenerateAnswerAsync(query);
+                response.Reply = aiReply;
+                response.TotalMatches = 0;
+                return response;
+            }
+
+            // 4. Parse user intent and extract all entities for resource retrieval
             var intent = ParseQueryIntent(query);
 
-            // 4. Determine request nature: Resource-only, General-only, or Hybrid
-            // General/explanation intent keywords
-            bool hasGeneralIntent = IsGeneralOrExplanationQuery(query);
-
-            // Resource search intent keywords or presence of explicit resource preferences / course code
-            bool hasResourceIntent = intent.HasExplicitResourceIntent();
-
-            // Hybrid: Needs both Gemini explanation and SQL Server database search
-            if (hasGeneralIntent && hasResourceIntent)
+            // Case 2: Hybrid requests that explicitly ask for both an explanation and resources: Gemini + DB
+            if (isGeneral && isResource)
             {
                 // A. Generate conceptual answer from Gemini
                 var geminiReply = await _geminiService.GenerateAnswerAsync(query);
@@ -175,16 +181,16 @@ namespace student_resource_hub.Controllers
                 return response;
             }
 
-            // Resource-only: Search existing SQL Server database
-            if (hasResourceIntent && !hasGeneralIntent)
+            // Case 3: Resource-only: Search existing SQL Server database
+            if (isResource)
             {
                 await RouteDatabaseSearchAsync(response, intent);
                 return response;
             }
 
-            // General questions / conversation / explanation: Route to Gemini
-            var aiReply = await _geminiService.GenerateAnswerAsync(query);
-            response.Reply = aiReply;
+            // Fallback: Open-ended questions go directly to Gemini WITHOUT searching ApplicationDbContext first
+            var fallbackReply = await _geminiService.GenerateAnswerAsync(query);
+            response.Reply = fallbackReply;
             response.TotalMatches = 0;
             return response;
         }
@@ -210,30 +216,52 @@ namespace student_resource_hub.Controllers
             }
         }
 
-        private static bool IsGeneralOrExplanationQuery(string query)
+        private static bool IsExplicitResourceRequest(string query)
         {
-            var q = query.Trim().ToLowerInvariant();
+            // 1. Explicit resource terms (papers, notes, lectures, videos, slides, study materials)
+            if (Regex.IsMatch(query, @"(?i)\b(past\s*papers?|pastpapers?|question\s*papers?|exam\s*papers?|previous\s*papers?|papers?|exams?|midterms?|finals?|quiz|quizzes|notes?|handouts?|cheatsheets?|cheat\s*sheets?|lectures?|slides?|recordings?|videos?|decks?|study\s*materials?|course\s*materials?|materials?|resources?)\b"))
+            {
+                return true;
+            }
+
+            // 2. Explicit repository inquiry actions: "do you have anything about/on", "do you have any", "download"
+            if (Regex.IsMatch(query, @"(?i)\b(do\s+you\s+have\s+anything\s+(about|on)|do\s+you\s+have\s+any|download)\b"))
+            {
+                return true;
+            }
+
+            // 3. Direct course code search (e.g. "CSE 110", "MAT 101") combined with retrieval words
+            var courseMatch = Regex.Match(query, @"(?i)\b([A-Za-z]{2,5})\s*[-_]?\s*(\d{3,4}[A-Za-z]?)\b");
+            if (courseMatch.Success)
+            {
+                var dept = courseMatch.Groups[1].Value.ToUpperInvariant();
+                if (!FillerWords.Contains(dept) && dept != "WHAT" && dept != "HOW" && dept != "WHY" && dept != "WHEN" && dept != "WHO" && dept != "CAN")
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsExplanationOrGeneralQuery(string query)
+        {
+            var q = query.Trim();
 
             // Conversational triggers
-            if (ContainsAny(q, "who are you", "what can you do", "introduce yourself", "how are you"))
+            if (Regex.IsMatch(q, @"(?i)\b(how are you|who are you|what can you do|introduce yourself|hello|hi|hey)\b"))
             {
                 return true;
             }
 
-            // Explanation / definition / code triggers
-            if (ContainsAny(q,
-                "explain", "what is", "what are", "what does", "how does", "how do",
-                "why does", "why is", "why do", "tell me about", "describe", "definition of",
-                "difference between", "compare", "write code", "write a program", "write a script",
-                "write a function", "how can i", "how to solve", "can you explain", "could you explain",
-                "solve this", "help me understand", "give me code", "sample code", "implementation of"))
+            // Explanations, definitions, instructions, code
+            if (Regex.IsMatch(q, @"(?i)\b(explain|describe|definition of|define|difference between|compare|what is|what are|what does|how does|how do|why does|why is|why do|write code|write a program|write a script|write a function|how to solve|can you explain|could you explain|solve this|help me understand|tell me about)\b"))
             {
                 return true;
             }
 
-            // Questions starting with question words without file action words
-            if ((q.StartsWith("what ") || q.StartsWith("how ") || q.StartsWith("why ") || q.StartsWith("when ") || q.StartsWith("can you "))
-                && !ContainsAny(q, "do you have", "give me", "find", "show me", "download", "past paper", "papers"))
+            // Starts with question words (what, how, why, when, who, can you)
+            if (Regex.IsMatch(q, @"(?i)^(what|how|why|when|who|can you)\b"))
             {
                 return true;
             }
@@ -260,41 +288,6 @@ namespace student_resource_hub.Controllers
             public string? TopicOrSubject { get; set; }
             public string? TopicStem { get; set; }
             public List<string> TopicWords { get; set; } = new();
-
-            public bool HasExplicitResourceIntent()
-            {
-                if (WantsPastPapers || WantsNotes || WantsLectures || IsGeneralStudyMaterial)
-                {
-                    return true;
-                }
-
-                if (!string.IsNullOrEmpty(CanonicalCourseCode))
-                {
-                    return true;
-                }
-
-                if (Year.HasValue || Semester.HasValue || !string.IsNullOrEmpty(ExamType))
-                {
-                    return true;
-                }
-
-                // Explicit retrieval requests
-                if (ContainsAny(RawQuery,
-                    "give me", "find the", "find me", "show me", "need", "want",
-                    "do you have", "download", "search for", "look for", "looking for",
-                    "past paper", "notes", "lectures", "slides", "study material", "materials"))
-                {
-                    return true;
-                }
-
-                // If user entered just a subject name without conversational/explanation triggers
-                if (!string.IsNullOrEmpty(TopicOrSubject) && !IsGeneralOrExplanationQuery(RawQuery))
-                {
-                    return true;
-                }
-
-                return false;
-            }
 
             public string GetDisplayTarget()
             {
