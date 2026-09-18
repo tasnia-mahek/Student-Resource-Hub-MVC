@@ -108,11 +108,8 @@
                         <label asp-for="AcademicSemesterId">Semester *</label>
                         <select id="AcademicSemesterId" asp-for="AcademicSemesterId" class="form-control" required>
                             <option value="">-- Select Semester --</option>
-                            @foreach (var sem in Model.Semesters)
-                            {
-                                <option value="@sem.Id" data-department="@sem.DepartmentId">@sem.Name</option>
-                            }
                         </select>
+                        <template id="semesterOptions">@foreach (var sem in Model.Semesters) { <option value="@sem.Id" data-department="@sem.DepartmentId">@sem.Name</option> }</template>
                         <span asp-validation-for="AcademicSemesterId" class="text-danger"></span>
                     </div>
                 </div>
@@ -164,25 +161,25 @@
 
 
 <script>
-
-<script>
     const paperDepartment = document.getElementById('AcademicDepartmentId');
     const paperSemester = document.getElementById('AcademicSemesterId');
-    const paperSemesters = Array.from(paperSemester.options).slice(1).map(option => ({ value: option.value, text: option.text, department: option.dataset.department }));
+    const paperSemesters = Array.from(document.getElementById('semesterOptions').content.querySelectorAll('option')).map(option => ({ value: option.value, text: option.text, department: option.dataset.department }));
     function refreshPaperSemesters() {
         paperSemester.innerHTML = '<option value="">-- Select Semester --</option>';
         paperSemesters.filter(item => item.department === paperDepartment.value).forEach(item => paperSemester.add(new Option(item.text, item.value)));
     }
     paperDepartment.addEventListener('change', refreshPaperSemesters);
     refreshPaperSemesters();
-</script>
+
     const fileInput = document.getElementById('File');
     const fileUploadArea = document.getElementById('fileUploadArea');
     const fileSelected = document.getElementById('fileSelected');
     const fileName = document.getElementById('fileName');
     const fileSize = document.getElementById('fileSize');
 
-    fileUploadArea.addEventListener('click', () => fileInput.click());
+    fileUploadArea.addEventListener('click', (event) => {
+        if (event.target !== fileInput) fileInput.click();
+    });
     fileUploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         fileUploadArea.classList.add('dragover');
@@ -194,10 +191,13 @@
 
     fileUploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         fileUploadArea.classList.remove('dragover');
         const files = e.dataTransfer.files;
         if (files.length > 0) {
-            fileInput.files = files;
+            const transfer = new DataTransfer();
+            transfer.items.add(files[0]);
+            fileInput.files = transfer.files;
             updateFileDisplay(files[0]);
         }
     });

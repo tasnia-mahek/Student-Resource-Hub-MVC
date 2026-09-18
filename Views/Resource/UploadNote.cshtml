@@ -85,11 +85,8 @@
                         <label asp-for="AcademicSemesterId">Semester *</label>
                         <select asp-for="AcademicSemesterId" class="form-control">
                             <option value="">-- Select Semester --</option>
-                            @foreach (var sem in Model.Semesters)
-                            {
-                                <option value="@sem.Id" data-department="@sem.DepartmentId">@sem.Name</option>
-                            }
                         </select>
+                        <template id="semesterOptions">@foreach (var sem in Model.Semesters) { <option value="@sem.Id" data-department="@sem.DepartmentId">@sem.Name</option> }</template>
                         <span asp-validation-for="AcademicSemesterId" class="text-danger"></span>
                     </div>
                 </div>
@@ -141,7 +138,9 @@
     const fileName = document.getElementById('fileName');
     const fileSize = document.getElementById('fileSize');
 
-    fileUploadArea.addEventListener('click', () => fileInput.click());
+    fileUploadArea.addEventListener('click', (event) => {
+        if (event.target !== fileInput) fileInput.click();
+    });
     fileUploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         fileUploadArea.classList.add('dragover');
@@ -153,10 +152,13 @@
 
     fileUploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         fileUploadArea.classList.remove('dragover');
         const files = e.dataTransfer.files;
         if (files.length > 0) {
-            fileInput.files = files;
+            const transfer = new DataTransfer();
+            transfer.items.add(files[0]);
+            fileInput.files = transfer.files;
             updateFileDisplay(files[0]);
         }
     });
@@ -179,7 +181,7 @@
 <script>
     const noteDepartment = document.getElementById('AcademicDepartmentId');
     const noteSemester = document.getElementById('AcademicSemesterId');
-    const noteSemesters = Array.from(noteSemester.options).slice(1).map(option => ({ value: option.value, text: option.text, department: option.dataset.department }));
+    const noteSemesters = Array.from(document.getElementById('semesterOptions').content.querySelectorAll('option')).map(option => ({ value: option.value, text: option.text, department: option.dataset.department }));
     function refreshNoteSemesters() {
         noteSemester.innerHTML = '<option value="">-- Select Semester --</option>';
         noteSemesters.filter(item => item.department === noteDepartment.value).forEach(item => noteSemester.add(new Option(item.text, item.value)));

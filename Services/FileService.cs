@@ -22,7 +22,8 @@ namespace student_resource_hub.Services
             ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt", ".txt",
             ".jpg", ".jpeg", ".png", ".gif", ".mp4", ".m4v", ".mov", ".avi",
             ".wmv", ".mkv", ".webm", ".flv", ".f4v", ".3gp", ".3g2", ".ogv",
-            ".ts", ".mts", ".m2ts", ".vob", ".asf"
+            ".ts", ".mts", ".m2ts", ".vob", ".asf", ".mpg", ".mpeg", ".mpe",
+            ".mp2", ".mxf", ".rm", ".rmvb"
         };
 
         public FileService(IWebHostEnvironment env, ILogger<FileService> logger)
@@ -101,7 +102,7 @@ namespace student_resource_hub.Services
                     return false;
                 }
 
-                string fullPath = Path.Combine(_env.WebRootPath, filePath.TrimStart('/').Replace("/", "\\"));
+                string fullPath = Path.Combine(_env.WebRootPath, filePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
 
                 if (!File.Exists(fullPath))
                 {
@@ -124,7 +125,7 @@ namespace student_resource_hub.Services
         {
             try
             {
-                string fullPath = Path.Combine(_env.WebRootPath, filePath.TrimStart('/').Replace("/", "\\"));
+                string fullPath = Path.Combine(_env.WebRootPath, filePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
 
                 if (!File.Exists(fullPath))
                 {
@@ -178,6 +179,13 @@ namespace student_resource_hub.Services
                 ".m2ts" => "video/mp2t",
                 ".vob" => "video/dvd",
                 ".asf" => "video/x-ms-asf",
+                ".mpg" => "video/mpeg",
+                ".mpeg" => "video/mpeg",
+                ".mpe" => "video/mpeg",
+                ".mp2" => "video/mpeg",
+                ".mxf" => "application/mxf",
+                ".rm" => "application/vnd.rn-realmedia",
+                ".rmvb" => "application/vnd.rn-realmedia-vbr",
                 _ => "application/octet-stream"
             };
         }

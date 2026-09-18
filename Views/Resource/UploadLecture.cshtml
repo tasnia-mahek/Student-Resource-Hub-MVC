@@ -91,11 +91,8 @@
                         <label asp-for="AcademicSemesterId">Semester *</label>
                         <select asp-for="AcademicSemesterId" class="form-control">
                             <option value="">-- Select Semester --</option>
-                            @foreach (var sem in Model.Semesters)
-                            {
-                                <option value="@sem.Id" data-department="@sem.DepartmentId">@sem.Name</option>
-                            }
                         </select>
+                        <template id="semesterOptions">@foreach (var sem in Model.Semesters) { <option value="@sem.Id" data-department="@sem.DepartmentId">@sem.Name</option> }</template>
                         <span asp-validation-for="AcademicSemesterId" class="text-danger"></span>
                     </div>
                 </div>
@@ -105,11 +102,11 @@
                 <h3>File Upload</h3>
 
                 <div class="file-upload-area" id="fileUploadArea">
-                    <input type="file" id="File" name="File" asp-for="File" accept=".mp4,.m4v,.mov,.avi,.wmv,.mkv,.webm,.flv,.f4v,.3gp,.3g2,.ogv,.ts,.mts,.m2ts,.vob,.asf" class="file-input" />
+                    <input type="file" id="File" name="File" asp-for="File" accept=".mp4,.m4v,.mov,.avi,.wmv,.mkv,.webm,.flv,.f4v,.3gp,.3g2,.ogv,.ts,.mts,.m2ts,.vob,.asf,.mpg,.mpeg,.mpe,.mp2,.mxf,.rm,.rmvb" class="file-input" />
                     <div class="file-upload-text">
                         <span class="upload-icon">📦</span>
                         <p>Drag and drop your lecture file here or click to browse</p>
-                        <small>Supported video formats: MP4, M4V, MOV, AVI, WMV, MKV, WebM, FLV, 3GP, OGV, TS, MTS, M2TS, VOB, ASF. No application size limit.</small>
+                        <small>Supported video formats: MP4, M4V, MOV, AVI, WMV, MKV, WebM, FLV, 3GP, OGV, TS, MTS, M2TS, VOB, ASF, MPG, MPEG, MXF, RM, RMVB. No application size limit.</small>
                     </div>
                 </div>
 
@@ -147,7 +144,9 @@
     const fileName = document.getElementById('fileName');
     const fileSize = document.getElementById('fileSize');
 
-    fileUploadArea.addEventListener('click', () => fileInput.click());
+    fileUploadArea.addEventListener('click', (event) => {
+        if (event.target !== fileInput) fileInput.click();
+    });
     fileUploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         fileUploadArea.classList.add('dragover');
@@ -159,10 +158,13 @@
 
     fileUploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         fileUploadArea.classList.remove('dragover');
         const files = e.dataTransfer.files;
         if (files.length > 0) {
-            fileInput.files = files;
+            const transfer = new DataTransfer();
+            transfer.items.add(files[0]);
+            fileInput.files = transfer.files;
             updateFileDisplay(files[0]);
         }
     });
@@ -185,7 +187,7 @@
 <script>
     const lectureDepartment = document.getElementById('AcademicDepartmentId');
     const lectureSemester = document.getElementById('AcademicSemesterId');
-    const lectureSemesters = Array.from(lectureSemester.options).slice(1).map(option => ({ value: option.value, text: option.text, department: option.dataset.department }));
+    const lectureSemesters = Array.from(document.getElementById('semesterOptions').content.querySelectorAll('option')).map(option => ({ value: option.value, text: option.text, department: option.dataset.department }));
     function refreshLectureSemesters() {
         lectureSemester.innerHTML = '<option value="">-- Select Semester --</option>';
         lectureSemesters.filter(item => item.department === lectureDepartment.value).forEach(item => lectureSemester.add(new Option(item.text, item.value)));
