@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -12,6 +13,7 @@ namespace student_resource_hub.Services
         private readonly ILogger<GeminiService> _logger;
 
         private const string DefaultModel = "gemini-3.8-flash";
+        private const string TemporaryServiceFallbackModel = "gemini-3.7-flash";
 
         public GeminiService(
             HttpClient httpClient,
@@ -94,14 +96,15 @@ namespace student_resource_hub.Services
 
         public async Task<string> GenerateAnswerAsync(string prompt, string? systemContext = null)
         {
-            if (!IsConfigured)
+            var apiKey = GetApiKey();
+            if (string.IsNullOrWhiteSpace(apiKey) ||
+                apiKey.Equals("YOUR_GEMINI_API_KEY", StringComparison.OrdinalIgnoreCase) ||
+                apiKey.Equals("YOUR_API_KEY_HERE", StringComparison.OrdinalIgnoreCase))
             {
                 return GetMissingConfigurationMessage();
             }
 
-            var apiKey = GetApiKey();
-            var model = GetNormalizedModelName();
-            var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
+            var primaryModel = GetNormalizedModelName();
 
             var systemInstructionText = "You are StudyHub AI Copilot, an expert university academic assistant. " +
                                        "Help students understand concepts, solve problems, prepare for exams, and answer questions thoroughly yet concisely. " +
@@ -142,21 +145,33 @@ namespace student_resource_hub.Services
 
             try
             {
-                var jsonContent = new StringContent(
-                    JsonSerializer.Serialize(requestPayload),
-                    Encoding.UTF8,
-                    "application/json");
+                var requestJson = JsonSerializer.Serialize(requestPayload);
+                var modelUsed = primaryModel;
+                var (statusCode, responseBody) = await GenerateContentAsync(primaryModel, apiKey, requestJson);
 
-                using var requestMessage = new HttpRequestMessage(HttpMethod.Post, requestUrl);
-                requestMessage.Content = jsonContent;
-                requestMessage.Headers.Add("x-goog-api-key", apiKey);
-
-                var response = await _httpClient.SendAsync(requestMessage);
-                var responseBody = await response.Content.ReadAsStringAsync();
-
-                if (!response.IsSuccessStatusCode)
+                // Only retry on the temporary service-unavailable response. Other failures are
+                // returned to the caller unchanged and never trigger a database search.
+                if (statusCode == HttpStatusCode.ServiceUnavailable &&
+                    !primaryModel.Equals(TemporaryServiceFallbackModel, StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogWarning("Gemini API call failed with status {StatusCode}: {ResponseBody}", response.StatusCode, responseBody);
+                    _logger.LogWarning(
+                        "Gemini model {Model} returned HTTP {StatusCode}; retrying once with {FallbackModel}.",
+                        primaryModel,
+                        (int)statusCode,
+                        TemporaryServiceFallbackModel);
+
+                    modelUsed = TemporaryServiceFallbackModel;
+                    (statusCode, responseBody) = await GenerateContentAsync(modelUsed, apiKey, requestJson);
+                }
+
+                _logger.LogInformation(
+                    "Gemini request completed using model {Model} with HTTP {StatusCode}.",
+                    modelUsed,
+                    (int)statusCode);
+
+                if ((int)statusCode < 200 || (int)statusCode > 299)
+                {
+                    _logger.LogWarning("Gemini API call failed using model {Model} with HTTP {StatusCode}.", modelUsed, (int)statusCode);
 
                     try
                     {
@@ -201,6 +216,22 @@ namespace student_resource_hub.Services
                 _logger.LogError(ex, "Unexpected error communicating with Gemini AI.");
                 return "<p style=\"color: #f43f5e;\">An unexpected error occurred while communicating with Gemini AI.</p>";
             }
+        }
+
+        private async Task<(HttpStatusCode StatusCode, string ResponseBody)> GenerateContentAsync(
+            string model,
+            string apiKey,
+            string requestJson)
+        {
+            var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
+            using var requestMessage = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+            {
+                Content = new StringContent(requestJson, Encoding.UTF8, "application/json")
+            };
+            requestMessage.Headers.Add("x-goog-api-key", apiKey);
+
+            using var response = await _httpClient.SendAsync(requestMessage);
+            return (response.StatusCode, await response.Content.ReadAsStringAsync());
         }
 
         private static string FormatGeminiOutput(string rawText)
