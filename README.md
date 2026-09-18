@@ -1,5 +1,7 @@
 # Student Resource Hub
 
+For the complete Windows/MySQL setup from a fresh machine, see [DATABASE_SETUP.md](DATABASE_SETUP.md).
+
 ## MySQL setup
 
 This project uses Pomelo Entity Framework Core with MySQL. Create a MySQL database and configure the connection locally with User Secrets:
