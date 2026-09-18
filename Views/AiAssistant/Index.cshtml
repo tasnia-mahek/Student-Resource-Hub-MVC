@@ -48,17 +48,17 @@
         <!-- Chat Message Area -->
         <div class="ai-chat-body" id="chatMessageArea">
             <!-- Bot Message: Welcome -->
-            <div class="ai-message ai-message-bot">
+            <div class="ai-message ai-message-bot" id="defaultWelcomeMessage">
                 <div class="ai-msg-avatar">✨</div>
                 <div class="ai-msg-bubble">
                     <div class="ai-msg-sender">STUDYHUB AI</div>
                     <p>Hello, <strong>@(User.Identity?.Name ?? "Scholar")</strong>! 🎓 Welcome to your AI Study Assistant.</p>
-                    <p>I can help you navigate your semester with ease. Here are some things you can ask me:</p>
+                    <p>I can help you navigate your semester with ease across all course materials. Here are some things you can ask me:</p>
                     <ul>
-                        <li>Find past papers and solutions for specific courses (e.g., <em>CSE 110</em>, <em>MAT 101</em>)</li>
-                        <li>Recommend top-rated study notes and lecture slides</li>
-                        <li>Guide you through your <strong>First-Year Starter Kit</strong> subjects</li>
-                        <li>Provide study strategies and exam preparation techniques</li>
+                        <li>Find past papers (e.g., <em>"give me Industrial Law past papers"</em>, <em>"find the 2025 CSE 110 final"</em>)</li>
+                        <li>Search notes (e.g., <em>"I need CSE 110 notes"</em>)</li>
+                        <li>Look for lectures &amp; slides (e.g., <em>"show me Database lectures"</em>)</li>
+                        <li>Ask about any topic (e.g., <em>"do you have anything about recursion?"</em>, <em>"I need study materials for networking"</em>)</li>
                     </ul>
                     <p>Try clicking one of the suggested prompts below or type your own question!</p>
                     <span class="ai-msg-time">Just now</span>
@@ -73,17 +73,23 @@
                 SUGGESTED PROMPTS
             </div>
             <div class="ai-chips-list">
-                <button type="button" class="ai-prompt-chip" data-prompt="Find past papers for CSE 110">
-                    📄 Find past papers for CSE 110
+                <button type="button" class="ai-prompt-chip" data-prompt="give me Industrial Law past papers">
+                    📄 Industrial Law past papers
                 </button>
-                <button type="button" class="ai-prompt-chip" data-prompt="What notes are available for Calculus?">
-                    📝 Notes for Calculus
+                <button type="button" class="ai-prompt-chip" data-prompt="I need CSE 110 notes">
+                    📝 CSE 110 notes
                 </button>
-                <button type="button" class="ai-prompt-chip" data-prompt="How do I use the First-Year Starter Kit?">
-                    🎓 First-Year Starter Kit guide
+                <button type="button" class="ai-prompt-chip" data-prompt="show me Database lectures">
+                    🎥 Database lectures
                 </button>
-                <button type="button" class="ai-prompt-chip" data-prompt="Give me 5 study tips for midterm exam preparation">
-                    💡 Midterm preparation tips
+                <button type="button" class="ai-prompt-chip" data-prompt="do you have anything about recursion?">
+                    🔍 Anything about recursion?
+                </button>
+                <button type="button" class="ai-prompt-chip" data-prompt="find the 2025 CSE 110 final">
+                    🎓 2025 CSE 110 final
+                </button>
+                <button type="button" class="ai-prompt-chip" data-prompt="I need study materials for networking">
+                    🌐 Study materials for networking
                 </button>
             </div>
         </div>
@@ -91,7 +97,7 @@
         <!-- Text Input & Send Action -->
         <div class="ai-input-area">
             <div class="ai-input-box">
-                <input type="text" id="aiUserInput" class="ai-chat-input" placeholder="Ask about courses, exams, past papers, or topics..." autocomplete="off" />
+                <input type="text" id="aiUserInput" class="ai-chat-input" placeholder="Ask about courses, exams, past papers, notes, or topics..." autocomplete="off" />
                 <button type="button" id="aiSendBtn" class="ai-send-btn" title="Send message">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -111,6 +117,87 @@
         const chatArea = document.getElementById("chatMessageArea");
         const clearBtn = document.getElementById("clearChatBtn");
         const chips = document.querySelectorAll(".ai-prompt-chip");
+        const welcomeMessageElement = document.getElementById("defaultWelcomeMessage");
+
+        const currentUsername = "@(User.Identity?.Name ?? "guest")";
+        const STORAGE_KEY = "studyhub_ai_chat_history_" + encodeURIComponent(currentUsername);
+
+        let chatHistory = [];
+
+        // Format user-facing timestamp
+        function formatCurrentTime() {
+            try {
+                return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return "Just now";
+            }
+        }
+
+        // Save conversation history to localStorage
+        function saveChatHistory() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+            } catch (e) {
+                console.warn("Unable to save chat history to localStorage", e);
+            }
+        }
+
+        // Render user message in DOM
+        function renderUserMessage(text, timeText) {
+            const msgDiv = document.createElement("div");
+            msgDiv.className = "ai-message ai-message-user";
+            msgDiv.innerHTML = `
+                <div class="ai-msg-avatar">👤</div>
+                <div class="ai-msg-bubble">
+                    <div class="ai-msg-sender">YOU</div>
+                    <p>${escapeHtml(text)}</p>
+                    <span class="ai-msg-time">${escapeHtml(timeText || "Just now")}</span>
+                </div>
+            `;
+            chatArea.appendChild(msgDiv);
+        }
+
+        // Render bot message in DOM
+        function renderBotMessage(contentHtml, timeText) {
+            const msgDiv = document.createElement("div");
+            msgDiv.className = "ai-message ai-message-bot";
+            msgDiv.innerHTML = `
+                <div class="ai-msg-avatar">✨</div>
+                <div class="ai-msg-bubble">
+                    <div class="ai-msg-sender">STUDYHUB AI</div>
+                    <div>${contentHtml}</div>
+                    <span class="ai-msg-time">${escapeHtml(timeText || "Just now")}</span>
+                </div>
+            `;
+            chatArea.appendChild(msgDiv);
+        }
+
+        // Load chat history from localStorage on initialization
+        function loadChatHistory() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        chatHistory = parsed;
+                        chatHistory.forEach(item => {
+                            if (item.role === 'user') {
+                                renderUserMessage(item.content, item.time);
+                            } else if (item.role === 'bot') {
+                                renderBotMessage(item.content, item.time);
+                            }
+                        });
+                        chatArea.scrollTop = chatArea.scrollHeight;
+                    }
+                }
+            } catch (e) {
+                console.warn("Could not load AI Assistant chat history from localStorage", e);
+                chatHistory = [];
+            }
+        }
+
+        // Initialize history
+        loadChatHistory();
 
         // Click on suggested prompt chip immediately triggers search
         chips.forEach(chip => {
@@ -122,36 +209,6 @@
                 }
             });
         });
-
-        function appendUserMessage(text) {
-            const msgDiv = document.createElement("div");
-            msgDiv.className = "ai-message ai-message-user";
-            msgDiv.innerHTML = `
-                <div class="ai-msg-avatar">👤</div>
-                <div class="ai-msg-bubble">
-                    <div class="ai-msg-sender">YOU</div>
-                    <p>${escapeHtml(text)}</p>
-                    <span class="ai-msg-time">Just now</span>
-                </div>
-            `;
-            chatArea.appendChild(msgDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-
-        function appendBotMessage(contentHtml) {
-            const msgDiv = document.createElement("div");
-            msgDiv.className = "ai-message ai-message-bot";
-            msgDiv.innerHTML = `
-                <div class="ai-msg-avatar">✨</div>
-                <div class="ai-msg-bubble">
-                    <div class="ai-msg-sender">STUDYHUB AI</div>
-                    <div>${contentHtml}</div>
-                    <span class="ai-msg-time">Just now</span>
-                </div>
-            `;
-            chatArea.appendChild(msgDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
 
         function showTypingIndicator() {
             const typingDiv = document.createElement("div");
@@ -182,10 +239,15 @@
             const text = input.value.trim();
             if (!text) return;
 
-            appendUserMessage(text);
+            const userTime = formatCurrentTime();
+            renderUserMessage(text, userTime);
+            chatHistory.push({ role: 'user', content: text, time: userTime });
+            saveChatHistory();
+
             input.value = "";
             input.disabled = true;
             sendBtn.disabled = true;
+            chatArea.scrollTop = chatArea.scrollHeight;
 
             showTypingIndicator();
 
@@ -201,21 +263,32 @@
 
                 removeTypingIndicator();
 
+                const botTime = formatCurrentTime();
                 if (response.ok) {
                     const data = await response.json();
                     const replyHtml = data.reply || data.Reply || "<p>I searched the database, but received an empty response.</p>";
-                    appendBotMessage(replyHtml);
+                    renderBotMessage(replyHtml, botTime);
+                    chatHistory.push({ role: 'bot', content: replyHtml, time: botTime });
+                    saveChatHistory();
                 } else {
-                    appendBotMessage("<p style=\"color: #f43f5e;\">Sorry, I encountered an issue querying the course database. Please try again.</p>");
+                    const errorHtml = "<p style=\"color: #f43f5e;\">Sorry, I encountered an issue querying the course database. Please try again.</p>";
+                    renderBotMessage(errorHtml, botTime);
+                    chatHistory.push({ role: 'bot', content: errorHtml, time: botTime });
+                    saveChatHistory();
                 }
             } catch (err) {
                 removeTypingIndicator();
                 console.error("AI assistant search error:", err);
-                appendBotMessage("<p style=\"color: #f43f5e;\">A network error occurred while connecting to the database search service. Please check your connection and try again.</p>");
+                const networkErrHtml = "<p style=\"color: #f43f5e;\">A network error occurred while connecting to the database search service. Please check your connection and try again.</p>";
+                const botTime = formatCurrentTime();
+                renderBotMessage(networkErrHtml, botTime);
+                chatHistory.push({ role: 'bot', content: networkErrHtml, time: botTime });
+                saveChatHistory();
             } finally {
                 input.disabled = false;
                 sendBtn.disabled = false;
                 input.focus();
+                chatArea.scrollTop = chatArea.scrollHeight;
             }
         }
 
@@ -229,11 +302,15 @@
         });
 
         clearBtn.addEventListener("click", function () {
-            // Keep only the initial welcome message
-            const welcomeMsg = chatArea.querySelector(".ai-message-bot");
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {
+                console.warn("Could not clear localStorage", e);
+            }
+            chatHistory = [];
             chatArea.innerHTML = "";
-            if (welcomeMsg) {
-                chatArea.appendChild(welcomeMsg);
+            if (welcomeMessageElement) {
+                chatArea.appendChild(welcomeMessageElement);
             }
         });
 
