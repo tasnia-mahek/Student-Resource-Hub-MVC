@@ -24,6 +24,7 @@ namespace student_resource_hub.ViewModels
         public int DownloadCount { get; set; }
         public int ViewCount { get; set; }
         public decimal? AverageRating { get; set; }
+        public string? Topics { get; set; }
     }
 
     public class AiQueryResponse
