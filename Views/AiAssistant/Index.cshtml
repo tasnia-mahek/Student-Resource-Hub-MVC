@@ -220,7 +220,7 @@
                     <div class="ai-msg-sender">STUDYHUB AI</div>
                     <div style="display: flex; align-items: center; gap: 8px; color: #9ca3af; font-size: 0.88rem; padding: 2px 0;">
                         <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00ff66; box-shadow: 0 0 8px #00ff66;"></span>
-                        Searching database through ApplicationDbContext...
+                        Thinking...
                     </div>
                 </div>
             `;
@@ -266,12 +266,12 @@
                 const botTime = formatCurrentTime();
                 if (response.ok) {
                     const data = await response.json();
-                    const replyHtml = data.reply || data.Reply || "<p>I searched the database, but received an empty response.</p>";
+                    const replyHtml = data.reply || data.Reply || "<p>I could not generate a response. Please try again.</p>";
                     renderBotMessage(replyHtml, botTime);
                     chatHistory.push({ role: 'bot', content: replyHtml, time: botTime });
                     saveChatHistory();
                 } else {
-                    const errorHtml = "<p style=\"color: #f43f5e;\">Sorry, I encountered an issue querying the course database. Please try again.</p>";
+                    const errorHtml = "<p style=\"color: #f43f5e;\">Sorry, I encountered an issue processing your request. Please try again.</p>";
                     renderBotMessage(errorHtml, botTime);
                     chatHistory.push({ role: 'bot', content: errorHtml, time: botTime });
                     saveChatHistory();
@@ -279,7 +279,7 @@
             } catch (err) {
                 removeTypingIndicator();
                 console.error("AI assistant search error:", err);
-                const networkErrHtml = "<p style=\"color: #f43f5e;\">A network error occurred while connecting to the database search service. Please check your connection and try again.</p>";
+                const networkErrHtml = "<p style=\"color: #f43f5e;\">A network error occurred while processing your request. Please check your connection and try again.</p>";
                 const botTime = formatCurrentTime();
                 renderBotMessage(networkErrHtml, botTime);
                 chatHistory.push({ role: 'bot', content: networkErrHtml, time: botTime });

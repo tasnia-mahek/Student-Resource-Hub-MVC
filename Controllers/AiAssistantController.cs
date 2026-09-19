@@ -130,12 +130,12 @@ namespace student_resource_hub.Controllers
                 return response;
             }
 
-            // 3. Classify intent: Explicit resource request vs General/Open-ended vs Hybrid
+            // 3. Only an explicit resource request is allowed to reach ApplicationDbContext.
             bool isResource = IsExplicitResourceRequest(query);
-            bool isGeneral = IsExplanationOrGeneralQuery(query);
 
-            // Case 1: Open-ended questions and general conversation MUST go directly to Gemini WITHOUT searching ApplicationDbContext first!
-            if (isGeneral && !isResource)
+            // General/open-ended queries go only to Gemini. Its error response is returned as-is;
+            // never reinterpret a Gemini failure as a request to search course resources.
+            if (!isResource)
             {
                 var aiReply = await _geminiService.GenerateAnswerAsync(query);
                 response.Reply = aiReply;
@@ -147,7 +147,7 @@ namespace student_resource_hub.Controllers
             var intent = ParseQueryIntent(query);
 
             // Case 2: Hybrid requests that explicitly ask for both an explanation and resources: Gemini + DB
-            if (isGeneral && isResource)
+            if (IsExplanationOrGeneralQuery(query))
             {
                 // A. Generate conceptual answer from Gemini
                 var geminiReply = await _geminiService.GenerateAnswerAsync(query);
@@ -181,17 +181,8 @@ namespace student_resource_hub.Controllers
                 return response;
             }
 
-            // Case 3: Resource-only: Search existing SQL Server database
-            if (isResource)
-            {
-                await RouteDatabaseSearchAsync(response, intent);
-                return response;
-            }
-
-            // Fallback: Open-ended questions go directly to Gemini WITHOUT searching ApplicationDbContext first
-            var fallbackReply = await _geminiService.GenerateAnswerAsync(query);
-            response.Reply = fallbackReply;
-            response.TotalMatches = 0;
+            // Case 3: Resource-only: search existing SQL Server database.
+            await RouteDatabaseSearchAsync(response, intent);
             return response;
         }
 
@@ -230,12 +221,13 @@ namespace student_resource_hub.Controllers
                 return true;
             }
 
-            // 3. Direct course code search (e.g. "CSE 110", "MAT 101") combined with retrieval words
+            // 3. A course code is a resource request only when paired with an explicit retrieval action.
             var courseMatch = Regex.Match(query, @"(?i)\b([A-Za-z]{2,5})\s*[-_]?\s*(\d{3,4}[A-Za-z]?)\b");
             if (courseMatch.Success)
             {
                 var dept = courseMatch.Groups[1].Value.ToUpperInvariant();
-                if (!FillerWords.Contains(dept) && dept != "WHAT" && dept != "HOW" && dept != "WHY" && dept != "WHEN" && dept != "WHO" && dept != "CAN")
+                if (!FillerWords.Contains(dept) &&
+                    Regex.IsMatch(query, @"(?i)\b(find|show|search|look\s+for|get|give\s+me|list|browse|download)\b"))
                 {
                     return true;
                 }
