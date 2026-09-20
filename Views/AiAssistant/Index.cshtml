@@ -1,21 +1,50 @@
 @{
     ViewData["Title"] = "AI Study Assistant";
+    var userName = User.Identity?.IsAuthenticated == true && !string.IsNullOrWhiteSpace(User.Identity.Name) 
+        ? User.Identity.Name 
+        : "Scholar";
 }
 
 <link rel="stylesheet" href="~/css/ai-assistant.css" asp-append-version="true" />
 
 <div class="ai-assistant-container">
-    <!-- Header / Hero Intro -->
-    <header class="ai-hero">
-        <span class="ai-badge">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2l2.4 5 5 2.4-5 2.4-2.4 5-2.4-5-5-2.4 5-2.4z"/>
-                <path d="M19 15l1.2 2.5 2.5 1.2-2.5 1.2-1.2 2.5-1.2-2.5-2.5-1.2 2.5-1.2z"/>
-            </svg>
-            AI STUDY ASSISTANT
-        </span>
-        <h1>StudyHub AI Copilot</h1>
-        <p>Your intelligent academic companion. Ask questions about your courses, discover relevant past papers, find study notes, and get personalized exam preparation guidance.</p>
+    <!-- Header / Hero Intro with Spark Mascot -->
+    <header class="ai-hero-spark">
+        <div class="ai-hero-spark-content">
+            <span class="ai-spark-badge">
+                <span class="spark-badge-glow-dot"></span>
+                <span class="spark-badge-text">STUDYHUB AI BUDDY</span>
+            </span>
+            <h1 class="ai-hero-title">Hey @userName, it’s Spark 💚</h1>
+            <p class="ai-hero-desc">Your StudyHub AI buddy — ask me anything about courses, papers, or notes.</p>
+            
+            <div class="ai-hero-feature-tags">
+                <span class="ai-feature-pill">
+                    <span class="feature-dot"></span> 24/7 Smart Companion
+                </span>
+                <span class="ai-feature-pill">
+                    <span class="feature-dot"></span> Past Papers &amp; Exams
+                </span>
+                <span class="ai-feature-pill">
+                    <span class="feature-dot"></span> Notes &amp; Course Materials
+                </span>
+            </div>
+        </div>
+
+        <div class="ai-hero-mascot-side">
+            <div class="spark-ambient-glow"></div>
+            <div class="spark-floating-sparks">
+                <span class="sparkle sp-1">✦</span>
+                <span class="sparkle sp-2">✦</span>
+                <span class="sparkle sp-3">✦</span>
+            </div>
+            <div class="spark-mascot-card" title="Hi! I'm Spark, your study buddy 💚">
+                <img src="~/images/firefly.svg" alt="Spark Firefly Mascot" class="spark-hero-mascot-img" />
+                <div class="spark-greeting-bubble">
+                    <span>Here to help! ✨</span>
+                </div>
+            </div>
+        </div>
     </header>
 
     <!-- Chat Interface Card -->
@@ -24,22 +53,25 @@
         <div class="ai-chat-header">
             <div class="ai-chat-header-left">
                 <div class="ai-avatar-header">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2l2.4 5 5 2.4-5 2.4-2.4 5-2.4-5-5-2.4 5-2.4z"/>
-                        <path d="M19 15l1.2 2.5 2.5 1.2-2.5 1.2-1.2 2.5-1.2-2.5-2.5-1.2 2.5-1.2z"/>
-                    </svg>
+                    <img src="~/images/firefly.svg" alt="Spark" class="ai-header-spark-icon" />
                 </div>
                 <div>
                     <h3 class="ai-chat-status-title">
-                        StudyHub Copilot
-                        <span class="ai-status-indicator" title="AI Service Online"></span>
+                        <span>Spark</span>
+                        <span class="spark-status-pill">
+                            <span class="ai-status-indicator" title="Spark is Online"></span>
+                            <span>Online</span>
+                        </span>
                     </h3>
-                    <p class="ai-chat-status-sub">Ready to help you excel this semester</p>
+                    <p class="ai-chat-status-sub">Ready to illuminate your study path</p>
                 </div>
             </div>
             <div class="ai-chat-header-actions">
-                <button type="button" class="ai-header-btn" id="clearChatBtn" title="Clear conversation">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <button type="button" class="ai-header-btn" id="clearChatBtn" title="Clear conversation history">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
                     <span>Clear Chat</span>
                 </button>
             </div>
@@ -47,26 +79,28 @@
 
         <!-- Chat Message Area -->
         <div class="ai-chat-body" id="chatMessageArea">
-            <!-- Bot Message: Welcome -->
+            <!-- Bot Message: Welcome with Mascot -->
             <div class="ai-message ai-message-bot" id="defaultWelcomeMessage">
-                <div class="ai-msg-avatar">✨</div>
+                <div class="ai-msg-avatar ai-spark-avatar-wrap">
+                    <img src="~/images/firefly.svg" alt="Spark" class="ai-spark-avatar-img" />
+                </div>
                 <div class="ai-msg-bubble">
-                    <div class="ai-msg-sender">STUDYHUB AI</div>
-                    <p>Hello, <strong>@(User.Identity?.Name ?? "Scholar")</strong>! 🎓 Welcome to your AI Study Assistant.</p>
-                    <p>I can help you navigate your semester with ease across all course materials. Here are some things you can ask me:</p>
-                    <ul>
-                        <li>Find past papers (e.g., <em>"give me Industrial Law past papers"</em>, <em>"find the 2025 CSE 110 final"</em>)</li>
-                        <li>Search notes (e.g., <em>"I need CSE 110 notes"</em>)</li>
-                        <li>Look for lectures &amp; slides (e.g., <em>"show me Database lectures"</em>)</li>
-                        <li>Ask about any topic (e.g., <em>"do you have anything about recursion?"</em>, <em>"I need study materials for networking"</em>)</li>
+                    <div class="ai-msg-sender">SPARK 💚</div>
+                    <p>Hello <strong>@userName</strong>! 🎓 Welcome to your study haven.</p>
+                    <p>I'm Spark, your firefly AI companion. I can help you understand tough concepts, locate approved past papers, find lecture notes, or guide your exam revision:</p>
+                    <ul class="spark-welcome-list">
+                        <li>📄 <strong>Find past exams:</strong> <em>"give me Industrial Law past papers"</em>, <em>"find the 2025 CSE 110 final"</em></li>
+                        <li>📝 <strong>Discover study notes:</strong> <em>"I need CSE 110 notes"</em></li>
+                        <li>🎥 <strong>Search video lectures:</strong> <em>"show me Database lectures"</em></li>
+                        <li>💡 <strong>Academic explanations:</strong> <em>"do you have anything about recursion?"</em>, <em>"explain binary search trees"</em></li>
                     </ul>
-                    <p>Try clicking one of the suggested prompts below or type your own question!</p>
+                    <p class="spark-welcome-footer">Tap any suggested prompt below or type your question — let's learn something awesome today! ✨</p>
                     <span class="ai-msg-time">Just now</span>
                 </div>
             </div>
         </div>
 
-        <!-- Suggested Prompt Chips -->
+        <!-- Suggested Prompt Chips (Rounded Pills) -->
         <div class="ai-suggestions-container">
             <div class="ai-suggestions-label">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
@@ -74,38 +108,53 @@
             </div>
             <div class="ai-chips-list">
                 <button type="button" class="ai-prompt-chip" data-prompt="give me Industrial Law past papers">
-                    📄 Industrial Law past papers
+                    <span class="chip-icon">📄</span>
+                    <span>Industrial Law past papers</span>
                 </button>
                 <button type="button" class="ai-prompt-chip" data-prompt="I need CSE 110 notes">
-                    📝 CSE 110 notes
+                    <span class="chip-icon">📝</span>
+                    <span>CSE 110 notes</span>
                 </button>
                 <button type="button" class="ai-prompt-chip" data-prompt="show me Database lectures">
-                    🎥 Database lectures
+                    <span class="chip-icon">🎥</span>
+                    <span>Database lectures</span>
                 </button>
                 <button type="button" class="ai-prompt-chip" data-prompt="do you have anything about recursion?">
-                    🔍 Anything about recursion?
+                    <span class="chip-icon">💡</span>
+                    <span>Anything about recursion?</span>
                 </button>
                 <button type="button" class="ai-prompt-chip" data-prompt="find the 2025 CSE 110 final">
-                    🎓 2025 CSE 110 final
+                    <span class="chip-icon">🎓</span>
+                    <span>2025 CSE 110 final</span>
                 </button>
                 <button type="button" class="ai-prompt-chip" data-prompt="I need study materials for networking">
-                    🌐 Study materials for networking
+                    <span class="chip-icon">🌐</span>
+                    <span>Study materials for networking</span>
                 </button>
             </div>
         </div>
 
-        <!-- Text Input & Send Action -->
+        <!-- Text Input & Send Action (Rounded Green Border) -->
         <div class="ai-input-area">
             <div class="ai-input-box">
-                <input type="text" id="aiUserInput" class="ai-chat-input" placeholder="Ask about courses, exams, past papers, notes, or topics..." autocomplete="off" />
-                <button type="button" id="aiSendBtn" class="ai-send-btn" title="Send message">
+                <div class="ai-input-spark-glyph" title="Ask Spark">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2l2.4 5 5 2.4-5 2.4-2.4 5-2.4-5-5-2.4 5-2.4z"/>
+                        <path d="M19 15l1.2 2.5 2.5 1.2-2.5 1.2-1.2 2.5-1.2-2.5-2.5-1.2 2.5-1.2z"/>
+                    </svg>
+                </div>
+                <input type="text" id="aiUserInput" class="ai-chat-input" placeholder="Ask Spark about courses, exams, past papers, notes, or topics..." autocomplete="off" />
+                <button type="button" id="aiSendBtn" class="ai-send-btn" title="Send message to Spark">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="22" y1="2" x2="11" y2="13"></line>
                         <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                     </svg>
                 </button>
             </div>
-            <p class="ai-disclaimer">StudyHub AI Copilot provides academic guidance based on your institution's catalog. Always verify exam specifics with your course syllabus.</p>
+            <div class="ai-disclaimer-row">
+                <span class="disclaimer-dot"></span>
+                <p class="ai-disclaimer">Spark provides guidance from your academic catalog. Always verify exam specifics with your course syllabus.</p>
+            </div>
         </div>
     </div>
 </div>
@@ -147,25 +196,29 @@
             const msgDiv = document.createElement("div");
             msgDiv.className = "ai-message ai-message-user";
             msgDiv.innerHTML = `
-                <div class="ai-msg-avatar">👤</div>
+                <div class="ai-msg-avatar ai-user-avatar">
+                    <span>👤</span>
+                </div>
                 <div class="ai-msg-bubble">
                     <div class="ai-msg-sender">YOU</div>
-                    <p>${escapeHtml(text)}</p>
+                    <div class="ai-user-text">${escapeHtml(text)}</div>
                     <span class="ai-msg-time">${escapeHtml(timeText || "Just now")}</span>
                 </div>
             `;
             chatArea.appendChild(msgDiv);
         }
 
-        // Render bot message in DOM
+        // Render bot message in DOM with Spark Mascot Avatar
         function renderBotMessage(contentHtml, timeText) {
             const msgDiv = document.createElement("div");
             msgDiv.className = "ai-message ai-message-bot";
             msgDiv.innerHTML = `
-                <div class="ai-msg-avatar">✨</div>
+                <div class="ai-msg-avatar ai-spark-avatar-wrap">
+                    <img src="/images/firefly.svg" alt="Spark" class="ai-spark-avatar-img" />
+                </div>
                 <div class="ai-msg-bubble">
-                    <div class="ai-msg-sender">STUDYHUB AI</div>
-                    <div>${contentHtml}</div>
+                    <div class="ai-msg-sender">SPARK 💚</div>
+                    <div class="ai-bot-content">${contentHtml}</div>
                     <span class="ai-msg-time">${escapeHtml(timeText || "Just now")}</span>
                 </div>
             `;
@@ -210,17 +263,24 @@
             });
         });
 
+        // Show Sleepy Mascot + Animated Bouncing Dots While Loading
         function showTypingIndicator() {
             const typingDiv = document.createElement("div");
-            typingDiv.className = "ai-message ai-message-bot";
+            typingDiv.className = "ai-message ai-message-bot ai-typing-indicator-row";
             typingDiv.id = "aiTypingIndicator";
             typingDiv.innerHTML = `
-                <div class="ai-msg-avatar">✨</div>
-                <div class="ai-msg-bubble">
-                    <div class="ai-msg-sender">STUDYHUB AI</div>
-                    <div style="display: flex; align-items: center; gap: 8px; color: #9ca3af; font-size: 0.88rem; padding: 2px 0;">
-                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00ff66; box-shadow: 0 0 8px #00ff66;"></span>
-                        Thinking...
+                <div class="ai-msg-avatar ai-spark-avatar-wrap ai-sleepy-avatar-wrap">
+                    <img src="/images/firefly-sleepy.svg" alt="Spark Thinking" class="spark-sleepy-img" />
+                </div>
+                <div class="ai-msg-bubble ai-typing-bubble">
+                    <div class="ai-msg-sender">SPARK 💚</div>
+                    <div class="ai-typing-status">
+                        <span class="ai-typing-text">Spark is thinking</span>
+                        <div class="ai-dots-bounce" aria-label="Loading">
+                            <span class="ai-dot dot-1"></span>
+                            <span class="ai-dot dot-2"></span>
+                            <span class="ai-dot dot-3"></span>
+                        </div>
                     </div>
                 </div>
             `;

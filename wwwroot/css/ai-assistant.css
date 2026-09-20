@@ -1,80 +1,211 @@
 /* ==========================================================================
    StudyHub - AI Study Assistant Stylesheet
-   Obsidian Black & Electric Neon Green SaaS Design
+   Spark Firefly Mascot Theme (Cute, Warm & Modern Obsidian + Neon Green)
    ========================================================================== */
 
 .ai-assistant-container {
-    padding: 2.25rem 2rem 4rem;
+    padding: 1.75rem 1.75rem 3.5rem;
     max-width: 1200px;
     margin: 0 auto;
     color: var(--text-primary, #ffffff);
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* --- Hero Intro Banner --- */
-.ai-hero {
-    background: linear-gradient(135deg, rgba(12, 13, 20, 0.95) 0%, rgba(22, 25, 38, 0.85) 100%);
-    border: 1px solid var(--border-default, rgba(255, 255, 255, 0.12));
-    border-radius: 20px;
-    padding: 2.25rem 2.5rem;
+/* ==========================================================================
+   Hero Intro Banner with Spark Mascot
+   ========================================================================== */
+
+.ai-hero-spark {
+    background: radial-gradient(circle at 85% 25%, rgba(0, 255, 102, 0.15) 0%, transparent 55%),
+                linear-gradient(135deg, rgba(12, 13, 20, 0.96) 0%, rgba(20, 25, 38, 0.88) 100%);
+    border: 1px solid rgba(0, 255, 102, 0.22);
+    border-radius: 24px;
+    padding: 2.25rem 2.75rem;
     position: relative;
     overflow: hidden;
-    margin-bottom: 2rem;
-    box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.6);
+    margin-bottom: 1.75rem;
+    box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.7), 
+                0 0 32px rgba(0, 255, 102, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2.5rem;
 }
 
-.ai-hero::before {
+.ai-hero-spark::before {
     content: "";
     position: absolute;
-    top: -50%;
-    right: -15%;
-    width: 380px;
-    height: 380px;
-    background: radial-gradient(circle, rgba(0, 255, 102, 0.16) 0%, rgba(0, 255, 102, 0) 70%);
+    top: -40%;
+    left: -10%;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(0, 255, 102, 0.08) 0%, transparent 70%);
     pointer-events: none;
 }
 
-.ai-badge {
+.ai-hero-spark-content {
+    flex: 1;
+    z-index: 2;
+}
+
+.ai-spark-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.85rem;
+    gap: 0.55rem;
+    padding: 0.35rem 0.95rem;
     background: rgba(0, 255, 102, 0.12);
-    border: 1px solid rgba(0, 255, 102, 0.35);
+    border: 1px solid rgba(0, 255, 102, 0.38);
     border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.74rem;
+    font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--brand-primary, #00ff66);
-    margin-bottom: 0.9rem;
+    margin-bottom: 0.85rem;
+    box-shadow: 0 0 16px rgba(0, 255, 102, 0.15);
 }
 
-.ai-hero h1 {
-    font-size: 2.1rem;
+.spark-badge-glow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--brand-primary, #00ff66);
+    box-shadow: 0 0 8px var(--brand-primary, #00ff66);
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+.ai-hero-title {
+    font-size: 2.25rem;
     font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 0.6rem;
-    letter-spacing: -0.02em;
+    line-height: 1.22;
+    margin-bottom: 0.55rem;
+    letter-spacing: -0.025em;
     color: #ffffff;
 }
 
-.ai-hero p {
-    font-size: 1rem;
+.ai-hero-desc {
+    font-size: 1.02rem;
     color: var(--text-secondary, #9ca3af);
-    max-width: 680px;
+    max-width: 640px;
     line-height: 1.6;
-    margin-bottom: 0;
+    margin-bottom: 1.25rem;
 }
 
-/* --- Chat Panel Card --- */
+.ai-hero-feature-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.ai-feature-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 9999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #d1d5db;
+}
+
+.feature-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand-primary, #00ff66);
+    box-shadow: 0 0 6px var(--brand-primary, #00ff66);
+}
+
+/* Mascot Hero Visual Side */
+.ai-hero-mascot-side {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    z-index: 2;
+}
+
+.spark-ambient-glow {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 255, 102, 0.32) 0%, rgba(0, 255, 102, 0.08) 55%, transparent 75%);
+    filter: blur(16px);
+    pointer-events: none;
+    animation: sparkAuraPulse 3.4s ease-in-out infinite;
+}
+
+.spark-floating-sparks {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.sparkle {
+    position: absolute;
+    color: var(--brand-primary, #00ff66);
+    font-size: 0.9rem;
+    animation: sparkleFloat 3s ease-in-out infinite;
+}
+
+.sparkle.sp-1 { top: -10px; left: 10px; animation-delay: 0s; font-size: 0.8rem; }
+.sparkle.sp-2 { top: 20px; right: -15px; animation-delay: 1.2s; font-size: 1.1rem; }
+.sparkle.sp-3 { bottom: 0; left: -10px; animation-delay: 2.1s; font-size: 0.75rem; }
+
+.spark-mascot-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    animation: sparkHeroFloat 3.6s ease-in-out infinite;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.spark-mascot-card:hover {
+    transform: scale(1.08) rotate(-3deg);
+}
+
+.spark-hero-mascot-img {
+    width: 135px;
+    height: 135px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 28px rgba(0, 255, 102, 0.38));
+}
+
+.spark-greeting-bubble {
+    background: rgba(14, 16, 24, 0.94);
+    border: 1px solid rgba(0, 255, 102, 0.45);
+    border-radius: 9999px;
+    padding: 0.32rem 0.85rem;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--brand-primary, #00ff66);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), 
+                0 0 12px rgba(0, 255, 102, 0.22);
+    margin-top: 0.35rem;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   Chat Interface Card
+   ========================================================================== */
+
 .ai-chat-card {
     background: var(--bg-surface, #0c0d14);
     border: 1px solid var(--border-default, rgba(255, 255, 255, 0.12));
-    border-radius: 20px;
+    border-radius: 22px;
     display: flex;
     flex-direction: column;
-    height: 680px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+    height: 700px;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 
+                0 0 25px rgba(0, 255, 102, 0.04);
     overflow: hidden;
 }
 
@@ -91,44 +222,65 @@
 .ai-chat-header-left {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
+    gap: 0.95rem;
 }
 
 .ai-avatar-header {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
     background: rgba(0, 255, 102, 0.14);
-    border: 1px solid rgba(0, 255, 102, 0.35);
+    border: 1.5px solid rgba(0, 255, 102, 0.38);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--brand-primary, #00ff66);
+    box-shadow: 0 0 14px rgba(0, 255, 102, 0.22);
+}
+
+.ai-header-spark-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
 }
 
 .ai-chat-status-title {
-    font-size: 0.98rem;
-    font-weight: 700;
+    font-size: 1.02rem;
+    font-weight: 800;
     color: #ffffff;
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
+    letter-spacing: -0.01em;
+}
+
+.spark-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.18rem 0.65rem;
+    border-radius: 9999px;
+    background: rgba(0, 255, 102, 0.12);
+    border: 1px solid rgba(0, 255, 102, 0.32);
+    font-size: 0.72rem;
+    color: var(--brand-primary, #00ff66);
+    font-weight: 700;
 }
 
 .ai-status-indicator {
     display: inline-block;
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: var(--brand-primary, #00ff66);
     box-shadow: 0 0 8px var(--brand-primary, #00ff66);
+    animation: statusPulse 2s ease-in-out infinite;
 }
 
 .ai-chat-status-sub {
-    font-size: 0.75rem;
+    font-size: 0.77rem;
     color: var(--text-secondary, #9ca3af);
-    margin: 0;
+    margin: 0.1rem 0 0;
 }
 
 .ai-chat-header-actions {
@@ -140,61 +292,63 @@
 .ai-header-btn {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
-    border-radius: 8px;
+    border-radius: 9999px;
     color: var(--text-secondary, #9ca3af);
-    padding: 0.4rem 0.75rem;
+    padding: 0.42rem 0.95rem;
     font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.22s ease;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.45rem;
 }
 
 .ai-header-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    background: rgba(244, 63, 94, 0.12);
+    border-color: rgba(244, 63, 94, 0.4);
+    color: #f43f5e;
+    transform: translateY(-1px);
 }
 
-/* Chat Message Thread */
+/* ==========================================================================
+   Chat Message Thread
+   ========================================================================== */
+
 .ai-chat-body {
     flex: 1;
     overflow-y: auto;
     padding: 1.75rem;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.45rem;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    scrollbar-color: rgba(0, 255, 102, 0.25) transparent;
 }
 
 .ai-chat-body::-webkit-scrollbar {
     width: 6px;
 }
 
+.ai-chat-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 .ai-chat-body::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 255, 102, 0.25);
     border-radius: 9999px;
+}
+
+.ai-chat-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 102, 0.45);
 }
 
 /* Message Item */
 .ai-message {
     display: flex;
-    gap: 1rem;
-    max-width: 85%;
-    animation: fadeIn 0.25s ease-out forwards;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    gap: 0.95rem;
+    max-width: 86%;
+    animation: messageSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .ai-message-bot {
@@ -206,133 +360,236 @@
     flex-direction: row-reverse;
 }
 
-.ai-msg-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+/* Mascot & User Avatars */
+.ai-spark-avatar-wrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: rgba(0, 255, 102, 0.12);
+    border: 1.5px solid rgba(0, 255, 102, 0.35);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 14px rgba(0, 255, 102, 0.2);
+    align-self: flex-start;
+    margin-top: 2px;
+}
+
+.ai-spark-avatar-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.ai-user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: rgba(56, 189, 248, 0.14);
+    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    color: #38bdf8;
+    font-weight: 700;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.95rem;
+    align-self: flex-start;
+    margin-top: 2px;
 }
 
-.ai-message-bot .ai-msg-avatar {
-    background: rgba(0, 255, 102, 0.14);
-    border: 1px solid rgba(0, 255, 102, 0.3);
-    color: var(--brand-primary, #00ff66);
-}
-
-.ai-message-user .ai-msg-avatar {
-    background: rgba(56, 189, 248, 0.14);
-    border: 1px solid rgba(56, 189, 248, 0.35);
-    color: #38bdf8;
-    font-weight: 700;
-}
-
+/* Message Bubbles */
 .ai-msg-bubble {
-    border-radius: 16px;
-    padding: 1.15rem 1.35rem;
-    font-size: 0.92rem;
-    line-height: 1.6;
+    border-radius: 18px;
+    padding: 1.2rem 1.45rem;
+    font-size: 0.93rem;
+    line-height: 1.62;
+    word-break: break-word;
 }
 
 .ai-message-bot .ai-msg-bubble {
-    background: var(--bg-surface-elevated, #161926);
+    background: var(--bg-surface-elevated, #141724);
     border: 1px solid var(--border-default, rgba(255, 255, 255, 0.12));
     color: var(--text-primary, #ffffff);
     border-top-left-radius: 4px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 
 .ai-message-user .ai-msg-bubble {
-    background: linear-gradient(135deg, rgba(0, 255, 102, 0.15) 0%, rgba(16, 185, 129, 0.22) 100%);
-    border: 1px solid rgba(0, 255, 102, 0.35);
+    background: linear-gradient(135deg, rgba(0, 255, 102, 0.18) 0%, rgba(16, 185, 129, 0.28) 100%);
+    border: 1.5px solid rgba(0, 255, 102, 0.42);
     color: #ffffff;
     border-top-right-radius: 4px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 
+                0 0 16px rgba(0, 255, 102, 0.15);
 }
 
 .ai-msg-sender {
     font-size: 0.74rem;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.45rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ai-message-bot .ai-msg-sender {
     color: var(--brand-primary, #00ff66);
-    margin-bottom: 0.35rem;
-    letter-spacing: 0.03em;
 }
 
 .ai-message-user .ai-msg-sender {
     color: #38bdf8;
-    text-align: right;
+    justify-content: flex-end;
 }
 
 .ai-msg-bubble p:last-child {
     margin-bottom: 0;
 }
 
-.ai-msg-bubble ul {
-    margin: 0.5rem 0 0.5rem 1.25rem;
+.spark-welcome-list {
+    margin: 0.6rem 0 0.75rem 1.25rem;
     padding: 0;
 }
 
-.ai-msg-bubble li {
-    margin-bottom: 0.25rem;
+.spark-welcome-list li {
+    margin-bottom: 0.45rem;
+    color: #e5e7eb;
+}
+
+.spark-welcome-footer {
+    color: #9ca3af;
+    font-size: 0.88rem;
+    margin-top: 0.5rem;
 }
 
 .ai-msg-time {
     display: block;
     font-size: 0.68rem;
     color: var(--text-muted, #6b7280);
-    margin-top: 0.5rem;
+    margin-top: 0.55rem;
     text-align: right;
 }
 
-/* Suggested Prompts Section */
+/* ==========================================================================
+   Sleepy Mascot & Bouncing Loading Dots
+   ========================================================================== */
+
+.ai-sleepy-avatar-wrap {
+    background: rgba(0, 255, 102, 0.08);
+    border-color: rgba(0, 255, 102, 0.25);
+    animation: sleepyAvatarBob 2.8s ease-in-out infinite;
+}
+
+.spark-sleepy-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.28));
+}
+
+.ai-typing-bubble {
+    background: var(--bg-surface-elevated, #141724);
+    border: 1px solid rgba(0, 255, 102, 0.25);
+    padding: 1rem 1.35rem;
+}
+
+.ai-typing-status {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.ai-typing-text {
+    font-size: 0.88rem;
+    color: #d1d5db;
+    font-weight: 600;
+}
+
+.ai-dots-bounce {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ai-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand-primary, #00ff66);
+    box-shadow: 0 0 8px var(--brand-primary, #00ff66);
+    animation: sparkDotBounce 1.4s ease-in-out infinite;
+}
+
+.ai-dot.dot-1 { animation-delay: 0s; }
+.ai-dot.dot-2 { animation-delay: 0.2s; }
+.ai-dot.dot-3 { animation-delay: 0.4s; }
+
+/* ==========================================================================
+   Suggested Prompts (Rounded Pills)
+   ========================================================================== */
+
 .ai-suggestions-container {
-    padding: 0.75rem 1.75rem 0.5rem;
+    padding: 0.85rem 1.75rem 0.65rem;
     background: var(--bg-surface, #0c0d14);
     border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
 }
 
 .ai-suggestions-label {
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.73rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     color: var(--text-muted, #6b7280);
     margin-bottom: 0.6rem;
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.4rem;
 }
 
 .ai-chips-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.55rem;
 }
 
 .ai-prompt-chip {
     background: var(--bg-surface-elevated, #161926);
-    border: 1px solid var(--border-default, rgba(255, 255, 255, 0.1));
+    border: 1px solid var(--border-default, rgba(255, 255, 255, 0.12));
     border-radius: 9999px;
-    padding: 0.4rem 0.9rem;
-    font-size: 0.78rem;
+    padding: 0.42rem 1rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-secondary, #9ca3af);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.chip-icon {
+    font-size: 0.88rem;
 }
 
 .ai-prompt-chip:hover {
-    background: rgba(0, 255, 102, 0.1);
-    border-color: rgba(0, 255, 102, 0.4);
+    background: rgba(0, 255, 102, 0.12);
+    border-color: rgba(0, 255, 102, 0.48);
     color: #ffffff;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 255, 102, 0.22);
 }
 
-/* Chat Input Bar */
+.ai-prompt-chip:active {
+    transform: scale(0.97);
+}
+
+/* ==========================================================================
+   Chat Input Bar (Rounded Green-Bordered Input & Send Button)
+   ========================================================================== */
+
 .ai-input-area {
     padding: 1.25rem 1.75rem;
     background: var(--bg-surface-alt, #12141e);
@@ -343,15 +600,24 @@
     display: flex;
     align-items: center;
     background: var(--bg-input, #0e1018);
-    border: 1px solid var(--border-default, rgba(255, 255, 255, 0.12));
-    border-radius: 14px;
+    border: 1.5px solid rgba(0, 255, 102, 0.42);
+    border-radius: 9999px;
     padding: 0.4rem 0.5rem 0.4rem 1.25rem;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
 }
 
 .ai-input-box:focus-within {
     border-color: var(--brand-primary, #00ff66);
-    box-shadow: 0 0 16px rgba(0, 255, 102, 0.25);
+    box-shadow: 0 0 22px rgba(0, 255, 102, 0.32);
+}
+
+.ai-input-spark-glyph {
+    color: var(--brand-primary, #00ff66);
+    display: flex;
+    align-items: center;
+    margin-right: 0.65rem;
+    opacity: 0.85;
 }
 
 .ai-chat-input {
@@ -360,9 +626,9 @@
     border: none;
     outline: none;
     color: #ffffff;
-    font-size: 0.92rem;
+    font-size: 0.93rem;
     line-height: 1.4;
-    padding: 0.5rem 0;
+    padding: 0.55rem 0;
 }
 
 .ai-chat-input::placeholder {
@@ -370,9 +636,9 @@
 }
 
 .ai-send-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
     background: var(--brand-primary, #00ff66);
     color: #050507;
     border: none;
@@ -380,34 +646,60 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     flex-shrink: 0;
-    box-shadow: 0 0 14px rgba(0, 255, 102, 0.35);
+    box-shadow: 0 0 16px rgba(0, 255, 102, 0.45);
 }
 
 .ai-send-btn:hover {
     background: var(--brand-primary-hover, #10b981);
-    transform: scale(1.04);
+    transform: scale(1.08) rotate(4deg);
+    box-shadow: 0 0 24px rgba(0, 255, 102, 0.65);
+}
+
+.ai-send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.ai-disclaimer-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    margin-top: 0.75rem;
+}
+
+.disclaimer-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text-muted, #6b7280);
 }
 
 .ai-disclaimer {
-    text-align: center;
-    font-size: 0.72rem;
+    font-size: 0.73rem;
     color: var(--text-muted, #6b7280);
-    margin: 0.65rem 0 0;
+    margin: 0;
+    text-align: center;
 }
 
-/* Gemini Code and Typography Additions */
+/* ==========================================================================
+   Code Blocks & Typography Inside Responses
+   ========================================================================== */
+
 .ai-msg-bubble pre {
     background: #090a0f !important;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 10px;
-    padding: 0.85rem 1rem;
-    margin: 0.6rem 0;
+    border-radius: 12px;
+    padding: 0.95rem 1.15rem;
+    margin: 0.75rem 0;
     overflow-x: auto;
     font-family: 'Consolas', 'Courier New', monospace;
     font-size: 0.86rem;
-    line-height: 1.5;
+    line-height: 1.55;
     color: var(--brand-primary, #00ff66);
 }
 
@@ -423,32 +715,261 @@
     color: inherit;
 }
 
+.ai-msg-bubble a {
+    color: var(--brand-primary, #00ff66);
+    text-decoration: underline;
+    transition: color 0.18s;
+}
+
+.ai-msg-bubble a:hover {
+    color: #a3e635;
+}
+
 .ai-msg-bubble blockquote {
     border-left: 3px solid var(--brand-primary, #00ff66);
-    margin: 0.5rem 0;
-    padding: 0.35rem 0.85rem;
+    margin: 0.6rem 0;
+    padding: 0.45rem 1rem;
     background: rgba(0, 255, 102, 0.05);
-    border-radius: 0 8px 8px 0;
+    border-radius: 0 10px 10px 0;
     color: var(--text-secondary, #9ca3af);
 }
 
 .ai-msg-bubble table {
     width: 100%;
     border-collapse: collapse;
-    margin: 0.75rem 0;
+    margin: 0.85rem 0;
     font-size: 0.86rem;
 }
 
 .ai-msg-bubble th,
 .ai-msg-bubble td {
-    padding: 0.45rem 0.75rem;
+    padding: 0.5rem 0.85rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     text-align: left;
 }
 
 .ai-msg-bubble th {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
     color: #ffffff;
     font-weight: 700;
 }
 
+/* ==========================================================================
+   Smooth Animations
+   ========================================================================== */
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes sparkHeroFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(1.5deg);
+    }
+}
+
+@keyframes sparkAuraPulse {
+    0%, 100% {
+        transform: scale(0.94);
+        opacity: 0.35;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+}
+
+@keyframes sparkleFloat {
+    0%, 100% {
+        transform: translateY(0) scale(0.85);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translateY(-8px) scale(1.1);
+        opacity: 0.95;
+    }
+}
+
+@keyframes sleepyAvatarBob {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-3px) rotate(-2deg);
+    }
+}
+
+@keyframes sparkDotBounce {
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+    40% {
+        transform: translateY(-6px);
+        opacity: 1;
+    }
+}
+
+@keyframes statusPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 6px var(--brand-primary, #00ff66);
+    }
+    50% {
+        transform: scale(1.25);
+        box-shadow: 0 0 12px var(--brand-primary, #00ff66);
+    }
+}
+
+/* ==========================================================================
+   Responsive on Mobile & Tablet
+   ========================================================================== */
+
+@media (max-width: 900px) {
+    .ai-hero-spark {
+        flex-direction: column-reverse;
+        align-items: center;
+        text-align: center;
+        padding: 2rem 1.75rem;
+        gap: 1.5rem;
+    }
+
+    .ai-hero-desc {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .ai-hero-feature-tags {
+        justify-content: center;
+    }
+
+    .ai-hero-mascot-side {
+        margin-bottom: 0.5rem;
+    }
+
+    .spark-hero-mascot-img {
+        width: 110px;
+        height: 110px;
+    }
+
+    .ai-chat-card {
+        height: 640px;
+    }
+}
+
+@media (max-width: 640px) {
+    .ai-assistant-container {
+        padding: 1rem 0.75rem 2.5rem;
+    }
+
+    .ai-hero-spark {
+        border-radius: 18px;
+        padding: 1.5rem 1.25rem;
+    }
+
+    .ai-hero-title {
+        font-size: 1.65rem;
+    }
+
+    .ai-hero-desc {
+        font-size: 0.92rem;
+    }
+
+    .spark-hero-mascot-img {
+        width: 95px;
+        height: 95px;
+    }
+
+    .ai-chat-card {
+        border-radius: 18px;
+        height: calc(100vh - 240px);
+        min-height: 520px;
+    }
+
+    .ai-chat-header {
+        padding: 0.9rem 1.15rem;
+    }
+
+    .ai-avatar-header {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+    }
+
+    .ai-header-spark-icon {
+        width: 26px;
+        height: 26px;
+    }
+
+    .ai-chat-status-title {
+        font-size: 0.92rem;
+    }
+
+    .ai-chat-body {
+        padding: 1.15rem 1rem;
+        gap: 1.15rem;
+    }
+
+    .ai-message {
+        max-width: 92%;
+        gap: 0.65rem;
+    }
+
+    .ai-spark-avatar-wrap,
+    .ai-user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+
+    .ai-spark-avatar-img,
+    .spark-sleepy-img {
+        width: 26px;
+        height: 26px;
+    }
+
+    .ai-msg-bubble {
+        padding: 0.95rem 1.15rem;
+        font-size: 0.88rem;
+    }
+
+    .ai-suggestions-container {
+        padding: 0.75rem 1rem 0.5rem;
+    }
+
+    .ai-chips-list {
+        gap: 0.4rem;
+    }
+
+    .ai-prompt-chip {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.74rem;
+    }
+
+    .ai-input-area {
+        padding: 0.95rem 1rem;
+    }
+
+    .ai-input-box {
+        padding: 0.3rem 0.4rem 0.3rem 0.95rem;
+    }
+
+    .ai-chat-input {
+        font-size: 0.88rem;
+    }
+
+    .ai-send-btn {
+        width: 38px;
+        height: 38px;
+    }
+}
