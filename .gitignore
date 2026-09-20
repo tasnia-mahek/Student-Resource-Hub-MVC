@@ -11,3 +11,4 @@ obj/
 *.userosscache
 *.sln.docstates
 node_modules/
+wwwroot/uploads/
