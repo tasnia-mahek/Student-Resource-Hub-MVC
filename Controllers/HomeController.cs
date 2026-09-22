@@ -41,6 +41,17 @@ namespace student_resource_hub.Controllers
             var notesCount = await _context.Notes.CountAsync(n => n.Status == ResourceStatus.Approved);
             var lecturesCount = await _context.Lectures.CountAsync(l => l.Status == ResourceStatus.Approved);
 
+            var totalUsers = await _context.Users.CountAsync();
+            var totalUniversities = await _context.Universities.CountAsync(university => university.IsActive);
+            var totalDepartments = await _context.AcademicDepartments.CountAsync(department => department.IsActive);
+            var totalCourses = await _context.AcademicCourses.CountAsync(course => course.IsActive);
+            var pendingResources = await _context.PastPapers.CountAsync(paper => paper.Status == ResourceStatus.Pending)
+                + await _context.Notes.CountAsync(note => note.Status == ResourceStatus.Pending)
+                + await _context.Lectures.CountAsync(lecture => lecture.Status == ResourceStatus.Pending);
+            var totalDownloads = await _context.PastPapers.Where(paper => paper.Status == ResourceStatus.Approved).SumAsync(paper => paper.DownloadCount)
+                + await _context.Notes.Where(note => note.Status == ResourceStatus.Approved).SumAsync(note => note.DownloadCount)
+                + await _context.Lectures.Where(lecture => lecture.Status == ResourceStatus.Approved).SumAsync(lecture => lecture.DownloadCount);
+
             var activeSessions = await _context.AttendanceSessions
                 .Where(s => s.IsActive)
                 .OrderByDescending(s => s.SessionDate)
@@ -84,6 +95,12 @@ namespace student_resource_hub.Controllers
                 TotalPastPapers = pastPapersCount,
                 TotalNotes = notesCount,
                 TotalLectures = lecturesCount,
+                TotalUsers = totalUsers,
+                TotalUniversities = totalUniversities,
+                TotalDepartments = totalDepartments,
+                TotalCourses = totalCourses,
+                PendingResources = pendingResources,
+                TotalDownloads = totalDownloads,
                 TotalFavorites = 3,
                 TotalAvailableSessions = totalSessions,
                 TotalAttendedSessions = userAttendedSessions.Count,

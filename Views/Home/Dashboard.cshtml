@@ -37,10 +37,13 @@
                 <span class="tag-dot"></span>
                 <span>@Model.UserRole Account</span>
             </div>
+            @if (Model.UserRole != "Admin")
+            {
             <a asp-controller="Study" asp-action="Sessions" class="outpayz-btn-primary">
                 <span>📁 Study Library</span>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
+            }
             @if (Model.CanUploadPastPapers)
             {
                 <a asp-controller="Resource" asp-action="UploadPastPaper" class="outpayz-btn-ghost">
@@ -52,6 +55,35 @@
 
     <!-- 4 OutPayz KPI Stats Cards (Minimal & Clean) -->
     <div class="dashboard-kpi-grid">
+        @if (Model.UserRole == "Admin")
+        {
+        <div class="dash-kpi-card">
+            <div class="kpi-top"><span class="kpi-label">REGISTERED USERS</span></div>
+            <div class="kpi-value-row"><span class="kpi-metric text-neon">@Model.TotalUsers</span></div>
+            <p class="kpi-desc">Accounts using the platform</p>
+            <div class="kpi-bottom-link"><a asp-controller="Admin" asp-action="AcademicCatalog">Manage catalog &rarr;</a></div>
+        </div>
+        <div class="dash-kpi-card">
+            <div class="kpi-top"><span class="kpi-label">UNIVERSITIES</span></div>
+            <div class="kpi-value-row"><span class="kpi-metric">@Model.TotalUniversities</span></div>
+            <p class="kpi-desc">Registered academic institutions</p>
+            <div class="kpi-bottom-link"><a asp-controller="Admin" asp-action="AcademicCatalog">Open catalog &rarr;</a></div>
+        </div>
+        <div class="dash-kpi-card">
+            <div class="kpi-top"><span class="kpi-label">ACADEMIC COURSES</span></div>
+            <div class="kpi-value-row"><span class="kpi-metric">@Model.TotalCourses</span></div>
+            <p class="kpi-desc">Active courses in the catalog</p>
+            <div class="kpi-bottom-link"><a asp-controller="Admin" asp-action="AcademicCatalog">Review structure &rarr;</a></div>
+        </div>
+        <div class="dash-kpi-card">
+            <div class="kpi-top"><span class="kpi-label">PENDING REVIEW</span></div>
+            <div class="kpi-value-row"><span class="kpi-metric text-neon">@Model.PendingResources</span></div>
+            <p class="kpi-desc">Uploaded resources awaiting approval</p>
+            <div class="kpi-bottom-link"><a asp-controller="Admin" asp-action="AcademicCatalog">Review resources &rarr;</a></div>
+        </div>
+        }
+        else
+        {
         <!-- KPI 1: Personal Study Library -->
         <div class="dash-kpi-card">
             <div class="kpi-top">
@@ -107,8 +139,34 @@
                 <a asp-controller="Resource" asp-action="Lectures">Watch Lectures &rarr;</a>
             </div>
         </div>
+        }
     </div>
 
+    @if (Model.UserRole == "Admin")
+    {
+    <div class="dashboard-split-grid admin-dashboard-grid">
+        <div class="dash-card-box">
+            <div class="dash-card-header"><div><div class="bento-badge"><span class="spark-icon">◈</span><span>Platform Overview</span></div><h3>Academic network health</h3><p>Current catalog coverage and platform activity.</p></div></div>
+            <div class="role-privilege-box">
+                <div class="privilege-item active"><span class="priv-icon">U</span><div><strong>@Model.TotalUniversities universities</strong><p>Registered institutions in the catalog.</p></div></div>
+                <div class="privilege-item active"><span class="priv-icon">D</span><div><strong>@Model.TotalDepartments departments</strong><p>Active academic departments.</p></div></div>
+                <div class="privilege-item active"><span class="priv-icon">C</span><div><strong>@Model.TotalCourses courses</strong><p>Courses available for resource organization.</p></div></div>
+                <div class="privilege-item active"><span class="priv-icon">↓</span><div><strong>@Model.TotalDownloads downloads</strong><p>Total approved-resource downloads.</p></div></div>
+            </div>
+        </div>
+        <div class="dash-card-box">
+            <div class="dash-card-header"><div><div class="bento-badge"><span class="spark-icon">✓</span><span>Admin Actions</span></div><h3>Keep the catalog current</h3><p>Manage structure and review incoming academic content.</p></div></div>
+            <div class="role-privilege-box">
+                <div class="privilege-item active"><span class="priv-icon">◉</span><div><strong>@Model.PendingResources resources pending</strong><p>Uploaded materials waiting for moderation.</p></div></div>
+                <div class="dash-btn-row mt-3"><a asp-controller="Admin" asp-action="AcademicCatalog" class="outpayz-btn-primary flex-grow-1 text-center">Manage Academic Catalog</a></div>
+                <div class="dash-btn-row mt-2"><a asp-controller="Admin" asp-action="ResourceBrowser" asp-route-resourceType="paper" class="outpayz-btn-ghost flex-grow-1 text-center">Browse Resource Catalog</a></div>
+                <div class="dash-btn-row mt-2"><a asp-controller="Resource" asp-action="UploadPastPaper" class="outpayz-btn-ghost flex-grow-1 text-center">Upload Past Paper</a></div>
+            </div>
+        </div>
+    </div>
+    }
+    else
+    {
     <!-- Minimal Academic Engagement & Study Trends Graph -->
     <div class="dashboard-analytics-section mb-4">
         <div class="dash-card-box analytics-graph-card">
@@ -342,6 +400,7 @@
             </div>
         </div>
     </div>
+    }
 
     <!-- Recent Resources Section -->
     <div class="dashboard-resources-section mt-5">

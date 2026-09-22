@@ -14,6 +14,12 @@ namespace student_resource_hub.ViewModels
         public int TotalNotes { get; set; }
         public int TotalLectures { get; set; }
         public int TotalFavorites { get; set; }
+        public int TotalUsers { get; set; }
+        public int TotalUniversities { get; set; }
+        public int TotalDepartments { get; set; }
+        public int TotalCourses { get; set; }
+        public int PendingResources { get; set; }
+        public int TotalDownloads { get; set; }
 
         // Attendance stats
         public int TotalAvailableSessions { get; set; }
