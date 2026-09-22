@@ -121,19 +121,6 @@
 
 
 <script>
-    const paperDepartment = document.getElementById('AcademicDepartmentId');
-    const paperSemester = document.getElementById('AcademicSemesterId');
-    const paperSemesters = Array.from(document.getElementById('semesterOptions').content.querySelectorAll('option')).map(option => ({ value: option.value, text: option.text, department: option.dataset.department }));
-    function refreshPaperSemesters() {
-        paperSemester.innerHTML = '<option value="">-- Select Semester --</option>';
-        paperSemesters.filter(item => item.department === paperDepartment.value).forEach(item => paperSemester.add(new Option(item.text, item.value)));
-    }
-    paperDepartment.addEventListener('change', refreshPaperSemesters);
-    refreshPaperSemesters();
-    const paperCourse = document.getElementById('AcademicCourseId');
-    const paperCourses = Array.from(document.getElementById('courseOptions').content.querySelectorAll('option'));
-    paperSemester.addEventListener('change', () => { paperCourse.innerHTML = '<option value="">-- Select Course --</option>'; paperCourses.filter(option => option.dataset.semester === paperSemester.value).forEach(option => paperCourse.appendChild(option.cloneNode(true))); });
-
     const fileInput = document.getElementById('File');
     const fileUploadArea = document.getElementById('fileUploadArea');
     const fileSelected = document.getElementById('fileSelected');

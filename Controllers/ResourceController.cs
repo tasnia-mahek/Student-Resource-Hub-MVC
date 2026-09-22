@@ -797,6 +797,8 @@ namespace student_resource_hub.Controllers
         [Authorize(Roles = "Admin,CR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(50 * 1024 * 1024)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 50 * 1024 * 1024)]
         public async Task<IActionResult> UploadPastPaper(UploadResourceViewModel model)
         {
             await ApplyUploadContext(model);
@@ -915,6 +917,8 @@ namespace student_resource_hub.Controllers
         [Authorize(Roles = "Admin,CR")]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(50 * 1024 * 1024)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 50 * 1024 * 1024)]
         public async Task<IActionResult> UploadNote(UploadNoteViewModel model)
         {
             await ApplyUploadContext(model);
