@@ -58,6 +58,7 @@ namespace student_resource_hub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddSemester(SemesterFormViewModel form)
         {
+            var loadedDepartment = await context.AcademicDepartments.AsNoTracking().FirstOrDefaultAsync(item => item.Id == form.DepartmentId);
             if (ModelState.IsValid && await context.AcademicDepartments.AnyAsync(department => department.Id == form.DepartmentId && department.IsActive) && !await context.AcademicSemesters.AnyAsync(semester => semester.DepartmentId == form.DepartmentId && semester.IsActive && semester.SortOrder == form.SemesterNumber))
             {
                 var semesterNumber = form.SemesterNumber;
@@ -70,20 +71,23 @@ namespace student_resource_hub.Controllers
                 await context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Semester added.";
             }
-            return RedirectToAction(nameof(AcademicCatalog), new { departmentId = form.DepartmentId });
+            return RedirectToAction(nameof(AcademicCatalog), new { universityId = loadedDepartment?.UniversityId, departmentId = form.DepartmentId });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddCourse(CourseFormViewModel form)
         {
+            var loadedSemester = await context.AcademicSemesters.AsNoTracking().FirstOrDefaultAsync(item => item.Id == form.SemesterId);
+            var departmentId = loadedSemester?.DepartmentId;
+            var universityId = departmentId.HasValue ? await context.AcademicDepartments.Where(item => item.Id == departmentId.Value).Select(item => (int?)item.UniversityId).FirstOrDefaultAsync() : null;
             if (ModelState.IsValid && await context.AcademicSemesters.AnyAsync(semester => semester.Id == form.SemesterId && semester.IsActive) && !await context.AcademicCourses.AnyAsync(course => course.AcademicSemesterId == form.SemesterId && course.IsActive && course.CourseCode == form.CourseCode.Trim()))
             {
                 context.AcademicCourses.Add(new AcademicCourse { AcademicSemesterId = form.SemesterId, CourseCode = form.CourseCode.Trim(), Name = form.Name.Trim(), IsLab = form.IsLab });
                 await context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Course added.";
             }
-            return RedirectToAction(nameof(AcademicCatalog), new { semesterId = form.SemesterId });
+            return RedirectToAction(nameof(AcademicCatalog), new { universityId, departmentId, semesterId = form.SemesterId });
         }
 
         private async Task<AcademicAdminViewModel> BuildModel(int? universityId, int? departmentId, int? semesterId)
