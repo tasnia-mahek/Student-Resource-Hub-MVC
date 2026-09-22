@@ -138,7 +138,8 @@
         const clearBtn = document.getElementById("clearChatBtn");
         const chips = document.querySelectorAll(".ai-prompt-chip");
 
-        // Click on suggested prompt chip
+        const defaultConversation = chatArea.innerHTML;
+
         chips.forEach(chip => {
             chip.addEventListener("click", function () {
                 const promptText = this.getAttribute("data-prompt");
@@ -171,7 +172,7 @@
                 <div class="ai-msg-avatar">✨</div>
                 <div class="ai-msg-bubble">
                     <div class="ai-msg-sender">STUDYHUB AI</div>
-                    <p>${text}</p>
+                    <p>${escapeHtml(text).replace(/\n/g, '<br>')}</p>
                     <span class="ai-msg-time">Just now</span>
                 </div>
             `;
@@ -179,17 +180,31 @@
             chatArea.scrollTop = chatArea.scrollHeight;
         }
 
-        function handleSend() {
+        async function handleSend() {
             const text = input.value.trim();
             if (!text) return;
 
             appendUserMessage(text);
             input.value = "";
 
-            // Static placeholder response for Step 1
-            setTimeout(() => {
-                appendBotMessage("Thanks for your question! The AI assistant backend is currently in preview mode. Full database-driven resource answering and course search capabilities will be enabled in the next update.");
-            }, 600);
+            try {
+                const response = await fetch('/AiAssistant/Ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload?.error || 'Unable to generate a response.');
+                }
+
+                appendBotMessage(payload.reply || 'I could not find a relevant answer right now.');
+            } catch (error) {
+                appendBotMessage('I could not answer that right now. Please try a question about a course, notes, lectures, or past papers.');
+            }
         }
 
         sendBtn.addEventListener("click", handleSend);
@@ -202,12 +217,7 @@
         });
 
         clearBtn.addEventListener("click", function () {
-            // Keep only the initial welcome message
-            const welcomeMsg = chatArea.querySelector(".ai-message-bot");
-            chatArea.innerHTML = "";
-            if (welcomeMsg) {
-                chatArea.appendChild(welcomeMsg);
-            }
+            chatArea.innerHTML = defaultConversation;
         });
 
         function escapeHtml(string) {
