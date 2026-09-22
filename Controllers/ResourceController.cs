@@ -50,7 +50,7 @@ namespace student_resource_hub.Controllers
 
                 if (academicDepartmentId.HasValue && !academicSemesterId.HasValue)
                 {
-                    return View(await BuildPastPaperSemesters(academicDepartmentId.Value));
+                    return View(await BuildPastPaperSemesters(academicDepartmentId.Value, await GetCurrentTermId(academicDepartmentId.Value)));
                 }
 
                 if (academicDepartmentId.HasValue && academicSemesterId.HasValue)
@@ -63,7 +63,7 @@ namespace student_resource_hub.Controllers
                             SelectedAcademicDepartmentId = academicDepartmentId,
                             SelectedAcademicSemesterId = academicSemesterId,
                             SelectedAcademicTermId = academicTermId ?? currentTermId,
-                            SemesterGroups = (await BuildPastPaperSemesters(academicDepartmentId.Value)).SemesterGroups,
+                            SemesterGroups = (await BuildPastPaperSemesters(academicDepartmentId.Value, currentTermId)).SemesterGroups,
                             CourseCatalogGroups = await BuildPastPaperCourses(academicSemesterId.Value, currentTermId),
                             ResourceTerms = await BuildResourceTerms(academicDepartmentId.Value)
                         });
@@ -78,7 +78,7 @@ namespace student_resource_hub.Controllers
                         _ => dynamicQuery.OrderByDescending(p => p.CreatedDate)
                     };
                     var papers = await dynamicQuery.Include(p => p.UploadedByUser).ToListAsync();
-                    return View(new ResourceListViewModel<PastPaper> { Resources = papers, CourseGroups = BuildCourseGroups(papers, paper => paper.CourseCode, paper => paper.SubjectName), CourseCatalogGroups = await BuildPastPaperCourses(academicSemesterId.Value, currentTermId), SemesterGroups = (await BuildPastPaperSemesters(academicDepartmentId.Value)).SemesterGroups, ResourceTerms = await BuildResourceTerms(academicDepartmentId.Value), SelectedAcademicDepartmentId = academicDepartmentId, SelectedAcademicSemesterId = academicSemesterId, SelectedAcademicTermId = academicTermId ?? currentTermId, SelectedCourseCode = courseCode, SelectedSort = sortBy ?? "newest", SearchTerm = search });
+                    return View(new ResourceListViewModel<PastPaper> { Resources = papers, CourseGroups = BuildCourseGroups(papers, paper => paper.CourseCode, paper => paper.SubjectName), CourseCatalogGroups = await BuildPastPaperCourses(academicSemesterId.Value, currentTermId), SemesterGroups = (await BuildPastPaperSemesters(academicDepartmentId.Value, currentTermId)).SemesterGroups, ResourceTerms = await BuildResourceTerms(academicDepartmentId.Value), SelectedAcademicDepartmentId = academicDepartmentId, SelectedAcademicSemesterId = academicSemesterId, SelectedAcademicTermId = academicTermId ?? currentTermId, SelectedCourseCode = courseCode, SelectedSort = sortBy ?? "newest", SearchTerm = search });
                 }
 
                 var query = _context.PastPapers
@@ -190,7 +190,7 @@ namespace student_resource_hub.Controllers
 
                 if (academicDepartmentId.HasValue && !academicSemesterId.HasValue)
                 {
-                    return View(await BuildNoteSemesters(academicDepartmentId.Value));
+                    return View(await BuildNoteSemesters(academicDepartmentId.Value, await GetCurrentTermId(academicDepartmentId.Value)));
                 }
 
                 if (academicDepartmentId.HasValue && academicSemesterId.HasValue)
@@ -203,7 +203,7 @@ namespace student_resource_hub.Controllers
                             SelectedAcademicDepartmentId = academicDepartmentId,
                             SelectedAcademicSemesterId = academicSemesterId,
                             SelectedAcademicTermId = academicTermId ?? currentTermId,
-                            SemesterGroups = (await BuildNoteSemesters(academicDepartmentId.Value)).SemesterGroups,
+                            SemesterGroups = (await BuildNoteSemesters(academicDepartmentId.Value, currentTermId)).SemesterGroups,
                             CourseCatalogGroups = await BuildNoteCourses(academicSemesterId.Value, currentTermId),
                             ResourceTerms = await BuildResourceTerms(academicDepartmentId.Value)
                         });
@@ -218,7 +218,7 @@ namespace student_resource_hub.Controllers
                         _ => dynamicQuery.OrderByDescending(n => n.AverageRating)
                     };
                     var groupedNotes = await dynamicQuery.Include(n => n.UploadedByUser).ToListAsync();
-                    return View(new ResourceListViewModel<Note> { Resources = groupedNotes, CourseGroups = BuildCourseGroups(groupedNotes, note => note.CourseCode, note => note.SubjectName), CourseCatalogGroups = await BuildNoteCourses(academicSemesterId.Value, currentTermId), SemesterGroups = (await BuildNoteSemesters(academicDepartmentId.Value)).SemesterGroups, ResourceTerms = await BuildResourceTerms(academicDepartmentId.Value), SelectedAcademicDepartmentId = academicDepartmentId, SelectedAcademicSemesterId = academicSemesterId, SelectedAcademicTermId = academicTermId ?? currentTermId, SelectedCourseCode = courseCode, SelectedSort = sortBy ?? "toprated", SearchTerm = search });
+                    return View(new ResourceListViewModel<Note> { Resources = groupedNotes, CourseGroups = BuildCourseGroups(groupedNotes, note => note.CourseCode, note => note.SubjectName), CourseCatalogGroups = await BuildNoteCourses(academicSemesterId.Value, currentTermId), SemesterGroups = (await BuildNoteSemesters(academicDepartmentId.Value, currentTermId)).SemesterGroups, ResourceTerms = await BuildResourceTerms(academicDepartmentId.Value), SelectedAcademicDepartmentId = academicDepartmentId, SelectedAcademicSemesterId = academicSemesterId, SelectedAcademicTermId = academicTermId ?? currentTermId, SelectedCourseCode = courseCode, SelectedSort = sortBy ?? "toprated", SearchTerm = search });
                 }
 
                 var query = _context.Notes
@@ -329,7 +329,7 @@ namespace student_resource_hub.Controllers
 
                 if (academicDepartmentId.HasValue && !academicSemesterId.HasValue)
                 {
-                    return View(await BuildLectureSemesters(academicDepartmentId.Value));
+                    return View(await BuildLectureSemesters(academicDepartmentId.Value, await GetCurrentTermId(academicDepartmentId.Value)));
                 }
 
                 if (academicDepartmentId.HasValue && academicSemesterId.HasValue)
@@ -342,7 +342,7 @@ namespace student_resource_hub.Controllers
                             SelectedAcademicDepartmentId = academicDepartmentId,
                             SelectedAcademicSemesterId = academicSemesterId,
                             SelectedAcademicTermId = academicTermId ?? currentTermId,
-                            SemesterGroups = (await BuildLectureSemesters(academicDepartmentId.Value)).SemesterGroups,
+                            SemesterGroups = (await BuildLectureSemesters(academicDepartmentId.Value, currentTermId)).SemesterGroups,
                             CourseCatalogGroups = await BuildLectureCourses(academicSemesterId.Value, currentTermId),
                             ResourceTerms = await BuildResourceTerms(academicDepartmentId.Value)
                         });
@@ -357,7 +357,7 @@ namespace student_resource_hub.Controllers
                         _ => dynamicQuery.OrderByDescending(l => l.CreatedDate)
                     };
                     var groupedLectures = await dynamicQuery.Include(l => l.UploadedByUser).ToListAsync();
-                    return View(new ResourceListViewModel<Lecture> { Resources = groupedLectures, CourseGroups = BuildCourseGroups(groupedLectures, lecture => lecture.CourseCode, lecture => lecture.SubjectName), CourseCatalogGroups = await BuildLectureCourses(academicSemesterId.Value, currentTermId), SemesterGroups = (await BuildLectureSemesters(academicDepartmentId.Value)).SemesterGroups, ResourceTerms = await BuildResourceTerms(academicDepartmentId.Value), SelectedAcademicDepartmentId = academicDepartmentId, SelectedAcademicSemesterId = academicSemesterId, SelectedAcademicTermId = academicTermId ?? currentTermId, SelectedCourseCode = courseCode, SelectedSort = sortBy ?? "newest", SearchTerm = search });
+                    return View(new ResourceListViewModel<Lecture> { Resources = groupedLectures, CourseGroups = BuildCourseGroups(groupedLectures, lecture => lecture.CourseCode, lecture => lecture.SubjectName), CourseCatalogGroups = await BuildLectureCourses(academicSemesterId.Value, currentTermId), SemesterGroups = (await BuildLectureSemesters(academicDepartmentId.Value, currentTermId)).SemesterGroups, ResourceTerms = await BuildResourceTerms(academicDepartmentId.Value), SelectedAcademicDepartmentId = academicDepartmentId, SelectedAcademicSemesterId = academicSemesterId, SelectedAcademicTermId = academicTermId ?? currentTermId, SelectedCourseCode = courseCode, SelectedSort = sortBy ?? "newest", SearchTerm = search });
                 }
 
                 var query = _context.Lectures
@@ -451,12 +451,12 @@ namespace student_resource_hub.Controllers
                 DepartmentGroups = await _context.AcademicDepartments
                     .Where(department => department.IsActive && department.University!.IsActive)
                     .OrderBy(department => department.Name)
-                    .Select(department => new ResourceBrowseGroup { AcademicDepartmentId = department.Id, Name = department.Name, ImageUrl = department.ImageUrl, UniversityName = department.University!.Name, Count = _context.PastPapers.Count(paper => paper.Status == ResourceStatus.Approved && paper.AcademicDepartmentId == department.Id) })
+                    .Select(department => new ResourceBrowseGroup { AcademicDepartmentId = department.Id, Name = department.Name, ImageUrl = department.ImageUrl, UniversityName = department.University!.Name, Count = _context.PastPapers.Count(paper => paper.Status == ResourceStatus.Approved && paper.AcademicDepartmentId == department.Id && paper.AcademicSemesterId == _context.AcademicSemesters.Where(term => term.DepartmentId == department.Id && term.AcademicYear == 2026 && term.TermName == "Winter" && term.IsActive).Select(term => (int?)term.Id).FirstOrDefault()) })
                     .ToListAsync()
             };
         }
 
-        private async Task<ResourceListViewModel<PastPaper>> BuildPastPaperSemesters(int departmentId)
+        private async Task<ResourceListViewModel<PastPaper>> BuildPastPaperSemesters(int departmentId, int? termId)
         {
             return new ResourceListViewModel<PastPaper>
             {
@@ -464,7 +464,7 @@ namespace student_resource_hub.Controllers
                 SemesterGroups = await _context.AcademicSemesters
                     .Where(semester => semester.IsActive && semester.DepartmentId == departmentId && !semester.AcademicYear.HasValue)
                     .OrderBy(semester => semester.SortOrder)
-                    .Select(semester => new ResourceBrowseGroup { AcademicDepartmentId = departmentId, AcademicSemesterId = semester.Id, Name = semester.Name, Count = _context.PastPapers.Count(paper => paper.Status == ResourceStatus.Approved && paper.AcademicSemesterId == semester.Id) })
+                    .Select(semester => new ResourceBrowseGroup { AcademicDepartmentId = departmentId, AcademicSemesterId = semester.Id, Name = semester.Name, Count = termId.HasValue ? _context.PastPapers.Count(paper => paper.Status == ResourceStatus.Approved && paper.AcademicSemesterId == termId && _context.AcademicCourses.Any(course => course.AcademicSemesterId == semester.Id && course.CourseCode == paper.CourseCode && course.IsActive)) : 0 })
                     .ToListAsync()
             };
         }
@@ -476,12 +476,12 @@ namespace student_resource_hub.Controllers
                 DepartmentGroups = await _context.AcademicDepartments
                     .Where(department => department.IsActive && department.University!.IsActive)
                     .OrderBy(department => department.Name)
-                    .Select(department => new ResourceBrowseGroup { AcademicDepartmentId = department.Id, Name = department.Name, ImageUrl = department.ImageUrl, UniversityName = department.University!.Name, Count = _context.Notes.Count(note => note.Status == ResourceStatus.Approved && note.AcademicDepartmentId == department.Id) })
+                    .Select(department => new ResourceBrowseGroup { AcademicDepartmentId = department.Id, Name = department.Name, ImageUrl = department.ImageUrl, UniversityName = department.University!.Name, Count = _context.Notes.Count(note => note.Status == ResourceStatus.Approved && note.AcademicDepartmentId == department.Id && note.AcademicSemesterId == _context.AcademicSemesters.Where(term => term.DepartmentId == department.Id && term.AcademicYear == 2026 && term.TermName == "Winter" && term.IsActive).Select(term => (int?)term.Id).FirstOrDefault()) })
                     .ToListAsync()
             };
         }
 
-        private async Task<ResourceListViewModel<Note>> BuildNoteSemesters(int departmentId)
+        private async Task<ResourceListViewModel<Note>> BuildNoteSemesters(int departmentId, int? termId)
         {
             return new ResourceListViewModel<Note>
             {
@@ -489,7 +489,7 @@ namespace student_resource_hub.Controllers
                 SemesterGroups = await _context.AcademicSemesters
                     .Where(semester => semester.IsActive && semester.DepartmentId == departmentId && !semester.AcademicYear.HasValue)
                     .OrderBy(semester => semester.SortOrder)
-                    .Select(semester => new ResourceBrowseGroup { AcademicDepartmentId = departmentId, AcademicSemesterId = semester.Id, Name = semester.Name, Count = _context.Notes.Count(note => note.Status == ResourceStatus.Approved && note.AcademicSemesterId == semester.Id) })
+                    .Select(semester => new ResourceBrowseGroup { AcademicDepartmentId = departmentId, AcademicSemesterId = semester.Id, Name = semester.Name, Count = termId.HasValue ? _context.Notes.Count(note => note.Status == ResourceStatus.Approved && note.AcademicSemesterId == termId && _context.AcademicCourses.Any(course => course.AcademicSemesterId == semester.Id && course.CourseCode == note.CourseCode && course.IsActive)) : 0 })
                     .ToListAsync()
             };
         }
@@ -501,12 +501,12 @@ namespace student_resource_hub.Controllers
                 DepartmentGroups = await _context.AcademicDepartments
                     .Where(department => department.IsActive && department.University!.IsActive)
                     .OrderBy(department => department.Name)
-                    .Select(department => new ResourceBrowseGroup { AcademicDepartmentId = department.Id, Name = department.Name, ImageUrl = department.ImageUrl, UniversityName = department.University!.Name, Count = _context.Lectures.Count(lecture => lecture.Status == ResourceStatus.Approved && lecture.AcademicDepartmentId == department.Id) })
+                    .Select(department => new ResourceBrowseGroup { AcademicDepartmentId = department.Id, Name = department.Name, ImageUrl = department.ImageUrl, UniversityName = department.University!.Name, Count = _context.Lectures.Count(lecture => lecture.Status == ResourceStatus.Approved && lecture.AcademicDepartmentId == department.Id && lecture.AcademicSemesterId == _context.AcademicSemesters.Where(term => term.DepartmentId == department.Id && term.AcademicYear == 2026 && term.TermName == "Winter" && term.IsActive).Select(term => (int?)term.Id).FirstOrDefault()) })
                     .ToListAsync()
             };
         }
 
-        private async Task<ResourceListViewModel<Lecture>> BuildLectureSemesters(int departmentId)
+        private async Task<ResourceListViewModel<Lecture>> BuildLectureSemesters(int departmentId, int? termId)
         {
             return new ResourceListViewModel<Lecture>
             {
@@ -514,7 +514,7 @@ namespace student_resource_hub.Controllers
                 SemesterGroups = await _context.AcademicSemesters
                     .Where(semester => semester.IsActive && semester.DepartmentId == departmentId && !semester.AcademicYear.HasValue)
                     .OrderBy(semester => semester.SortOrder)
-                    .Select(semester => new ResourceBrowseGroup { AcademicDepartmentId = departmentId, AcademicSemesterId = semester.Id, Name = semester.Name, Count = _context.Lectures.Count(lecture => lecture.Status == ResourceStatus.Approved && lecture.AcademicSemesterId == semester.Id) })
+                    .Select(semester => new ResourceBrowseGroup { AcademicDepartmentId = departmentId, AcademicSemesterId = semester.Id, Name = semester.Name, Count = termId.HasValue ? _context.Lectures.Count(lecture => lecture.Status == ResourceStatus.Approved && lecture.AcademicSemesterId == termId && _context.AcademicCourses.Any(course => course.AcademicSemesterId == semester.Id && course.CourseCode == lecture.CourseCode && course.IsActive)) : 0 })
                     .ToListAsync()
             };
         }
