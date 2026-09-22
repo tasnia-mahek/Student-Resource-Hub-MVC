@@ -10,11 +10,11 @@
 <div class="resource-details-container">
     <div class="details-header">
         <div class="breadcrumb">
-            <a href="@Url.Action("Notes", "Resource")">â† Back to Notes</a>
+            <a href="@Url.Action("Notes", "Resource")">&larr; Back to Notes</a>
         </div>
         <h1>@Model.Title</h1>
         <div class="rating-display">
-            <span class="stars">â˜… @Model.AverageRating.ToString("0.0")/5</span>
+            <span class="stars">&#9733; @Model.AverageRating.ToString("0.0")/5</span>
             <span class="rating-count">(@Model.TotalRatings ratings)</span>
         </div>
     </div>
@@ -101,7 +101,7 @@
                     <div class="star-rating" id="starRating">
                         @for (int i = 1; i <= 5; i++)
                         {
-                            <span class="star" data-rating="@i" onclick="rateNote(@i)">â˜…</span>
+                            <span class="star" data-rating="@i" onclick="rateNote(@i)">&#9733;</span>
                         }
                     </div>
                     <p class="rating-message" id="ratingMessage"></p>
@@ -134,14 +134,14 @@
                 <div class="action-buttons">
                     <a href="@Url.Action("Download", "Resource", new { id = Model.Id, type = "note" })" 
                        class="btn btn-primary btn-large">
-                        <span>â¬‡</span> Download Notes
+                        <span>&#8595;</span> Download Notes
                     </a>
                     <a href="@Url.Action("Sessions", "Study", new { resourceType = "note", resourceId = Model.Id, courseCode = Model.CourseCode, returnUrl = Context.Request.Path + Context.Request.QueryString })"
                        class="btn btn-secondary btn-large">
                         <span>📁</span> Add to Study
                     </a>
                     <button class="btn btn-secondary btn-large" onclick="copyLink()">
-                        <span>ðŸ”—</span> Share Link
+                        <span>&#128279;</span> Share Link
                     </button>
                     @if (User.IsInRole("Admin"))
                     {
@@ -211,7 +211,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                document.getElementById('ratingMessage').textContent = \Thanks for rating! Your rating: ${rating}/5\;
+                document.getElementById('ratingMessage').textContent = `Thanks for rating! Your rating: ${rating}/5`;
                 setTimeout(() => {
                     document.getElementById('ratingMessage').textContent = '';
                 }, 3000);

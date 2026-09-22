@@ -156,18 +156,77 @@
         StudyHub.showToast('All filters cleared');
     });
 
-    // Global Header Search Interactivity
-    const headerSearchInput = document.querySelector('.search-box input');
-    if (headerSearchInput) {
+    // Global resource search with server-backed suggestions across all resource types.
+    const headerSearchInput = document.getElementById('globalResourceSearch');
+    const searchResults = document.getElementById('globalSearchResults');
+    let searchTimer;
+    let searchRequest;
+    let searchItems = [];
+
+    function hideSearchResults() {
+        if (!searchResults) return;
+        searchResults.hidden = true;
+        searchResults.replaceChildren();
+        searchItems = [];
+    }
+
+    function showSearchResults(items) {
+        if (!searchResults) return;
+        searchResults.replaceChildren();
+        searchItems = items;
+        if (items.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'global-search-empty';
+            empty.textContent = 'No matching resources found';
+            searchResults.appendChild(empty);
+        } else {
+            items.forEach((item, index) => {
+                const link = document.createElement('a');
+                link.className = 'global-search-result';
+                link.href = item.url;
+                link.setAttribute('role', 'option');
+                link.dataset.index = index;
+                const title = document.createElement('strong');
+                title.textContent = item.title;
+                const meta = document.createElement('span');
+                meta.textContent = `${item.type} · ${item.subtitle || 'Resource'}`;
+                link.append(title, meta);
+                searchResults.appendChild(link);
+            });
+        }
+        searchResults.hidden = false;
+    }
+
+    async function searchResources(query) {
+        if (!query) {
+            hideSearchResults();
+            return;
+        }
+        if (searchRequest) searchRequest.abort();
+        searchRequest = new AbortController();
+        try {
+            const response = await fetch(`/Resource/Search?term=${encodeURIComponent(query)}`, { signal: searchRequest.signal });
+            if (!response.ok) throw new Error('Search request failed');
+            showSearchResults(await response.json());
+        } catch (error) {
+            if (error.name !== 'AbortError') hideSearchResults();
+        }
+    }
+
+    if (headerSearchInput && searchResults) {
         headerSearchInput.addEventListener('input', function () {
-            const query = this.value.trim().toLowerCase();
-            const catalogItems = document.querySelectorAll('.document-card, .lecture-card, .study-resource-grid a');
-            if (catalogItems.length > 0) {
-                catalogItems.forEach(item => {
-                    const text = item.textContent.toLowerCase();
-                    item.style.display = text.includes(query) ? '' : 'none';
-                });
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => searchResources(this.value.trim()), 220);
+        });
+        headerSearchInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' && searchItems[0]) {
+                event.preventDefault();
+                window.location.href = searchItems[0].url;
             }
+            if (event.key === 'Escape') hideSearchResults();
+        });
+        document.addEventListener('click', event => {
+            if (!event.target.closest('.header-search-wrapper')) hideSearchResults();
         });
     }
 

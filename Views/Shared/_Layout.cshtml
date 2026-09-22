@@ -89,12 +89,6 @@
                             </span>
                             <span>Study Notes</span>
                         </a>
-                        <a class="@(currentAction == "Favorites" ? "study-nav-active" : "")" asp-controller="Home" asp-action="Favorites">
-                            <span class="nav-glyph">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                            </span>
-                            <span>Favorites</span>
-                        </a>
                         <a class="@(currentController == "AiAssistant" ? "study-nav-active" : "")" asp-controller="AiAssistant" asp-action="Index">
                             <span class="nav-glyph">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -156,22 +150,12 @@
                                 </a>
                             }
 
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <div class="header-nav-links d-none d-lg-flex">
-                                    <a class="header-nav-item @(currentController == "Home" && currentAction == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">Dashboard</a>
-                                    <a class="header-nav-item @(currentAction == "PastPapers" || currentController == "Resource" && currentAction.Contains("PastPaper") ? "active" : "")" asp-controller="Resource" asp-action="PastPapers">Past Papers</a>
-                                    <a class="header-nav-item @(currentAction == "Lectures" || currentController == "Resource" && currentAction.Contains("Lecture") ? "active" : "")" asp-controller="Resource" asp-action="Lectures">Lectures</a>
-                                    <a class="header-nav-item @(currentAction == "Notes" || currentController == "Resource" && currentAction.Contains("Note") ? "active" : "")" asp-controller="Resource" asp-action="Notes">Notes</a>
-                                    <a class="header-nav-item @(currentController == "Study" ? "active" : "")" asp-controller="Study" asp-action="Sessions">Study Library</a>
-                                    <a class="header-nav-item @(currentAction == "Favorites" ? "active" : "")" asp-controller="Home" asp-action="Favorites">Saved</a>
-                                </div>
-                            }
                         </div>
 
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <!-- Search Bar with Shortcut -->
+                            <div class="header-search-wrapper">
                             <label class="search-box" aria-label="Search resources">
                                 <span class="search-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -179,9 +163,11 @@
                                         <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                                     </svg>
                                 </span>
-                                <input type="search" placeholder="Search papers, lectures, notes, course codes..." />
+                                <input id="globalResourceSearch" type="search" autocomplete="off" placeholder="Search papers, lectures, notes, course codes..." />
                                 <span class="search-shortcut">⌘K</span>
                             </label>
+                            <div id="globalSearchResults" class="global-search-results" role="listbox" aria-label="Resource search suggestions" hidden></div>
+                            </div>
                         }
 
                         <!-- Header Right Actions -->
@@ -284,7 +270,6 @@
                                     <li><a asp-controller="Resource" asp-action="PastPapers">Past Examinations</a></li>
                                     <li><a asp-controller="Resource" asp-action="Lectures">Video Lectures</a></li>
                                     <li><a asp-controller="Resource" asp-action="Notes">Student Notes</a></li>
-                                    <li><a asp-controller="Home" asp-action="Favorites">Saved Collection</a></li>
                                 </ul>
                             </div>
                             <div class="footer-col">

@@ -720,6 +720,53 @@ namespace student_resource_hub.Controllers
             }
         }
 
+        [HttpGet("Resource/Search")]
+        public async Task<IActionResult> Search(string? term)
+        {
+            if (string.IsNullOrWhiteSpace(term)) return Json(Array.Empty<object>());
+
+            var searchTerm = term.Trim();
+            var papers = await _context.PastPapers
+                .Where(paper => paper.Status == ResourceStatus.Approved &&
+                    (paper.Title.Contains(searchTerm) || paper.SubjectName.Contains(searchTerm) ||
+                     paper.CourseCode.Contains(searchTerm) || paper.ProfessorName.Contains(searchTerm) ||
+                     paper.Description != null && paper.Description.Contains(searchTerm)))
+                .OrderByDescending(paper => paper.Title.StartsWith(searchTerm))
+                .ThenBy(paper => paper.Title)
+                .Take(8)
+                .Select(paper => new { paper.Id, paper.Title, Subtitle = paper.CourseCode })
+                .ToListAsync();
+
+            var notes = await _context.Notes
+                .Where(note => note.Status == ResourceStatus.Approved &&
+                    (note.Title.Contains(searchTerm) || note.SubjectName.Contains(searchTerm) ||
+                     note.CourseCode.Contains(searchTerm) || note.ProfessorName != null && note.ProfessorName.Contains(searchTerm) ||
+                     note.Description != null && note.Description.Contains(searchTerm)))
+                .OrderByDescending(note => note.Title.StartsWith(searchTerm))
+                .ThenBy(note => note.Title)
+                .Take(8)
+                .Select(note => new { note.Id, note.Title, Subtitle = note.CourseCode })
+                .ToListAsync();
+
+            var lectures = await _context.Lectures
+                .Where(lecture => lecture.Status == ResourceStatus.Approved &&
+                    (lecture.Title.Contains(searchTerm) || lecture.SubjectName.Contains(searchTerm) ||
+                     lecture.CourseCode.Contains(searchTerm) || lecture.ProfessorName != null && lecture.ProfessorName.Contains(searchTerm) ||
+                     lecture.Description != null && lecture.Description.Contains(searchTerm)))
+                .OrderByDescending(lecture => lecture.Title.StartsWith(searchTerm))
+                .ThenBy(lecture => lecture.Title)
+                .Take(8)
+                .Select(lecture => new { lecture.Id, lecture.Title, Subtitle = lecture.CourseCode })
+                .ToListAsync();
+
+            var results = papers.Select(paper => new { type = "Past paper", title = paper.Title, subtitle = paper.Subtitle, url = Url.Action(nameof(PastPaperDetails), new { id = paper.Id }) })
+                .Concat(notes.Select(note => new { type = "Study note", title = note.Title, subtitle = note.Subtitle, url = Url.Action(nameof(NoteDetails), new { id = note.Id }) }))
+                .Concat(lectures.Select(lecture => new { type = "Video lecture", title = lecture.Title, subtitle = lecture.Subtitle, url = Url.Action(nameof(LectureDetails), new { id = lecture.Id }) }))
+                .Take(12);
+
+            return Json(results);
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpPost("Resource/DeleteResource/{id}")]
         [ValidateAntiForgeryToken]
