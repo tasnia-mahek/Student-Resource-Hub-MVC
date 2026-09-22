@@ -127,7 +127,7 @@
                                     { <p class="meta-description">@lecture.Description</p> }
                                     <small class="upload-meta">By: @lecture.UploadedByUser?.FullName · Prof: @lecture.ProfessorName</small>
                                 </div>
-                                <div class="document-actions"><a href="@Url.Action("LectureDetails", "Resource", new { id = lecture.Id })" class="primary-button">👁 View</a><a href="@Url.Action("Sessions", "Study", new { resourceType = "lecture", resourceId = lecture.Id, courseCode = lecture.CourseCode })" class="primary-button">📁 Organize</a><a href="@Url.Action("Download", "Resource", new { id = lecture.Id, type = "lecture" })" class="primary-button" title="Download">⬇ Download</a></div>
+                                <div class="document-actions"><a href="@Url.Action("LectureDetails", "Resource", new { id = lecture.Id })" class="primary-button">👁 View</a><a href="@Url.Action("Sessions", "Study", new { resourceType = "lecture", resourceId = lecture.Id, courseCode = lecture.CourseCode, studySessionId = ViewBag.StudySessionId, studyFolderId = ViewBag.StudyFolderId, returnUrl = Context.Request.Path + Context.Request.QueryString })" class="primary-button">📁 Add to Study</a><a href="@Url.Action("Download", "Resource", new { id = lecture.Id, type = "lecture" })" class="primary-button" title="Download">⬇ Download</a></div>
                             </article>
                         }
                     </section>
@@ -150,20 +150,20 @@
                 @if (Model.SelectedAcademicSemesterId != null)
                 {
                     <div class="catalog-heading"><div><span class="eyebrow">COURSES</span><h2>Courses in this semester</h2></div></div>
-                    @foreach (var course in Model.CourseCatalogGroups) { <a class="document-card" href="@Url.Action("Lectures", "Resource", new { academicDepartmentId = Model.SelectedAcademicDepartmentId, academicSemesterId = Model.SelectedAcademicSemesterId, courseCode = course.CourseCode })"><span class="document-icon teal">🎓</span><div class="document-main"><span class="subject-tag">@(course.IsLab ? "Lab course" : "Theory course")</span><h2>@course.CourseCode</h2><p>@course.Name</p><small class="upload-meta">@(course.ResourceCount == 0 ? "Uploading soon..." : $"{course.ResourceCount} lecture(s) available")</small></div><span class="primary-button">View lectures →</span></a> }
+                    @foreach (var course in Model.CourseCatalogGroups) { <a class="document-card" href="@Url.Action("Lectures", "Resource", new { academicDepartmentId = Model.SelectedAcademicDepartmentId, academicSemesterId = Model.SelectedAcademicSemesterId, courseCode = course.CourseCode, studySessionId = ViewBag.StudySessionId, studyFolderId = ViewBag.StudyFolderId })"><span class="document-icon teal">🎓</span><div class="document-main"><span class="subject-tag">@(course.IsLab ? "Lab course" : "Theory course")</span><h2>@course.CourseCode</h2><p>@course.Name</p><small class="upload-meta">@(course.ResourceCount == 0 ? "Uploading soon..." : $"{course.ResourceCount} lecture(s) available")</small></div><span class="primary-button">View lectures →</span></a> }
                 }
                 else if (Model.SelectedAcademicDepartmentId == null)
                 {
                     @foreach (var group in Model.DepartmentGroups)
                     {
-                        <a class="document-card" href="@Url.Action("Lectures", "Resource", new { academicDepartmentId = group.AcademicDepartmentId })" style="background-image:linear-gradient(90deg,rgba(7,12,20,.94),rgba(7,12,20,.45)),url('@group.ImageUrl');background-size:cover;background-position:center;"><span class="document-icon blue">🎓</span><div class="document-main"><span class="subject-tag">@group.UniversityName</span><h2>@group.Name</h2><p>@group.Count video lectures available</p></div><span class="primary-button">Browse →</span></a>
+                        <a class="document-card" href="@Url.Action("Lectures", "Resource", new { academicDepartmentId = group.AcademicDepartmentId, studySessionId = ViewBag.StudySessionId, studyFolderId = ViewBag.StudyFolderId })" style="background-image:linear-gradient(90deg,rgba(7,12,20,.94),rgba(7,12,20,.45)),url('@group.ImageUrl');background-size:cover;background-position:center;"><span class="document-icon blue">🎓</span><div class="document-main"><span class="subject-tag">@group.UniversityName</span><h2>@group.Name</h2><p>@group.Count video lectures available</p></div><span class="primary-button">Browse →</span></a>
                     }
                 }
                 else
                 {
                     @foreach (var group in Model.SemesterGroups)
                     {
-                        <a class="document-card" href="@Url.Action("Lectures", "Resource", new { academicDepartmentId = group.AcademicDepartmentId, academicSemesterId = group.AcademicSemesterId })"><span class="document-icon teal">🗓</span><div class="document-main"><span class="subject-tag">Semester</span><h2>@group.Name</h2><p>@group.Count video lectures available</p></div><span class="primary-button">View lectures →</span></a>
+                        <a class="document-card" href="@Url.Action("Lectures", "Resource", new { academicDepartmentId = group.AcademicDepartmentId, academicSemesterId = group.AcademicSemesterId, studySessionId = ViewBag.StudySessionId, studyFolderId = ViewBag.StudyFolderId })"><span class="document-icon teal">🗓</span><div class="document-main"><span class="subject-tag">Semester</span><h2>@group.Name</h2><p>@group.Count video lectures available</p></div><span class="primary-button">View lectures →</span></a>
                     }
                 }
                 @if ((Model.SelectedAcademicDepartmentId == null && Model.DepartmentGroups.Count == 0) || (Model.SelectedAcademicDepartmentId != null && Model.SemesterGroups.Count == 0))

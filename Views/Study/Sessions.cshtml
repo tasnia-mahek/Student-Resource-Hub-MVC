@@ -1,40 +1,62 @@
 @model student_resource_hub.ViewModels.StudySessionsViewModel
 @{
-    ViewData["Title"] = "Study Sessions";
+    ViewData["Title"] = "Study Library";
     var resourceType = ViewBag.ResourceType as string;
     int? resourceId = ViewBag.ResourceId as int?;
     var resourceTitle = ViewBag.ResourceTitle as string;
     var courseCode = ViewBag.CourseCode as string;
+    int? studySessionId = ViewBag.StudySessionId as int?;
+    int? studyFolderId = ViewBag.StudyFolderId as int?;
 }
 
-<div class="catalog-content" style="max-width:1100px;margin:0 auto;padding:32px 24px;">
-    <span class="eyebrow">PERSONAL ORGANIZATION</span>
-    <h1>Study Sessions</h1>
-    <p>Create separate study spaces and organize papers, notes, and lectures into your own folders.</p>
+<link rel="stylesheet" href="~/css/study-library.css" asp-append-version="true" />
+
+<div class="study-library-page">
+    <header class="study-library-hero">
+        <div>
+            <span class="study-library-kicker">PERSONAL WORKSPACE</span>
+            <h1>Study Library</h1>
+            <p>Save the materials you care about, arrange them your way, and return to them in one click.</p>
+        </div>
+        <div class="study-library-hero-mark" aria-hidden="true">+</div>
+    </header>
 
     @if (resourceTitle != null)
     {
-        <div class="alert alert-info">Choose a study session for <strong>@resourceTitle</strong>.</div>
+        <div class="study-library-context">
+            <span class="study-library-context-icon">+</span>
+            <div><strong>Save “@resourceTitle”</strong><span>Choose a library, then place this material in a folder.</span></div>
+        </div>
     }
 
-    <form asp-action="CreateSession" method="post" class="filter-panel" style="max-width:600px;margin:24px 0;">
+    <form asp-action="CreateSession" method="post" class="study-create-panel">
         @Html.AntiForgeryToken()
-        <h2>Create a study session</h2>
-        <input asp-for="NewSession.Name" class="form-control" placeholder="e.g. CSE Semester 1 Finals" />
-        <textarea asp-for="NewSession.Description" class="form-control" placeholder="What are you preparing for?" rows="2"></textarea>
+        <div class="study-panel-heading"><div><span class="study-library-kicker">START ORGANIZING</span><h2>Create a study library</h2><p>Make a space for a semester, course, exam, or personal project.</p></div><span class="study-panel-number">01</span></div>
+        <div class="study-create-fields">
+            <label asp-for="NewSession.Name">Library name</label>
+            <input asp-for="NewSession.Name" class="form-control" placeholder="e.g. CSE Semester 1 Finals" />
+            <span asp-validation-for="NewSession.Name" class="study-validation"></span>
+            <label asp-for="NewSession.Description">Description <span>(optional)</span></label>
+            <textarea asp-for="NewSession.Description" class="form-control" placeholder="What are you preparing for?" rows="2"></textarea>
+        </div>
         <input type="hidden" name="resourceType" value="@resourceType" /><input type="hidden" name="resourceId" value="@resourceId" /><input type="hidden" name="courseCode" value="@courseCode" />
-        <button class="filter-button" type="submit">Create session</button>
+        <button class="study-primary-action" type="submit">Create library <span>→</span></button>
     </form>
 
-    <div class="document-list">
+    <section class="study-saved-section">
+        <div class="study-section-heading"><div><span class="study-library-kicker">YOUR SPACES</span><h2>Saved libraries</h2></div><span class="study-count">@Model.Sessions.Count @(Model.Sessions.Count == 1 ? "library" : "libraries")</span></div>
+        <div class="study-library-grid">
         @foreach (var session in Model.Sessions)
         {
-            <article class="document-card">
-                <span class="document-icon teal">📁</span>
-                <div class="document-main"><span class="subject-tag">Study session</span><h2>@session.Name</h2><p>@session.Description</p><div class="document-meta"><span>@session.FolderCount folders</span><span>@session.ResourceCount resources</span></div></div>
-                <div class="document-actions"><a class="primary-button" asp-action="Session" asp-route-id="@session.Id" asp-route-resourceType="@resourceType" asp-route-resourceId="@resourceId" asp-route-courseCode="@courseCode">Open</a></div>
+            <article class="study-library-card">
+                <div class="study-card-top"><span class="study-folder-icon">+</span><span class="study-card-date">@session.CreatedAt.ToString("MMM d, yyyy")</span></div>
+                <h3>@session.Name</h3>
+                <p>@(string.IsNullOrWhiteSpace(session.Description) ? "A personal space for your saved study materials." : session.Description)</p>
+                <div class="study-card-meta"><span>@session.FolderCount folders</span><span>@session.ResourceCount materials</span></div>
+                <a class="study-outline-action" asp-action="Session" asp-route-id="@session.Id" asp-route-resourceType="@resourceType" asp-route-resourceId="@resourceId" asp-route-courseCode="@courseCode" asp-route-studyFolderId="@studyFolderId">Open library <span>→</span></a>
             </article>
         }
-        @if (Model.Sessions.Count == 0) { <div class="no-results"><p>You have not created a study session yet.</p></div> }
-    </div>
+        </div>
+        @if (Model.Sessions.Count == 0) { <div class="study-empty-state"><span>+</span><h3>Your library is empty</h3><p>Create your first library above, then add materials from any resource page.</p></div> }
+    </section>
 </div>

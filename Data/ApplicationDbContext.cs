@@ -90,7 +90,8 @@ namespace student_resource_hub.Data
                 entity.HasKey(folder => folder.Id);
                 entity.Property(folder => folder.Name).HasMaxLength(120).IsRequired();
                 entity.HasOne(folder => folder.StudySession).WithMany(session => session.Folders).HasForeignKey(folder => folder.StudySessionId).OnDelete(DeleteBehavior.Cascade);
-                entity.HasIndex(folder => new { folder.StudySessionId, folder.Name }).IsUnique();
+                entity.HasOne(folder => folder.ParentFolder).WithMany(folder => folder.Subfolders).HasForeignKey(folder => folder.ParentFolderId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasIndex(folder => new { folder.StudySessionId, folder.ParentFolderId, folder.Name }).IsUnique();
             });
 
             modelBuilder.Entity<StudyResource>(entity =>

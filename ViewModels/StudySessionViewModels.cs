@@ -27,6 +27,10 @@ namespace student_resource_hub.ViewModels
         public int? ResourceId { get; set; }
         public string? ResourceTitle { get; set; }
         public string? CourseCode { get; set; }
+        public int? SelectedFolderId { get; set; }
+        public int? CurrentFolderId { get; set; }
+        public string? CurrentFolderName { get; set; }
+        public string? ReturnUrl { get; set; }
     }
 
     public class StudySessionFormViewModel
@@ -41,6 +45,7 @@ namespace student_resource_hub.ViewModels
     public class StudyFolderFormViewModel
     {
         public int StudySessionId { get; set; }
+        public int? ParentFolderId { get; set; }
 
         [Required, StringLength(120)]
         public string Name { get; set; } = string.Empty;

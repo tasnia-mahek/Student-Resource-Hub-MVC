@@ -37,8 +37,8 @@
                 <span class="tag-dot"></span>
                 <span>@Model.UserRole Account</span>
             </div>
-            <a asp-controller="Attendance" asp-action="Index" class="outpayz-btn-primary">
-                <span>📅 Attendance Hub</span>
+            <a asp-controller="Study" asp-action="Sessions" class="outpayz-btn-primary">
+                <span>📁 Study Library</span>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
             @if (Model.CanUploadPastPapers)
@@ -52,19 +52,17 @@
 
     <!-- 4 OutPayz KPI Stats Cards (Minimal & Clean) -->
     <div class="dashboard-kpi-grid">
-        <!-- KPI 1: Attendance Rate -->
+        <!-- KPI 1: Personal Study Library -->
         <div class="dash-kpi-card">
             <div class="kpi-top">
-                <span class="kpi-label">ATTENDANCE STANDING</span>
+                <span class="kpi-label">PERSONAL STUDY LIBRARY</span>
             </div>
             <div class="kpi-value-row">
-                <span class="kpi-metric text-neon">@Model.AttendancePercentage%</span>
+                <span class="kpi-metric text-neon">⌂</span>
             </div>
-            <div class="kpi-progress-bar">
-                <div class="kpi-progress-fill" style="width: @(Math.Min(100, Model.AttendancePercentage))%;"></div>
-            </div>
+            <p class="kpi-desc">Your organized papers, notes, and lectures</p>
             <div class="kpi-bottom-link">
-                <a asp-controller="Attendance" asp-action="Index">Open Attendance Portal &rarr;</a>
+                <a asp-controller="Study" asp-action="Sessions">Open Study Library &rarr;</a>
             </div>
         </div>
 
@@ -240,60 +238,28 @@
         </div>
     </div>
 
-    <!-- Active Attendance Quick Check-In & Role Panel Grid -->
+    <!-- Personal Study Library & Role Panel Grid -->
     <div class="dashboard-split-grid">
-        <!-- Left: Active Attendance Sessions -->
+        <!-- Left: Study Library -->
         <div class="dash-card-box">
             <div class="dash-card-header">
                 <div>
                     <div class="bento-badge">
-                        <span class="spark-icon">⚡</span>
-                        <span>Live Sessions</span>
+                        <span class="spark-icon">📁</span>
+                        <span>Personal Workspace</span>
                     </div>
-                    <h3>Attendance Quick Check-In</h3>
-                    <p>Enter your session passcode or tap to mark attendance for open lectures.</p>
+                    <h3>Organize your study materials</h3>
+                    <p>Save papers, notes, and lectures into folders, then open or download them whenever you study.</p>
                 </div>
-                <a asp-controller="Attendance" asp-action="Index" class="btn-link-neon">All Sessions &rarr;</a>
+                <a asp-controller="Study" asp-action="Sessions" class="btn-link-neon">Open Library &rarr;</a>
             </div>
 
-            @if (Model.ActiveAttendanceSessions.Any())
-            {
-                <div class="quick-sessions-list">
-                    @foreach (var s in Model.ActiveAttendanceSessions)
-                    {
-                        var isAttended = Model.AttendedSessionIds.Contains(s.Id);
-                        <div class="quick-session-item @(isAttended ? "is-attended" : "")">
-                            <div class="session-info">
-                                <div class="d-flex align-items-center gap-2 mb-1">
-                                    <span class="course-code-badge">@s.CourseCode</span>
-                                    <small class="text-muted">@s.Department</small>
-                                </div>
-                                <h4>@s.SessionTitle</h4>
-                                <small class="text-secondary">🗓️ @s.SessionDate.ToString("dd MMM") &bull; @s.StartTime.ToString(@"hh\:mm") - @s.EndTime.ToString(@"hh\:mm")</small>
-                            </div>
-
-                            <div class="session-action">
-                                @if (isAttended)
-                                {
-                                    <span class="status-chip present"><span class="chip-dot"></span> Present</span>
-                                }
-                                else
-                                {
-                                    <a asp-controller="Attendance" asp-action="Index" class="outpayz-btn-primary btn-sm-action">Check In</a>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="empty-dash-box">
-                    <span class="empty-icon">⏳</span>
-                    <h4>No active sessions currently open</h4>
-                    <p>When an instructor or CR starts a session, it will show up here for live attendance.</p>
-                </div>
-            }
+            <div class="empty-dash-box">
+                <span class="empty-icon">📚</span>
+                <h4>Build a library that fits your semester</h4>
+                <p>Start with a library, create folders for courses or topics, and add materials directly from any resource page.</p>
+                <a asp-controller="Study" asp-action="Sessions" class="outpayz-btn-primary btn-sm-action">Manage Study Library</a>
+            </div>
         </div>
 
         <!-- Right: Role Permissions & Quick Hub Actions -->

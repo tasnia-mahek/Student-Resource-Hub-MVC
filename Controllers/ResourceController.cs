@@ -41,6 +41,8 @@ namespace student_resource_hub.Controllers
         {
             try
             {
+                ViewBag.StudySessionId = Request.Query["studySessionId"].FirstOrDefault();
+                ViewBag.StudyFolderId = Request.Query["studyFolderId"].FirstOrDefault();
                 if (!academicDepartmentId.HasValue && string.IsNullOrWhiteSpace(department))
                 {
                     return View(await BuildPastPaperDepartments());
@@ -179,6 +181,8 @@ namespace student_resource_hub.Controllers
         {
             try
             {
+                ViewBag.StudySessionId = Request.Query["studySessionId"].FirstOrDefault();
+                ViewBag.StudyFolderId = Request.Query["studyFolderId"].FirstOrDefault();
                 if (!academicDepartmentId.HasValue && string.IsNullOrWhiteSpace(department))
                 {
                     return View(await BuildNoteDepartments());
@@ -316,6 +320,8 @@ namespace student_resource_hub.Controllers
         {
             try
             {
+                ViewBag.StudySessionId = Request.Query["studySessionId"].FirstOrDefault();
+                ViewBag.StudyFolderId = Request.Query["studyFolderId"].FirstOrDefault();
                 if (!academicDepartmentId.HasValue && string.IsNullOrWhiteSpace(department))
                 {
                     return View(await BuildLectureDepartments());
