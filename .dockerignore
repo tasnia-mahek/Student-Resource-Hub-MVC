@@ -1,0 +1,11 @@
+bin/
+obj/
+.git/
+.vs/
+.gitignore
+README.md
+DATABASE_SETUP.md
+*.user
+*.suo
+*.db
+*.md
