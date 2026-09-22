@@ -41,6 +41,8 @@ namespace student_resource_hub.Controllers
         {
             try
             {
+                var scope = await GetResourceScope();
+                if (!scope.IsAdmin) { if (scope.DepartmentId is null) return Forbid(); if (academicDepartmentId.HasValue && academicDepartmentId != scope.DepartmentId) return Forbid(); academicDepartmentId = scope.DepartmentId; department = null; }
                 ViewBag.StudySessionId = Request.Query["studySessionId"].FirstOrDefault();
                 ViewBag.StudyFolderId = Request.Query["studyFolderId"].FirstOrDefault();
                 if (!academicDepartmentId.HasValue && string.IsNullOrWhiteSpace(department))
@@ -181,6 +183,8 @@ namespace student_resource_hub.Controllers
         {
             try
             {
+                var scope = await GetResourceScope();
+                if (!scope.IsAdmin) { if (scope.DepartmentId is null) return Forbid(); if (academicDepartmentId.HasValue && academicDepartmentId != scope.DepartmentId) return Forbid(); academicDepartmentId = scope.DepartmentId; department = null; }
                 ViewBag.StudySessionId = Request.Query["studySessionId"].FirstOrDefault();
                 ViewBag.StudyFolderId = Request.Query["studyFolderId"].FirstOrDefault();
                 if (!academicDepartmentId.HasValue && string.IsNullOrWhiteSpace(department))
@@ -320,6 +324,8 @@ namespace student_resource_hub.Controllers
         {
             try
             {
+                var scope = await GetResourceScope();
+                if (!scope.IsAdmin) { if (scope.DepartmentId is null) return Forbid(); if (academicDepartmentId.HasValue && academicDepartmentId != scope.DepartmentId) return Forbid(); academicDepartmentId = scope.DepartmentId; department = null; }
                 ViewBag.StudySessionId = Request.Query["studySessionId"].FirstOrDefault();
                 ViewBag.StudyFolderId = Request.Query["studyFolderId"].FirstOrDefault();
                 if (!academicDepartmentId.HasValue && string.IsNullOrWhiteSpace(department))
@@ -619,6 +625,15 @@ namespace student_resource_hub.Controllers
             return query.Where(lecture => lecture.Title.Contains(term) || lecture.SubjectName.Contains(term) || lecture.ProfessorName != null && lecture.ProfessorName.Contains(term) || lecture.Description != null && lecture.Description.Contains(term));
         }
 
+        private async Task<(bool IsAdmin, int? UniversityId, int? DepartmentId)> GetResourceScope()
+        {
+            if (User.IsInRole("Admin")) return (true, null, null);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userId, out var id)) return (false, null, null);
+            var placement = await _context.Users.Where(user => user.Id == id).Select(user => new { user.UniversityId, user.AcademicDepartmentId }).FirstOrDefaultAsync();
+            return (false, placement?.UniversityId, placement?.AcademicDepartmentId);
+        }
+
         private static List<ResourceCourseGroup<T>> BuildCourseGroups<T>(IEnumerable<T> resources, Func<T, string> courseCode, Func<T, string> subjectName) where T : class
         {
             return resources
@@ -726,8 +741,9 @@ namespace student_resource_hub.Controllers
             if (string.IsNullOrWhiteSpace(term)) return Json(Array.Empty<object>());
 
             var searchTerm = term.Trim();
+            var scope = await GetResourceScope();
             var papers = await _context.PastPapers
-                .Where(paper => paper.Status == ResourceStatus.Approved &&
+                .Where(paper => paper.Status == ResourceStatus.Approved && (scope.IsAdmin || paper.AcademicDepartmentId == scope.DepartmentId) &&
                     (paper.Title.Contains(searchTerm) || paper.SubjectName.Contains(searchTerm) ||
                      paper.CourseCode.Contains(searchTerm) || paper.ProfessorName.Contains(searchTerm) ||
                      paper.Description != null && paper.Description.Contains(searchTerm)))
@@ -738,7 +754,7 @@ namespace student_resource_hub.Controllers
                 .ToListAsync();
 
             var notes = await _context.Notes
-                .Where(note => note.Status == ResourceStatus.Approved &&
+                .Where(note => note.Status == ResourceStatus.Approved && (scope.IsAdmin || note.AcademicDepartmentId == scope.DepartmentId) &&
                     (note.Title.Contains(searchTerm) || note.SubjectName.Contains(searchTerm) ||
                      note.CourseCode.Contains(searchTerm) || note.ProfessorName != null && note.ProfessorName.Contains(searchTerm) ||
                      note.Description != null && note.Description.Contains(searchTerm)))
@@ -749,7 +765,7 @@ namespace student_resource_hub.Controllers
                 .ToListAsync();
 
             var lectures = await _context.Lectures
-                .Where(lecture => lecture.Status == ResourceStatus.Approved &&
+                .Where(lecture => lecture.Status == ResourceStatus.Approved && (scope.IsAdmin || lecture.AcademicDepartmentId == scope.DepartmentId) &&
                     (lecture.Title.Contains(searchTerm) || lecture.SubjectName.Contains(searchTerm) ||
                      lecture.CourseCode.Contains(searchTerm) || lecture.ProfessorName != null && lecture.ProfessorName.Contains(searchTerm) ||
                      lecture.Description != null && lecture.Description.Contains(searchTerm)))

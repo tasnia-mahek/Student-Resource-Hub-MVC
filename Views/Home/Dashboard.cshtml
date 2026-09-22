@@ -1,4 +1,5 @@
 @model student_resource_hub.ViewModels.DashboardViewModel
+<link rel="stylesheet" href="~/css/academic-catalog.css" asp-append-version="true" />
 @{
     ViewData["Title"] = "Personal Dashboard";
 }
@@ -16,6 +17,10 @@
             <h1 class="welcome-heading">
                 Welcome back, <span class="outpayz-gradient-text">@Model.UserName</span>!
             </h1>
+            @if (Model.UserRole is "Student" or "CR" && !string.IsNullOrWhiteSpace(Model.DepartmentName))
+            {
+                <div class="dashboard-department-label">@Model.DepartmentName</div>
+            }
             <p class="welcome-subtitle">
                 @if (Model.UserRole == "Admin")
                 {
@@ -161,6 +166,7 @@
                 <div class="dash-btn-row mt-3"><a asp-controller="Admin" asp-action="AcademicCatalog" class="outpayz-btn-primary flex-grow-1 text-center">Manage Academic Catalog</a></div>
                 <div class="dash-btn-row mt-2"><a asp-controller="Admin" asp-action="ResourceBrowser" asp-route-resourceType="paper" class="outpayz-btn-ghost flex-grow-1 text-center">Browse Resource Catalog</a></div>
                 <div class="dash-btn-row mt-2"><a asp-controller="Resource" asp-action="UploadPastPaper" class="outpayz-btn-ghost flex-grow-1 text-center">Upload Past Paper</a></div>
+                <div class="dash-btn-row mt-2"><button type="button" class="outpayz-btn-ghost flex-grow-1 text-center" onclick="document.getElementById('admin-account-form').showModal()">+ Add Admin</button></div>
             </div>
         </div>
     </div>
@@ -462,6 +468,27 @@
         </div>
     </div>
 </div>
+
+@if (Model.UserRole == "Admin")
+{
+<dialog id="admin-account-form" class="academic-dialog">
+    <form asp-controller="Admin" asp-action="CreateAdmin" method="post">
+        @Html.AntiForgeryToken()
+        <button type="button" class="academic-dialog-close" onclick="this.closest('dialog').close()">×</button>
+        <span class="academic-kicker">ADMINISTRATION</span>
+        <h2>Create admin account</h2>
+        <label for="AdminFullName">Full name</label>
+        <input id="AdminFullName" name="FullName" class="form-control" required maxlength="120" />
+        <label for="AdminEmail">Email address</label>
+        <input id="AdminEmail" name="Email" type="email" class="form-control" required maxlength="256" />
+        <label for="AdminPassword">Password</label>
+        <input id="AdminPassword" name="Password" type="password" class="form-control" required minlength="8" />
+        <label for="AdminConfirmPassword">Confirm password</label>
+        <input id="AdminConfirmPassword" name="ConfirmPassword" type="password" class="form-control" required minlength="8" />
+        <button class="academic-action" type="submit">Create admin</button>
+    </form>
+</dialog>
+}
 
 <style>
 .dashboard-hub-container {

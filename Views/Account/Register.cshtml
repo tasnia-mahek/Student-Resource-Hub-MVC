@@ -35,7 +35,7 @@
             <div class="auth-intro">
                 <span class="auth-kicker">GET STARTED TODAY</span>
                 <h2>Create your account</h2>
-                <p>Choose your academic role to unlock verified course assets.</p>
+                <p>Register as a student and choose your academic placement.</p>
             </div>
 
             <div asp-validation-summary="ModelOnly" class="auth-validation" role="alert"></div>
@@ -67,19 +67,7 @@
                     </div>
                 </div>
 
-                <fieldset class="role-picker">
-                    <legend>Select Your Role</legend>
-                    <div class="role-options">
-                        @foreach (var role in new[] { "Student", "Admin", "CR" })
-                        {
-                            <label class="role-option">
-                                <input asp-for="Role" type="radio" value="@role" />
-                                <span>@role</span>
-                            </label>
-                        }
-                    </div>
-                    <span asp-validation-for="Role"></span>
-                </fieldset>
+                <input type="hidden" asp-for="Role" value="Student" />
 
                 <div id="academic-fields">
                     <div class="auth-field">
@@ -91,6 +79,10 @@
                                 <option value="@university.Id">@university.Name</option>
                             }
                         </select>
+                        @if (Model.Universities.Count == 0)
+                        {
+                            <small class="auth-inline-hint">No active universities are currently registered.</small>
+                        }
                         <span asp-validation-for="UniversityId"></span>
                     </div>
                     <div class="auth-field-row">
@@ -159,10 +151,7 @@
 
         university.addEventListener('change', refreshDepartments);
         department.addEventListener('change', refreshSemesters);
-        document.querySelectorAll('input[name="Role"]').forEach(input => input.addEventListener('change', event => {
-            academicFields.hidden = event.target.value === 'Admin';
-        }));
-        academicFields.hidden = document.querySelector('input[name="Role"]:checked')?.value === 'Admin';
+        academicFields.hidden = false;
         refreshDepartments();
     </script>
 }

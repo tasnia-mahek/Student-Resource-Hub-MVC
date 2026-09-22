@@ -36,6 +36,9 @@ namespace student_resource_hub.Controllers
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "Student";
             var userName = User.Identity?.Name ?? "Scholar";
             var userId = GetCurrentUserId();
+            var departmentName = userRole is "Student" or "CR"
+                ? await _context.Users.Where(user => user.Id == userId).Select(user => user.AcademicDepartment!.Name).FirstOrDefaultAsync()
+                : null;
 
             var pastPapersCount = await _context.PastPapers.CountAsync(p => p.Status == ResourceStatus.Approved);
             var notesCount = await _context.Notes.CountAsync(n => n.Status == ResourceStatus.Approved);
@@ -92,6 +95,7 @@ namespace student_resource_hub.Controllers
                 UserName = userName,
                 UserEmail = userEmail,
                 UserRole = userRole,
+                DepartmentName = departmentName,
                 TotalPastPapers = pastPapersCount,
                 TotalNotes = notesCount,
                 TotalLectures = lecturesCount,

@@ -11,10 +11,6 @@ namespace student_resource_hub.ViewModels
         [Required(ErrorMessage = "Please enter your password.")]
         public string Password { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Please select a role.")]
-        [RegularExpression("^(Student|Admin|CR)$", ErrorMessage = "Please select a valid role.")]
-        public string Role { get; set; } = string.Empty;
-
         public string? ReturnUrl { get; set; }
     }
 }

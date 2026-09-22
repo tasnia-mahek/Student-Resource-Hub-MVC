@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using student_resource_hub.Data;
@@ -11,16 +12,55 @@ namespace student_resource_hub.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly IPasswordHasher<User> passwordHasher;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context, IPasswordHasher<User> passwordHasher)
         {
             this.context = context;
+            this.passwordHasher = passwordHasher;
         }
 
         [HttpGet]
-        public async Task<IActionResult> AcademicCatalog(int? universityId = null, int? departmentId = null, int? semesterId = null)
+        public async Task<IActionResult> AcademicCatalog(int? universityId = null, int? departmentId = null, int? semesterId = null, string mode = "resources")
         {
-            return View(await BuildModel(universityId, departmentId, semesterId));
+            return View(await BuildModel(universityId, departmentId, semesterId, mode));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAdmin(RegisterViewModel form)
+        {
+            ModelState.Remove(nameof(form.Role));
+            ModelState.Remove(nameof(form.UniversityId));
+            ModelState.Remove(nameof(form.AcademicDepartmentId));
+            ModelState.Remove(nameof(form.AcademicSemesterId));
+            if (ModelState.IsValid && !await context.Users.AnyAsync(user => user.Email == form.Email.Trim().ToLowerInvariant()))
+            {
+                var admin = new User { FullName = form.FullName.Trim(), Email = form.Email.Trim().ToLowerInvariant(), Role = "Admin" };
+                admin.PasswordHash = passwordHasher.HashPassword(admin, form.Password);
+                context.Users.Add(admin);
+                await context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Admin account created.";
+            }
+            return RedirectToAction("Dashboard", "Home");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PromoteToCr(int id, int? universityId, int? departmentId, int? semesterId, string mode = "users")
+        {
+            var user = await context.Users.FindAsync(id);
+            if (user != null && user.Role == "Student") { user.Role = "CR"; await context.SaveChangesAsync(); }
+            return RedirectToAction(nameof(AcademicCatalog), new { universityId, departmentId, semesterId, mode });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveUser(int id, int? universityId, int? departmentId, int? semesterId, string mode = "users")
+        {
+            var user = await context.Users.FindAsync(id);
+            if (user != null && user.Role != "Admin") { context.Users.Remove(user); await context.SaveChangesAsync(); }
+            return RedirectToAction(nameof(AcademicCatalog), new { universityId, departmentId, semesterId, mode });
         }
 
         [HttpGet]
@@ -128,7 +168,7 @@ namespace student_resource_hub.Controllers
             return RedirectToAction(nameof(AcademicCatalog), new { universityId, departmentId, semesterId = form.SemesterId });
         }
 
-        private async Task<AcademicAdminViewModel> BuildModel(int? universityId, int? departmentId, int? semesterId)
+        private async Task<AcademicAdminViewModel> BuildModel(int? universityId, int? departmentId, int? semesterId, string mode)
         {
             var universities = await context.Universities
                 .Where(university => university.IsActive)
@@ -138,7 +178,7 @@ namespace student_resource_hub.Controllers
                 .OrderBy(university => university.Name)
                 .ToListAsync();
 
-            return new AcademicAdminViewModel
+            var model = new AcademicAdminViewModel
             {
                 Universities = universities.Select(university => new UniversityAdminItemViewModel
                 {
@@ -154,8 +194,18 @@ namespace student_resource_hub.Controllers
                 }).ToList(),
                 SelectedUniversityId = universityId,
                 SelectedDepartmentId = departmentId,
-                SelectedSemesterId = semesterId
+                SelectedSemesterId = semesterId,
+                Mode = mode
             };
+            if (mode == "users" && semesterId.HasValue)
+            {
+                model.Users = await context.Users
+                    .Where(user => user.AcademicSemesterId == semesterId.Value)
+                    .OrderBy(user => user.FullName)
+                    .Select(user => new AdminUserItemViewModel { Id = user.Id, FullName = user.FullName, Email = user.Email, Role = user.Role, SemesterId = user.AcademicSemesterId })
+                    .ToListAsync();
+            }
+            return model;
         }
 
         private static string GetDepartmentImage(int index)

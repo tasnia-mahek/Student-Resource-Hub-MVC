@@ -21,9 +21,7 @@ namespace student_resource_hub.ViewModels
         [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Please select a role.")]
-        [RegularExpression("^(Student|Admin|CR)$", ErrorMessage = "Please select a valid role.")]
-        public string Role { get; set; } = string.Empty;
+        public string Role { get; set; } = "Student";
 
         [Required(ErrorMessage = "Please select a university.")]
         public int? UniversityId { get; set; }

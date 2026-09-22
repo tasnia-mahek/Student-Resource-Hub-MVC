@@ -7,6 +7,7 @@ namespace student_resource_hub.ViewModels
         public string UserName { get; set; } = "Scholar";
         public string UserEmail { get; set; } = string.Empty;
         public string UserRole { get; set; } = "Student";
+        public string? DepartmentName { get; set; }
         public string ProfilePhotoPath { get; set; } = string.Empty;
 
         // Metric Counters

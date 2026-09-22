@@ -63,20 +63,6 @@
                     <span asp-validation-for="Password"></span>
                 </div>
 
-                <fieldset class="role-picker">
-                    <legend>Select Account Role</legend>
-                    <div class="role-options">
-                        @foreach (var role in new[] { "Student", "Admin", "CR" })
-                        {
-                            <label class="role-option">
-                                <input asp-for="Role" type="radio" value="@role" />
-                                <span>@role</span>
-                            </label>
-                        }
-                    </div>
-                    <span asp-validation-for="Role"></span>
-                </fieldset>
-
                 <button class="auth-submit" type="submit">
                     <span>Sign In to Dashboard</span>
                     <span aria-hidden="true">&rarr;</span>

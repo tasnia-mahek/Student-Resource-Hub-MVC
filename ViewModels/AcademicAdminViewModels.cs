@@ -8,6 +8,8 @@ namespace student_resource_hub.ViewModels
         public int? SelectedUniversityId { get; set; }
         public int? SelectedDepartmentId { get; set; }
         public int? SelectedSemesterId { get; set; }
+        public string Mode { get; set; } = "resources";
+        public List<AdminUserItemViewModel> Users { get; set; } = new();
         public UniversityAdminItemViewModel? SelectedUniversity { get; set; }
         public DepartmentAdminItemViewModel? SelectedDepartment { get; set; }
         public SemesterAdminItemViewModel? SelectedSemester { get; set; }
@@ -89,6 +91,15 @@ namespace student_resource_hub.ViewModels
         public string Name { get; set; } = string.Empty;
 
         public bool IsLab { get; set; }
+    }
+
+    public class AdminUserItemViewModel
+    {
+        public int Id { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public int? SemesterId { get; set; }
     }
 
     public class AdminResourceBrowseViewModel

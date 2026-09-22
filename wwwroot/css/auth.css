@@ -325,6 +325,33 @@
     background: #141724;
 }
 
+.auth-field select.form-control {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    background: #0E1018;
+    color: #FFFFFF;
+    font-size: 14px;
+    outline: none;
+}
+
+.auth-field select.form-control:focus {
+    border-color: #00FF66;
+    box-shadow: 0 0 16px rgba(0, 255, 102, 0.25);
+}
+
+.auth-field select.form-control option {
+    background: #0E1018;
+    color: #FFFFFF;
+}
+
+.auth-inline-hint {
+    color: var(--accent-rose);
+    font-size: 12px;
+}
+
 .auth-field span[data-valmsg-for],
 .role-picker span[data-valmsg-for] {
     color: var(--accent-rose);
