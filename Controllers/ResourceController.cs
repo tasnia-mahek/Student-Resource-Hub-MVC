@@ -784,6 +784,27 @@ namespace student_resource_hub.Controllers
         }
 
         [Authorize(Roles = "Admin")]
+        [HttpGet("Resource/PendingPreview/{id}")]
+        public async Task<IActionResult> PendingPreview(int id, string type)
+        {
+            try
+            {
+                string? filePath = null;
+                string? originalName = null;
+                string? extension = null;
+                switch (type?.ToLowerInvariant())
+                {
+                    case "paper": var paper = await _context.PastPapers.AsNoTracking().FirstOrDefaultAsync(item => item.Id == id); if (paper == null || !IsPastPaperPath(paper.FilePath)) return NotFound(); filePath = paper.FilePath; originalName = paper.OriginalFileName; extension = _fileService.GetFileExtension(originalName); break;
+                    case "note": var note = await _context.Notes.AsNoTracking().FirstOrDefaultAsync(item => item.Id == id); if (note == null || !IsUploadPath(note.FilePath, "notes")) return NotFound(); filePath = note.FilePath; originalName = note.OriginalFileName; extension = _fileService.GetFileExtension(originalName); break;
+                    case "lecture": var lecture = await _context.Lectures.AsNoTracking().FirstOrDefaultAsync(item => item.Id == id); if (lecture == null || !IsLecturePath(lecture.FilePath)) return NotFound(); filePath = lecture.FilePath; originalName = lecture.OriginalFileName; extension = _fileService.GetFileExtension(originalName); break;
+                    default: return BadRequest("Invalid resource type.");
+                }
+                return File(await _fileService.GetFileStreamAsync(filePath!), _fileService.GetMimeType(extension!), enableRangeProcessing: true);
+            }
+            catch (FileNotFoundException) { return NotFound("The preview file could not be found."); }
+        }
+
+        [Authorize(Roles = "Admin")]
         [HttpPost("Resource/DeleteResource/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteResource(int id, string type)
@@ -826,6 +847,27 @@ namespace student_resource_hub.Controllers
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "Resource deleted successfully.";
             return RedirectToAction(type.Equals("paper", StringComparison.OrdinalIgnoreCase) ? nameof(PastPapers) : type.Equals("note", StringComparison.OrdinalIgnoreCase) ? nameof(Notes) : nameof(Lectures));
+        }
+
+        [Authorize(Roles = "CR")]
+        [HttpPost("Resource/RequestDelete/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RequestDelete(int id, string type)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var normalized = type.ToLowerInvariant();
+            var owned = normalized switch
+            {
+                "paper" => await _context.PastPapers.AnyAsync(item => item.Id == id && item.UploadedByUserId == userId),
+                "note" => await _context.Notes.AnyAsync(item => item.Id == id && item.UploadedByUserId == userId),
+                "lecture" => await _context.Lectures.AnyAsync(item => item.Id == id && item.UploadedByUserId == userId),
+                _ => false
+            };
+            if (!owned) return Forbid();
+            var exists = await _context.ResourceModerationRequests.AnyAsync(request => request.ResourceType == normalized && request.ResourceId == id && request.Action == "Delete" && request.Status == "Pending");
+            if (!exists) { _context.ResourceModerationRequests.Add(new ResourceModerationRequest { RequestedByUserId = userId, ResourceType = normalized, ResourceId = id, Action = "Delete" }); await _context.SaveChangesAsync(); }
+            TempData["SuccessMessage"] = "Delete request sent for admin review.";
+            return RedirectToAction(normalized == "paper" ? nameof(PastPapers) : normalized == "note" ? nameof(Notes) : nameof(Lectures));
         }
 
         [HttpGet("Resource/StreamLecture/{id}")]

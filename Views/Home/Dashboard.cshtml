@@ -173,8 +173,13 @@
     }
     else
     {
+    <div class="dashboard-split-grid dashboard-engagement-metrics">
+        <div class="dash-card-box"><div class="dash-card-header"><div><div class="bento-badge"><span class="spark-icon">◉</span><span>Learning Activity</span></div><h3>Your platform activity</h3><p>Useful totals from your current StudyHub account.</p></div></div><div class="analytics-metrics-strip"><div class="metric-col"><span class="m-label">Resources accessed</span><span class="m-val text-neon">@Model.ResourcesAccessed</span><span class="m-sub">All approved materials</span></div><div class="metric-divider"></div><div class="metric-col"><span class="m-label">Downloads</span><span class="m-val">@Model.TotalDownloads</span><span class="m-sub">Platform-wide total</span></div></div></div>
+        <div class="dash-card-box"><div class="dash-card-header"><div><div class="bento-badge"><span class="spark-icon">📁</span><span>Study Organization</span></div><h3>Your saved workspace</h3><p>Keep building a focused collection for your department.</p></div></div><div class="analytics-metrics-strip"><div class="metric-col"><span class="m-label">Saved materials</span><span class="m-val text-neon">@Model.PersonalSavedResources</span><span class="m-sub">Across your study libraries</span></div><div class="metric-divider"></div><div class="metric-col"><span class="m-label">Libraries</span><span class="m-val">@Model.StudySessionsCreated</span><span class="m-sub">Personal study spaces</span></div></div></div>
+    </div>
+
     <!-- Minimal Academic Engagement & Study Trends Graph -->
-    <div class="dashboard-analytics-section mb-4">
+    <div class="dashboard-analytics-section mb-4 legacy-attendance-graph">
         <div class="dash-card-box analytics-graph-card">
             <div class="analytics-header">
                 <div class="analytics-title-group">
@@ -381,6 +386,9 @@
                         <a asp-controller="Resource" asp-action="UploadNote" class="outpayz-btn-primary flex-grow-1 text-center">+ Upload Notes</a>
                         <a asp-controller="Resource" asp-action="UploadPastPaper" class="outpayz-btn-ghost flex-grow-1 text-center">+ Upload Past Paper</a>
                     </div>
+                    <div class="dash-btn-row mt-2">
+                        <a asp-controller="Resource" asp-action="UploadLecture" class="outpayz-btn-ghost flex-grow-1 text-center">+ Upload Lecture Video</a>
+                    </div>
                 }
                 else
                 {
@@ -406,6 +414,10 @@
             </div>
         </div>
     </div>
+    @if (Model.UserRole == "CR")
+    {
+        <div class="dash-card-box moderation-status-panel"><div class="dash-card-header"><div><div class="bento-badge"><span class="spark-icon">◉</span><span>Request status</span></div><h3>Your resource requests</h3><p>Track uploads and deletion requests reviewed by an admin.</p></div></div><div class="academic-list">@foreach (var upload in Model.MyUploadStatuses) { <div class="academic-row"><span class="academic-row-index">U</span><span><strong>@upload.Title</strong><small>@upload.ResourceType · @upload.CreatedDate.ToLocalTime().ToString("MMM d, yyyy")</small></span><span class="academic-course-type">@upload.Status</span></div> } @foreach (var request in Model.MyModerationRequests) { <div class="academic-row"><span class="academic-row-index">@request.ResourceType.Substring(0, 1).ToUpperInvariant()</span><span><strong>@request.Action request #@request.ResourceId</strong><small>@request.CreatedAt.ToLocalTime().ToString("MMM d, yyyy")</small></span><span class="academic-course-type">@request.Status</span></div> } @if (Model.MyModerationRequests.Count == 0 && Model.MyUploadStatuses.Count == 0) { <div class="academic-empty">No requests yet.</div> }</div></div>
+    }
     }
 
     <!-- Recent Resources Section -->

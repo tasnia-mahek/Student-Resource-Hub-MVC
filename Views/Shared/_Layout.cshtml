@@ -100,6 +100,9 @@
                                 <span class="nav-glyph">⚙</span>
                                 <span>Academic Catalog</span>
                             </a>
+                            <a class="@(currentController == "Admin" && currentAction == "Moderation" ? "study-nav-active" : "")" asp-controller="Admin" asp-action="Moderation">
+                                <span class="nav-glyph">✓</span><span>Moderation</span>
+                            </a>
                         }
                         <a class="@(currentAction == "Privacy" ? "study-nav-active" : "")" asp-controller="Home" asp-action="Privacy">
                             <span class="nav-glyph">

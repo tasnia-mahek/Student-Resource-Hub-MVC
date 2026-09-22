@@ -36,6 +36,20 @@ namespace student_resource_hub.Controllers
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "Student";
             var userName = User.Identity?.Name ?? "Scholar";
             var userId = GetCurrentUserId();
+            var resourcesAccessed = await _context.PastPapers.Where(item => item.Status == ResourceStatus.Approved).SumAsync(item => item.ViewCount)
+                + await _context.Notes.Where(item => item.Status == ResourceStatus.Approved).SumAsync(item => item.ViewCount)
+                + await _context.Lectures.Where(item => item.Status == ResourceStatus.Approved).SumAsync(item => item.ViewCount);
+            var personalSavedResources = userId > 0 ? await _context.StudyResources.Where(item => item.StudySession!.UserId == userId).CountAsync() : 0;
+            var studySessionsCreated = userId > 0 ? await _context.StudySessions.CountAsync(item => item.UserId == userId) : 0;
+            var myModerationRequests = userRole == "CR" && userId > 0
+                ? await _context.ResourceModerationRequests.Where(request => request.RequestedByUserId == userId).OrderByDescending(request => request.CreatedAt).Take(8).ToListAsync()
+                : new List<ResourceModerationRequest>();
+            var myUploadStatuses = userRole == "CR" && userId > 0
+                ? (await _context.PastPapers.Where(item => item.UploadedByUserId == userId).Select(item => new UploadStatusItemViewModel { ResourceType = "Past paper", Title = item.Title, Status = item.Status, CreatedDate = item.CreatedDate }).ToListAsync())
+                    .Concat(await _context.Notes.Where(item => item.UploadedByUserId == userId).Select(item => new UploadStatusItemViewModel { ResourceType = "Study note", Title = item.Title, Status = item.Status, CreatedDate = item.CreatedDate }).ToListAsync())
+                    .Concat(await _context.Lectures.Where(item => item.UploadedByUserId == userId).Select(item => new UploadStatusItemViewModel { ResourceType = "Video lecture", Title = item.Title, Status = item.Status, CreatedDate = item.CreatedDate }).ToListAsync())
+                    .OrderByDescending(item => item.CreatedDate).Take(8).ToList()
+                : new List<UploadStatusItemViewModel>();
             var departmentName = userRole is "Student" or "CR"
                 ? await _context.Users.Where(user => user.Id == userId).Select(user => user.AcademicDepartment!.Name).FirstOrDefaultAsync()
                 : null;
@@ -105,6 +119,11 @@ namespace student_resource_hub.Controllers
                 TotalCourses = totalCourses,
                 PendingResources = pendingResources,
                 TotalDownloads = totalDownloads,
+                ResourcesAccessed = resourcesAccessed,
+                PersonalSavedResources = personalSavedResources,
+                StudySessionsCreated = studySessionsCreated,
+                MyModerationRequests = myModerationRequests,
+                MyUploadStatuses = myUploadStatuses,
                 TotalFavorites = 3,
                 TotalAvailableSessions = totalSessions,
                 TotalAttendedSessions = userAttendedSessions.Count,

@@ -123,6 +123,7 @@
                        class="btn btn-secondary btn-large">
                         <span>📁</span> Add to Study
                     </a>
+                    @if (User.IsInRole("CR") && Model.UploadedByUserId == int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0")) { <form asp-controller="Resource" asp-action="RequestDelete" asp-route-id="@Model.Id" method="post">@Html.AntiForgeryToken()<input type="hidden" name="type" value="paper" /><button class="btn btn-danger btn-large" type="submit">Request deletion</button></form> }
                     @if (Model.FileType?.Equals(".pdf", StringComparison.OrdinalIgnoreCase) == true ||
                          Model.FileType?.Equals(".jpg", StringComparison.OrdinalIgnoreCase) == true ||
                          Model.FileType?.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) == true ||

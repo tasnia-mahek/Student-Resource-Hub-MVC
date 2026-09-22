@@ -1,0 +1,18 @@
+@model List<student_resource_hub.Models.ResourceModerationRequest>
+@{ ViewData["Title"] = "Resource Moderation"; }
+<link rel="stylesheet" href="~/css/academic-catalog.css" asp-append-version="true" />
+<div class="academic-catalog-page">
+    <span class="academic-kicker">ADMINISTRATION</span><h1>Resource moderation</h1><p>Preview the linked resource before approving or rejecting CR requests.</p>
+    <div class="academic-list">
+    @foreach (var request in Model)
+    {
+        <div class="academic-row"><span class="academic-row-index">CR</span><span><strong>@request.Action @request.ResourceType #@request.ResourceId</strong><small>Requested by @request.RequestedByUser?.FullName · @request.CreatedAt.ToLocalTime()</small></span><span class="academic-user-actions"><a class="academic-inline-action" asp-controller="Resource" asp-action="PendingPreview" asp-route-id="@request.ResourceId" asp-route-type="@request.ResourceType" target="_blank">Preview</a><form asp-action="ReviewModeration" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@request.Id" /><input type="hidden" name="approve" value="true" /><button class="academic-inline-action" type="submit">Approve</button></form><form asp-action="ReviewModeration" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@request.Id" /><input type="hidden" name="approve" value="false" /><button class="academic-inline-danger" type="submit">Reject</button></form></span></div>
+    }
+    @if (Model.Count == 0) { <div class="academic-empty">No pending CR requests.</div> }
+    </div>
+    <h2 class="academic-moderation-heading">Pending uploads</h2>
+    <div class="academic-list">
+    @foreach (var upload in (ViewBag.PendingUploads as List<student_resource_hub.ViewModels.PendingResourceItemViewModel> ?? new()))
+    { <div class="academic-row"><span class="academic-row-index">@upload.ResourceType.Substring(0, 1).ToUpperInvariant()</span><span><strong>@upload.Title</strong><small>Uploaded by @upload.UploadedBy</small></span><span class="academic-user-actions"><a class="academic-inline-action" asp-controller="Resource" asp-action="PendingPreview" asp-route-id="@upload.ResourceId" asp-route-type="@upload.ResourceType" target="_blank">Preview</a><form asp-action="ReviewUpload" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@upload.ResourceId" /><input type="hidden" name="type" value="@upload.ResourceType" /><input type="hidden" name="approve" value="true" /><button class="academic-inline-action" type="submit">Approve</button></form><form asp-action="ReviewUpload" method="post">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@upload.ResourceId" /><input type="hidden" name="type" value="@upload.ResourceType" /><input type="hidden" name="approve" value="false" /><button class="academic-inline-danger" type="submit">Reject</button></form></span></div> }
+    </div>
+</div>

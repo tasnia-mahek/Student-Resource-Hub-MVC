@@ -24,6 +24,7 @@ namespace student_resource_hub.Data
         public DbSet<StudySession> StudySessions => Set<StudySession>();
         public DbSet<StudyFolder> StudyFolders => Set<StudyFolder>();
         public DbSet<StudyResource> StudyResources => Set<StudyResource>();
+        public DbSet<ResourceModerationRequest> ResourceModerationRequests => Set<ResourceModerationRequest>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -103,6 +104,13 @@ namespace student_resource_hub.Data
                 entity.HasOne(resource => resource.StudySession).WithMany(session => session.Resources).HasForeignKey(resource => resource.StudySessionId).OnDelete(DeleteBehavior.NoAction);
                 entity.HasOne(resource => resource.StudyFolder).WithMany(folder => folder.Resources).HasForeignKey(resource => resource.StudyFolderId).OnDelete(DeleteBehavior.SetNull);
                 entity.HasIndex(resource => new { resource.StudySessionId, resource.ResourceType, resource.ResourceId }).IsUnique();
+            });
+
+            modelBuilder.Entity<ResourceModerationRequest>(entity =>
+            {
+                entity.HasKey(request => request.Id);
+                entity.HasIndex(request => new { request.ResourceType, request.ResourceId, request.Action, request.Status });
+                entity.HasOne(request => request.RequestedByUser).WithMany().HasForeignKey(request => request.RequestedByUserId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<PastPaper>(entity =>

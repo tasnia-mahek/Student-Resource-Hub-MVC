@@ -102,6 +102,14 @@ namespace student_resource_hub.ViewModels
         public int? SemesterId { get; set; }
     }
 
+    public class PendingResourceItemViewModel
+    {
+        public string ResourceType { get; set; } = string.Empty;
+        public int ResourceId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? UploadedBy { get; set; }
+    }
+
     public class AdminResourceBrowseViewModel
     {
         public string ResourceType { get; set; } = "paper";

@@ -140,6 +140,7 @@
                        class="btn btn-secondary btn-large">
                         <span>📁</span> Add to Study
                     </a>
+                    @if (User.IsInRole("CR") && Model.UploadedByUserId == int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0")) { <form asp-controller="Resource" asp-action="RequestDelete" asp-route-id="@Model.Id" method="post">@Html.AntiForgeryToken()<input type="hidden" name="type" value="note" /><button class="btn btn-danger btn-large" type="submit">Request deletion</button></form> }
                     <button class="btn btn-secondary btn-large" onclick="copyLink()">
                         <span>&#128279;</span> Share Link
                     </button>

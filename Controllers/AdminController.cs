@@ -21,6 +21,49 @@ namespace student_resource_hub.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Moderation()
+        {
+            var requests = await context.ResourceModerationRequests.Include(request => request.RequestedByUser).Where(request => request.Status == "Pending").OrderBy(request => request.CreatedAt).ToListAsync();
+            ViewBag.PendingUploads = (await context.PastPapers.Where(item => item.Status == ResourceStatus.Pending).Select(item => new PendingResourceItemViewModel { ResourceType = "paper", ResourceId = item.Id, Title = item.Title, UploadedBy = item.UploadedByUser!.FullName }).ToListAsync())
+                .Concat(await context.Notes.Where(item => item.Status == ResourceStatus.Pending).Select(item => new PendingResourceItemViewModel { ResourceType = "note", ResourceId = item.Id, Title = item.Title, UploadedBy = item.UploadedByUser!.FullName }).ToListAsync())
+                .Concat(await context.Lectures.Where(item => item.Status == ResourceStatus.Pending).Select(item => new PendingResourceItemViewModel { ResourceType = "lecture", ResourceId = item.Id, Title = item.Title, UploadedBy = item.UploadedByUser!.FullName }).ToListAsync()).ToList();
+            return View(requests);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReviewUpload(int id, string type, bool approve)
+        {
+            if (type == "paper") { var item = await context.PastPapers.FindAsync(id); if (item != null) item.Status = approve ? ResourceStatus.Approved : ResourceStatus.Rejected; }
+            if (type == "note") { var item = await context.Notes.FindAsync(id); if (item != null) item.Status = approve ? ResourceStatus.Approved : ResourceStatus.Rejected; }
+            if (type == "lecture") { var item = await context.Lectures.FindAsync(id); if (item != null) item.Status = approve ? ResourceStatus.Approved : ResourceStatus.Rejected; }
+            await context.SaveChangesAsync();
+            return RedirectToAction(nameof(Moderation));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReviewModeration(int id, bool approve)
+        {
+            var request = await context.ResourceModerationRequests.FindAsync(id);
+            if (request == null) return NotFound();
+            request.Status = approve ? "Approved" : "Rejected";
+            request.ReviewedAt = DateTime.UtcNow;
+            request.ReviewedByUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
+            if (approve && request.Action == "Delete")
+            {
+                switch (request.ResourceType)
+                {
+                    case "paper": var paper = await context.PastPapers.FindAsync(request.ResourceId); if (paper != null) context.PastPapers.Remove(paper); break;
+                    case "note": var note = await context.Notes.FindAsync(request.ResourceId); if (note != null) context.Notes.Remove(note); break;
+                    case "lecture": var lecture = await context.Lectures.FindAsync(request.ResourceId); if (lecture != null) context.Lectures.Remove(lecture); break;
+                }
+            }
+            await context.SaveChangesAsync();
+            return RedirectToAction(nameof(Moderation));
+        }
+
+        [HttpGet]
         public async Task<IActionResult> AcademicCatalog(int? universityId = null, int? departmentId = null, int? semesterId = null, string mode = "resources")
         {
             return View(await BuildModel(universityId, departmentId, semesterId, mode));
