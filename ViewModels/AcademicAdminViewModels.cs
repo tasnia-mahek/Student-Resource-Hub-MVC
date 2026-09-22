@@ -90,4 +90,45 @@ namespace student_resource_hub.ViewModels
 
         public bool IsLab { get; set; }
     }
+
+    public class AdminResourceBrowseViewModel
+    {
+        public string ResourceType { get; set; } = "paper";
+        public int? UniversityId { get; set; }
+        public int? DepartmentId { get; set; }
+        public int? SemesterId { get; set; }
+        public List<AdminResourceUniversityViewModel> Universities { get; set; } = new();
+        public AdminResourceUniversityViewModel? University { get; set; }
+        public AdminResourceDepartmentViewModel? Department { get; set; }
+        public AdminResourceSemesterViewModel? Semester { get; set; }
+    }
+
+    public class AdminResourceUniversityViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public List<AdminResourceDepartmentViewModel> Departments { get; set; } = new();
+    }
+
+    public class AdminResourceDepartmentViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
+        public List<AdminResourceSemesterViewModel> Semesters { get; set; } = new();
+    }
+
+    public class AdminResourceSemesterViewModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int SortOrder { get; set; }
+        public List<AdminResourceCourseViewModel> Courses { get; set; } = new();
+    }
+
+    public class AdminResourceCourseViewModel
+    {
+        public string CourseCode { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+    }
 }

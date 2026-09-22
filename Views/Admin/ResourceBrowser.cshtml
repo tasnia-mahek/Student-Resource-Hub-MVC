@@ -1,0 +1,98 @@
+@model student_resource_hub.ViewModels.AdminResourceBrowseViewModel
+@{
+    ViewData["Title"] = Model.ResourceType == "lecture" ? "Video Lectures" : Model.ResourceType == "note" ? "Study Notes" : "Past Papers";
+    var resourceLabel = Model.ResourceType == "lecture" ? "video lectures" : Model.ResourceType == "note" ? "study notes" : "past papers";
+    var university = Model.University;
+    var department = Model.Department;
+    var semester = Model.Semester;
+}
+
+<link rel="stylesheet" href="~/css/academic-catalog.css" asp-append-version="true" />
+
+<div class="academic-catalog-page admin-resource-browser">
+    <header class="academic-catalog-hero">
+        <div><span class="academic-kicker">ADMIN RESOURCE BROWSER</span><h1>@ViewData["Title"]</h1><p>Browse @resourceLabel through the academic structure before managing resources.</p></div>
+        <span class="academic-hero-mark">@((Model.ResourceType == "lecture") ? "L" : Model.ResourceType == "note" ? "N" : "P")</span>
+    </header>
+
+    <div class="admin-resource-tabs">
+        <a class="@(Model.ResourceType == "paper" ? "is-active" : "")" asp-action="ResourceBrowser" asp-route-resourceType="paper">Past papers</a>
+        <a class="@(Model.ResourceType == "lecture" ? "is-active" : "")" asp-action="ResourceBrowser" asp-route-resourceType="lecture">Video lectures</a>
+        <a class="@(Model.ResourceType == "note" ? "is-active" : "")" asp-action="ResourceBrowser" asp-route-resourceType="note">Study notes</a>
+    </div>
+
+    @if (university == null)
+    {
+        <div class="admin-resource-search-wrap">
+            <label for="adminUniversitySearch">Search universities</label>
+            <input id="adminUniversitySearch" class="form-control" type="search" autocomplete="off" placeholder="Type a university name..." data-resource-type="@Model.ResourceType" />
+            <div id="adminUniversitySuggestions" class="admin-university-suggestions" hidden></div>
+        </div>
+        <div class="academic-toolbar"><div><span class="academic-kicker">STEP 1</span><h2>Choose a university</h2><p>All registered universities are listed below.</p></div></div>
+        <div class="academic-grid" id="adminUniversityGrid">
+            @foreach (var item in Model.Universities)
+            { <a class="academic-card university-card" asp-action="ResourceBrowser" asp-route-resourceType="@Model.ResourceType" asp-route-universityId="@item.Id"><span class="academic-card-icon">U</span><h3>@item.Name</h3><p>@item.Departments.Count departments</p><span class="academic-card-link">Open university →</span></a> }
+        </div>
+    }
+    else if (department == null)
+    {
+        <a class="academic-back" asp-action="ResourceBrowser" asp-route-resourceType="@Model.ResourceType">← All universities</a>
+        <div class="academic-toolbar"><div><span class="academic-kicker">STEP 2 · UNIVERSITY</span><h2>@university.Name</h2><p>Choose a department.</p></div></div>
+        <div class="academic-grid">
+            @foreach (var item in university.Departments)
+            { <a class="academic-card department-card" asp-action="ResourceBrowser" asp-route-resourceType="@Model.ResourceType" asp-route-universityId="@university.Id" asp-route-departmentId="@item.Id" style="background-image:linear-gradient(135deg,rgba(7,12,20,.95),rgba(7,12,20,.45)),url('@item.ImageUrl');"><span class="academic-card-icon">D</span><h3>@item.Name</h3><p>@item.Semesters.Count semesters</p><span class="academic-card-link">Open department →</span></a> }
+        </div>
+    }
+    else if (semester == null)
+    {
+        <a class="academic-back" asp-action="ResourceBrowser" asp-route-resourceType="@Model.ResourceType" asp-route-universityId="@university.Id">← @university.Name</a>
+        <div class="academic-toolbar"><div><span class="academic-kicker">STEP 3 · DEPARTMENT</span><h2>@department.Name</h2><p>Choose a curriculum semester.</p></div></div>
+        <div class="academic-list">
+            @foreach (var item in department.Semesters.OrderBy(item => item.SortOrder))
+            { <a class="academic-row" asp-action="ResourceBrowser" asp-route-resourceType="@Model.ResourceType" asp-route-universityId="@university.Id" asp-route-departmentId="@department.Id" asp-route-semesterId="@item.Id"><span class="academic-row-index">@item.SortOrder</span><span><strong>@item.Name</strong><small>@item.Courses.Count courses</small></span><span class="academic-card-link">Open →</span></a> }
+        </div>
+    }
+    else
+    {
+        <a class="academic-back" asp-action="ResourceBrowser" asp-route-resourceType="@Model.ResourceType" asp-route-universityId="@university.Id" asp-route-departmentId="@department.Id">← @department.Name</a>
+        <div class="academic-toolbar"><div><span class="academic-kicker">STEP 4 · SEMESTER</span><h2>@semester.Name</h2><p>Choose a course to browse its @resourceLabel.</p></div></div>
+        <div class="academic-list">
+            @foreach (var course in semester.Courses)
+            { <a class="academic-row" href="@Url.Action(Model.ResourceType == "lecture" ? "Lectures" : Model.ResourceType == "note" ? "Notes" : "PastPapers", "Resource", new { academicDepartmentId = department.Id, academicSemesterId = semester.Id, courseCode = course.CourseCode })"><span class="academic-row-index">C</span><span><strong>@course.CourseCode</strong><small>@course.Name</small></span><span class="academic-card-link">Browse →</span></a> }
+            @if (semester.Courses.Count == 0) { <div class="academic-empty">No courses are registered in this semester.</div> }
+        </div>
+    }
+</div>
+
+@if (university == null)
+{
+<script>
+(function () {
+    const input = document.getElementById('adminUniversitySearch');
+    const suggestions = document.getElementById('adminUniversitySuggestions');
+    if (!input || !suggestions) return;
+    let timer;
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        const term = this.value.trim();
+        if (!term) { suggestions.hidden = true; suggestions.replaceChildren(); return; }
+        timer = setTimeout(async () => {
+            const response = await fetch('@Url.Action("SearchUniversities", "Admin")?resourceType=' + encodeURIComponent(input.dataset.resourceType) + '&term=' + encodeURIComponent(term));
+            if (!response.ok) return;
+            const results = await response.json();
+            suggestions.replaceChildren();
+            results.forEach(result => {
+                const link = document.createElement('a');
+                link.href = result.url;
+                link.textContent = result.name;
+                suggestions.appendChild(link);
+            });
+            suggestions.hidden = results.length === 0;
+        }, 180);
+    });
+    document.addEventListener('click', event => {
+        if (!event.target.closest('.admin-resource-search-wrap')) suggestions.hidden = true;
+    });
+})();
+</script>
+}

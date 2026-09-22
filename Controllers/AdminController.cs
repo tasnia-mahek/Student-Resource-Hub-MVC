@@ -23,6 +23,44 @@ namespace student_resource_hub.Controllers
             return View(await BuildModel(universityId, departmentId, semesterId));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ResourceBrowser(string resourceType = "paper", int? universityId = null, int? departmentId = null, int? semesterId = null)
+        {
+            var type = resourceType is "note" or "lecture" ? resourceType : "paper";
+            var universities = await context.Universities
+                .Where(university => university.IsActive)
+                .Include(university => university.Departments.Where(department => department.IsActive))
+                .ThenInclude(department => department.Semesters.Where(semester => semester.IsActive && !semester.AcademicYear.HasValue))
+                .ThenInclude(semester => semester.Courses.Where(course => course.IsActive))
+                .OrderBy(university => university.Name)
+                .ToListAsync();
+            var model = new AdminResourceBrowseViewModel
+            {
+                ResourceType = type,
+                UniversityId = universityId,
+                DepartmentId = departmentId,
+                SemesterId = semesterId,
+                Universities = universities.Select(MapResourceUniversity).ToList()
+            };
+            model.University = model.Universities.FirstOrDefault(item => item.Id == universityId);
+            model.Department = model.University?.Departments.FirstOrDefault(item => item.Id == departmentId);
+            model.Semester = model.Department?.Semesters.FirstOrDefault(item => item.Id == semesterId);
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchUniversities(string? term, string resourceType = "paper")
+        {
+            var type = resourceType is "note" or "lecture" ? resourceType : "paper";
+            var results = await context.Universities
+                .Where(university => university.IsActive && (string.IsNullOrWhiteSpace(term) || university.Name.Contains(term.Trim())))
+                .OrderBy(university => university.Name)
+                .Take(8)
+                .Select(university => new { university.Name, url = Url.Action(nameof(ResourceBrowser), new { resourceType = type, universityId = university.Id }) })
+                .ToListAsync();
+            return Json(results);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddUniversity(UniversityFormViewModel form)
@@ -130,5 +168,24 @@ namespace student_resource_hub.Controllers
             };
             return images[index % images.Length];
         }
+
+        private static AdminResourceUniversityViewModel MapResourceUniversity(University university) => new()
+        {
+            Id = university.Id,
+            Name = university.Name,
+            Departments = university.Departments.OrderBy(department => department.Name).Select(department => new AdminResourceDepartmentViewModel
+            {
+                Id = department.Id,
+                Name = department.Name,
+                ImageUrl = department.ImageUrl,
+                Semesters = department.Semesters.OrderBy(semester => semester.SortOrder).Select(semester => new AdminResourceSemesterViewModel
+                {
+                    Id = semester.Id,
+                    Name = semester.Name,
+                    SortOrder = semester.SortOrder,
+                    Courses = semester.Courses.OrderBy(course => course.CourseCode).Select(course => new AdminResourceCourseViewModel { CourseCode = course.CourseCode, Name = course.Name }).ToList()
+                }).ToList()
+            }).ToList()
+        };
     }
 }
