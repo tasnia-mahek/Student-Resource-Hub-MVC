@@ -1,63 +1,59 @@
 @model student_resource_hub.ViewModels.AcademicAdminViewModel
 @{
     ViewData["Title"] = "Academic Catalog";
+    var university = Model.SelectedUniversityId.HasValue ? Model.Universities.FirstOrDefault(item => item.Id == Model.SelectedUniversityId) : null;
+    var department = university?.Departments.FirstOrDefault(item => item.Id == Model.SelectedDepartmentId);
+    var semester = department?.Semesters.FirstOrDefault(item => item.Id == Model.SelectedSemesterId);
 }
 
-<div class="catalog-content" style="max-width:1100px;margin:0 auto;padding:32px 24px;">
-    <span class="eyebrow">ADMINISTRATION</span>
-    <h1>Universities and Academic Structure</h1>
-    <p>Add universities, departments, semesters, and department card images used by the resource browser.</p>
+<link rel="stylesheet" href="~/css/academic-catalog.css" asp-append-version="true" />
 
-    @if (TempData["SuccessMessage"] != null)
+<div class="academic-catalog-page">
+    <header class="academic-catalog-hero">
+        <div><span class="academic-kicker">ADMINISTRATION</span><h1>Academic Catalog</h1><p>Manage the university structure used by StudyHub resources.</p></div>
+        <span class="academic-hero-mark">+</span>
+    </header>
+
+    @if (TempData["SuccessMessage"] != null) { <div class="academic-success">@TempData["SuccessMessage"]</div> }
+
+    @if (university == null)
     {
-        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        <div class="academic-toolbar"><div><span class="academic-kicker">CATALOG ROOT</span><h2>Registered universities</h2><p>Select a university to manage its departments.</p></div><button class="academic-action" type="button" onclick="document.getElementById('university-form').showModal()">+ Add university</button></div>
+        <div class="academic-grid">
+            @foreach (var item in Model.Universities)
+            { <a class="academic-card university-card" asp-action="AcademicCatalog" asp-route-universityId="@item.Id"><span class="academic-card-icon">U</span><h3>@item.Name</h3><p>@item.Departments.Count departments</p><span class="academic-card-link">Manage university →</span></a> }
+        </div>
+        <dialog id="university-form" class="academic-dialog"><form asp-action="AddUniversity" method="post">@Html.AntiForgeryToken()<button type="button" class="academic-dialog-close" onclick="this.closest('dialog').close()">×</button><span class="academic-kicker">NEW ENTRY</span><h2>Add university</h2><label for="UniversityName">University name</label><input id="UniversityName" name="Name" class="form-control" placeholder="e.g. Ahsanullah University of Science and Technology" required maxlength="200" /><button class="academic-action" type="submit">Register university</button></form></dialog>
     }
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin:24px 0;">
-        <form asp-action="AddUniversity" method="post" class="filter-panel">
-            @Html.AntiForgeryToken()
-            <h2>Add university</h2>
-            <input asp-for="NewUniversity.Name" class="form-control" placeholder="University name" />
-            <span asp-validation-for="NewUniversity.Name" class="text-danger"></span>
-            <button class="filter-button" type="submit">Add university</button>
-        </form>
-        <form asp-action="AddDepartment" method="post" class="filter-panel">
-            @Html.AntiForgeryToken()
-            <h2>Add department</h2>
-            <select asp-for="NewDepartment.UniversityId" class="form-control">
-                <option value="">Select university</option>
-                @foreach (var university in Model.Universities) { <option value="@university.Id">@university.Name</option> }
-            </select>
-            <input asp-for="NewDepartment.Name" class="form-control" placeholder="Department name" />
-            <input asp-for="NewDepartment.ImageUrl" class="form-control" placeholder="Background image URL (optional)" />
-            <button class="filter-button" type="submit">Add department</button>
-        </form>
-        <form asp-action="AddSemester" method="post" class="filter-panel">
-            @Html.AntiForgeryToken()
-            <h2>Add semester</h2>
-            <select asp-for="NewSemester.DepartmentId" class="form-control">
-                <option value="">Select department</option>
-                @foreach (var university in Model.Universities) { foreach (var department in university.Departments) { <option value="@department.Id">@university.Name / @department.Name</option> } }
-            </select>
-            <input asp-for="NewSemester.Name" class="form-control" placeholder="Semester name" />
-            <input asp-for="NewSemester.SortOrder" class="form-control" type="number" min="0" placeholder="Display order" />
-            <button class="filter-button" type="submit">Add semester</button>
-        </form>
-    </div>
-
-    @foreach (var university in Model.Universities)
+    else if (department == null)
     {
-        <section class="filter-panel" style="margin-bottom:18px;">
-            <h2>@university.Name</h2>
-            <div class="document-list">
-                @foreach (var department in university.Departments)
-                {
-                    <article class="document-card" style="background-image:linear-gradient(90deg,rgba(7,12,20,.95),rgba(7,12,20,.45)),url('@department.ImageUrl');background-size:cover;">
-                        <div class="document-main"><span class="subject-tag">Department</span><h2>@department.Name</h2><p>@department.Semesters.Count semester(s)</p></div>
-                        <div>@string.Join(", ", department.Semesters.Select(semester => semester.Name))</div>
-                    </article>
-                }
-            </div>
-        </section>
+        <a class="academic-back" asp-action="AcademicCatalog">← All universities</a>
+        <div class="academic-toolbar"><div><span class="academic-kicker">UNIVERSITY</span><h2>@university.Name</h2><p>Choose a department to manage its semesters.</p></div><button class="academic-action" type="button" onclick="document.getElementById('department-form').showModal()">+ Add department</button></div>
+        <div class="academic-grid">
+            @foreach (var item in university.Departments)
+            { <a class="academic-card department-card" href="@Url.Action("AcademicCatalog", new { universityId = university.Id, departmentId = item.Id })" style="background-image:linear-gradient(135deg,rgba(7,12,20,.95),rgba(7,12,20,.45)),url('@item.ImageUrl');"><span class="academic-card-icon">D</span><h3>@item.Name</h3><p>@item.Semesters.Count semesters · @item.CourseCount courses</p><span class="academic-card-link">Open department →</span></a> }
+        </div>
+        <dialog id="department-form" class="academic-dialog"><form asp-action="AddDepartment" method="post">@Html.AntiForgeryToken()<input type="hidden" name="UniversityId" value="@university.Id" /><button type="button" class="academic-dialog-close" onclick="this.closest('dialog').close()">×</button><span class="academic-kicker">NEW ENTRY</span><h2>Add department</h2><label for="DepartmentName">Department name</label><input id="DepartmentName" name="Name" class="form-control" placeholder="e.g. Computer Science and Engineering" required maxlength="160" /><input id="DepartmentImageUrl" name="ImageUrl" class="form-control" placeholder="Background image URL (optional)" maxlength="500" /><button class="academic-action" type="submit">Add department</button></form></dialog>
+    }
+    else if (semester == null)
+    {
+        <a class="academic-back" asp-action="AcademicCatalog" asp-route-universityId="@university.Id">← @university.Name</a>
+        <div class="academic-toolbar"><div><span class="academic-kicker">DEPARTMENT</span><h2>@department.Name</h2><p>Choose a semester to manage its courses.</p></div><button class="academic-action" type="button" onclick="document.getElementById('semester-form').showModal()">+ Add semester</button></div>
+        <div class="academic-list">
+            @foreach (var item in department.Semesters.OrderBy(item => item.SortOrder))
+            { <a class="academic-row" asp-action="AcademicCatalog" asp-route-universityId="@university.Id" asp-route-departmentId="@department.Id" asp-route-semesterId="@item.Id"><span class="academic-row-index">@item.SortOrder</span><span><strong>@item.Name</strong><small>@item.Courses.Count courses</small></span><span class="academic-card-link">Open →</span></a> }
+        </div>
+        <dialog id="semester-form" class="academic-dialog"><form asp-action="AddSemester" method="post">@Html.AntiForgeryToken()<input type="hidden" name="DepartmentId" value="@department.Id" /><button type="button" class="academic-dialog-close" onclick="this.closest('dialog').close()">×</button><span class="academic-kicker">NEW ENTRY</span><h2>Add semester</h2><label for="SemesterNumber">Semester number</label><select id="SemesterNumber" name="SemesterNumber" class="form-control" required>@for (var number = 1; number <= 12; number++) { <option value="@number">Semester @number</option> }</select><button class="academic-action" type="submit">Add semester</button></form></dialog>
+    }
+    else
+    {
+        <a class="academic-back" asp-action="AcademicCatalog" asp-route-universityId="@university.Id" asp-route-departmentId="@department.Id">← @department.Name</a>
+        <div class="academic-toolbar"><div><span class="academic-kicker">SEMESTER</span><h2>@semester.Name</h2><p>Add and manage courses in this semester.</p></div><button class="academic-action" type="button" onclick="document.getElementById('course-form').showModal()">+ Add course</button></div>
+        <div class="academic-list">
+            @foreach (var course in semester.Courses)
+            { <div class="academic-row"><span class="academic-row-index">@(course.IsLab ? "L" : "C")</span><span><strong>@course.CourseCode</strong><small>@course.Name</small></span><span class="academic-course-type">@(course.IsLab ? "Lab" : "Theory")</span></div> }
+            @if (semester.Courses.Count == 0) { <div class="academic-empty">No courses have been added to this semester yet.</div> }
+        </div>
+        <dialog id="course-form" class="academic-dialog"><form asp-action="AddCourse" method="post">@Html.AntiForgeryToken()<input type="hidden" name="SemesterId" value="@semester.Id" /><button type="button" class="academic-dialog-close" onclick="this.closest('dialog').close()">×</button><span class="academic-kicker">NEW ENTRY</span><h2>Add course</h2><label for="CourseCode">Course ID / code</label><input id="CourseCode" name="CourseCode" class="form-control" placeholder="e.g. CSE101" required maxlength="50" /><label for="CourseName">Course name</label><input id="CourseName" name="Name" class="form-control" placeholder="e.g. Programming Fundamentals" required maxlength="200" /><label class="academic-check"><input type="checkbox" name="IsLab" value="true" /> This is a lab course</label><button class="academic-action" type="submit">Add course</button></form></dialog>
     }
 </div>

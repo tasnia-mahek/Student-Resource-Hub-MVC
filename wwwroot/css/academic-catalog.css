@@ -1,0 +1,39 @@
+.academic-catalog-page { max-width: 1160px; margin: 0 auto; padding: 42px clamp(20px, 4vw, 48px) 80px; color: #f7faf8; }
+.academic-catalog-hero { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.academic-kicker { display: block; margin-bottom: 8px; color: #72f5a2; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.academic-catalog-hero h1 { margin: 0; font-size: clamp(32px, 4vw, 50px); letter-spacing: -.04em; }
+.academic-catalog-hero p, .academic-toolbar p { margin: 10px 0 0; color: #99a7a0; font-size: 14px; }
+.academic-hero-mark, .academic-card-icon { display: grid; place-items: center; width: 52px; height: 52px; border: 1px solid rgba(114,245,162,.35); border-radius: 14px; background: rgba(114,245,162,.09); color: #72f5a2; font-weight: 900; font-size: 23px; }
+.academic-success { margin: 22px 0; padding: 13px 16px; border: 1px solid rgba(114,245,162,.3); border-radius: 10px; background: rgba(114,245,162,.08); color: #72f5a2; }
+.academic-toolbar { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin: 34px 0 18px; }
+.academic-toolbar h2 { margin: 0; font-size: 25px; letter-spacing: -.025em; }
+.academic-action { display: inline-flex; align-items: center; justify-content: center; padding: 11px 16px; border: 0; border-radius: 9px; background: #72f5a2; color: #07110b !important; font-size: 13px; font-weight: 800; cursor: pointer; text-decoration: none; }
+.academic-action:hover { background: #a0fac0; color: #07110b !important; }
+.academic-back { display: inline-block; margin-top: 24px; color: #8d9a94; font-size: 13px; }
+.academic-back:hover { color: #72f5a2; }
+.academic-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.academic-card { display: flex; flex-direction: column; min-height: 190px; padding: 21px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: #101617; color: #f7faf8; text-decoration: none; transition: transform .18s ease, border-color .18s ease; }
+.academic-card:hover { transform: translateY(-3px); border-color: rgba(114,245,162,.45); color: #fff; }
+.department-card { background-size: cover; background-position: center; }
+.academic-card h3 { margin: 22px 0 7px; font-size: 18px; line-height: 1.25; }
+.academic-card p { margin: 0; color: #9ba8a1; font-size: 13px; }
+.academic-card-link { margin-top: auto; padding-top: 19px; color: #72f5a2; font-size: 12px; font-weight: 800; }
+.academic-list { display: grid; gap: 9px; }
+.academic-row { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: 14px; padding: 16px 18px; border: 1px solid rgba(255,255,255,.1); border-radius: 11px; background: #101617; color: #f7faf8; text-decoration: none; }
+.academic-row:hover { border-color: rgba(114,245,162,.4); color: #fff; }
+.academic-row-index { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: rgba(114,245,162,.1); color: #72f5a2; font-size: 12px; font-weight: 800; }
+.academic-row strong, .academic-row small { display: block; }
+.academic-row strong { font-size: 14px; }
+.academic-row small { margin-top: 4px; color: #89968f; font-size: 12px; }
+.academic-course-type { color: #89968f; font-size: 12px; }
+.academic-empty { padding: 40px; border: 1px dashed rgba(255,255,255,.16); border-radius: 12px; color: #9ba8a1; text-align: center; }
+.academic-dialog { width: min(440px, calc(100% - 32px)); padding: 0; border: 1px solid rgba(114,245,162,.3); border-radius: 14px; background: #111819; color: #f7faf8; box-shadow: 0 24px 70px rgba(0,0,0,.6); }
+.academic-dialog::backdrop { background: rgba(2,7,5,.72); backdrop-filter: blur(5px); }
+.academic-dialog form { position: relative; display: grid; gap: 9px; padding: 27px; }
+.academic-dialog h2 { margin: 0 0 10px; }
+.academic-dialog label { color: #bdc9c2; font-size: 12px; font-weight: 700; }
+.academic-dialog .form-control { margin-bottom: 8px; padding: 11px 12px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: #0b1011; color: #f7faf8; }
+.academic-dialog .form-control:focus { outline: none; border-color: #72f5a2; box-shadow: 0 0 0 3px rgba(114,245,162,.1); }
+.academic-dialog-close { position: absolute; top: 13px; right: 15px; border: 0; background: transparent; color: #8d9a94; font-size: 25px; cursor: pointer; }
+.academic-check { display: flex; align-items: center; gap: 8px; margin: 4px 0 9px; }
+@media (max-width: 760px) { .academic-grid { grid-template-columns: 1fr; } .academic-toolbar { align-items: flex-start; flex-direction: column; } .academic-action { width: 100%; } }
